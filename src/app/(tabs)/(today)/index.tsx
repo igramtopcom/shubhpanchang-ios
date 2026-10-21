@@ -4,10 +4,12 @@ import { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { LiveCountdownButton } from '@/components/live-countdown';
 import { Card, Loading, Notice, Row, Screen, Section, T, useColors } from '@/components/ui';
 import { chogName, longDate, placeName, t } from '@/lib/i18n';
 import { chogTier, shubhNow, timeline } from '@/lib/shubh';
-import { DAY_MIN, hhmm, shiftDate } from '@/lib/time';
+import { DAY_MIN, hhmm, shiftDate, zonedTimeToUtc } from '@/lib/time';
+import { rahuCountdown } from '@/lib/widget-feed';
 import type { Lang, PanchangDay } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useNow, useObservances, usePanchangWindow } from '@/state/data';
@@ -73,6 +75,11 @@ export default function Today() {
           <Row label={s.sunset} value={day.sunset} />
           <Row label={s.moonrise} value={day.moonrise} />
           <Row label={s.rahuKaal} value={`${day.rahuKaal.start}–${day.rahuKaal.end}`} color={c.bad} />
+          <LiveCountdownButton
+            kind="quiet"
+            countdown={rahuCountdown(day, placeName(place, lang), lang, place.timezone, zonedTimeToUtc(now.date, now.minutes, place.timezone).getTime())}
+            nowMs={zonedTimeToUtc(now.date, now.minutes, place.timezone).getTime()}
+          />
           <Row label={s.abhijit} value={`${day.abhijitMuhurta.start}–${day.abhijitMuhurta.end}`} color={c.good} />
         </Card>
       ) : null}

@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import panchang from './fixtures/panchang-ahmedabad.json'
 import observancesNj from './fixtures/observances-nj.json'
+import njDst from './fixtures/panchang-nj-dst.json'
 import { timeline, shubhNow, chogTier } from '../src/lib/shubh'
 import { toMinutes, hhmm, zonedNow, zonedTimeToUtc, shiftDate } from '../src/lib/time'
 import { planNotifications, DEFAULT_SETTINGS, PLAN_LIMIT } from '../src/lib/notify-plan'
 import { STRINGS, lunarLabel, tithiName, longDate } from '../src/lib/i18n'
 import { Api, feedUrl, placeQuery, type KV } from '../src/lib/api'
-import { moonSymbol, todayEntries, vratEntries } from '../src/lib/widget-feed'
+import { moonSymbol, offerCountdown, paranaCountdown, rahuCountdown, todayEntries, vratCountdown, vratEntries } from '../src/lib/widget-feed'
 import { siriToday, siriVrat } from '../src/lib/siri-feed'
 import type { Observance, PanchangDay } from '../src/lib/types'
 
@@ -351,5 +352,60 @@ describe('Api request sharing', () => {
     expect(calls).toBe(1)
     await api.cities()
     expect(calls).toBe(1)
+  })
+})
+
+describe('widget timeline across midnight and the US clock change', () => {
+  // New Jersey, 31 Oct to 2 Nov 2026: clocks go back at 02:00 on 1 Nov (EDT -> EST).
+  const nj = (njDst as unknown as { days: PanchangDay[] }).days
+  const tz = 'America/New_York'
+  const nowMs = Date.parse('2026-11-01T00:00:00Z') // 31 Oct, 20:00 EDT
+  const e = todayEntries({ nowMs, today: '2026-10-31', timeZone: tz, lang: 'en', days: nj, observances: [], kinds: [], hours: 48 })
+  const times = e.map(x => x.date.getTime())
+
+  it('keeps entries in order, each on a change of the answer', () => {
+    expect(times).toEqual([...times].sort((a, b) => a - b))
+    expect(new Set(times).size).toBe(times.length)
+  })
+
+  it('turns the date at each local midnight, on either side of the change', () => {
+    const at = (iso: string) => e.find(x => x.date.getTime() === Date.parse(iso))
+    expect(at('2026-11-01T04:00:00Z')?.props.date).toBe('Sunday, 1 November') // midnight EDT
+    expect(at('2026-11-02T05:00:00Z')?.props.date).toBe('Monday, 2 November') // midnight EST
+  })
+
+  it('starts Rahu Kaal on 1 Nov at 15:36 EST, after the change', () => {
+    const r = e.find(x => x.props.state === 'rahu')!
+    expect(r.date.toISOString()).toBe('2026-11-01T20:36:00.000Z')
+    expect(zonedNow(tz, r.date)).toEqual({ date: '2026-11-01', minutes: 15 * 60 + 36 })
+  })
+})
+
+describe('Lock Screen countdowns', () => {
+  const obs = observancesNj.observances as unknown as Observance[]
+  const tz = 'America/New_York'
+
+  it('counts to the Parana start and ends with its window', () => {
+    const o = obs.find(x => x.kind === 'ekadashi' && x.parana?.end)!
+    const c = paranaCountdown(o, 'en', tz)!
+    expect(c.targetMs).toBe(zonedTimeToUtc(o.parana!.date, toMinutes(o.parana!.start), tz).getTime())
+    expect(c.endMs).toBe(zonedTimeToUtc(o.parana!.date, toMinutes(o.parana!.end!), tz).getTime())
+    expect(offerCountdown(c, c.targetMs - 9 * 3600_000)).toBe(false) // more than eight hours ahead
+    expect(offerCountdown(c, c.targetMs - 3600_000)).toBe(true)
+    expect(offerCountdown(c, c.endMs)).toBe(false)
+  })
+
+  it('counts to Sankashti moonrise', () => {
+    const o = obs.find(x => x.kind === 'sankashti' && x.moonrise)!
+    expect(vratCountdown(o, 'en', tz)).toMatchObject({ window: o.moonrise!.time, label: 'Moonrise in' })
+  })
+
+  it('offers Rahu Kaal only from two hours before it, then counts to its end', () => {
+    const d = days.find(x => x.date === '2026-10-22')! // Ahmedabad, Rahu 13:50-15:16
+    const ms = (h: number, m: number) => zonedTimeToUtc('2026-10-22', h * 60 + m, 'Asia/Kolkata').getTime()
+    expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(11, 0))).toBeNull()
+    expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(12, 30))).toMatchObject({ label: 'Rahu Kaal begins in', targetMs: ms(13, 50) })
+    expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(14, 0))).toMatchObject({ label: 'Rahu Kaal ends in', targetMs: ms(15, 16) })
+    expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(15, 20))).toBeNull()
   })
 })

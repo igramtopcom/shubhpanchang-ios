@@ -187,34 +187,91 @@ export function vratEntries (opts: {
   return out
 }
 
-export interface ParanaProps {
+/**
+ * A Lock Screen / Dynamic Island countdown (src/widgets/countdown-activity.tsx):
+ * to the Parana after an Ekadashi, to moonrise on Sankashti, to the start or
+ * end of Rahu Kaal. The timer is the system's own, so it runs without the app.
+ */
+export interface CountdownProps {
+  /** SF Symbol. */
+  icon: string
   title: string
   name: string
+  /** The window or moment, as clock text: "06:40–08:58", "19:33". */
   window: string
-  startMs: number
+  /** The instant the timer counts down to. */
+  targetMs: number
+  /** When the activity has nothing left to say (it ends then). */
   endMs: number
-  beginsIn: string
+  /** "Parana begins in", "Moonrise in", "Rahu Kaal ends in". */
+  label: string
+  tone: 'good' | 'bad'
   url: string
-}
-
-/** The Parana Live Activity for an Ekadashi whose parana has a start and an end; null otherwise. */
-export function paranaActivity (o: Observance, lang: Lang, timeZone: string): ParanaProps | null {
-  if (!o.parana || !o.parana.end) return null
-  const s = t(lang)
-  const startMs = zonedTimeToUtc(o.parana.date, toMin(o.parana.start), timeZone).getTime()
-  const endMs = zonedTimeToUtc(o.parana.date, toMin(o.parana.end), timeZone).getTime()
-  return {
-    title: s.parana,
-    name: lang === 'gu' ? o.nameGu : o.nameEn,
-    window: `${o.parana.start}–${o.parana.end}`,
-    startMs,
-    endMs,
-    beginsIn: s.paranaBeginsIn,
-    url: 'shubhpanchang://vrat',
-  }
 }
 
 const toMin = (x: string) => Number(x.slice(0, 2)) * 60 + Number(x.slice(3, 5))
 
-/** Live Activities run eight hours at most: offer one only that close to the parana. */
-export const PARANA_OFFER_MS = 8 * 3600_000
+/** Parana of an Ekadashi with a start and an end; null otherwise. */
+export function paranaCountdown (o: Observance, lang: Lang, timeZone: string): CountdownProps | null {
+  if (!o.parana || !o.parana.end) return null
+  const s = t(lang)
+  return {
+    icon: 'fork.knife.circle.fill',
+    title: s.parana,
+    name: lang === 'gu' ? o.nameGu : o.nameEn,
+    window: `${o.parana.start}–${o.parana.end}`,
+    targetMs: zonedTimeToUtc(o.parana.date, toMin(o.parana.start), timeZone).getTime(),
+    endMs: zonedTimeToUtc(o.parana.date, toMin(o.parana.end), timeZone).getTime(),
+    label: s.paranaBeginsIn,
+    tone: 'good',
+    url: 'shubhpanchang://vrat',
+  }
+}
+
+/** Moonrise that ends a Sankashti fast; the activity stays an hour past it. */
+export function moonriseCountdown (o: Observance, lang: Lang, timeZone: string): CountdownProps | null {
+  if (!o.moonrise) return null
+  const s = t(lang)
+  const at = zonedTimeToUtc(o.moonrise.date, toMin(o.moonrise.time), timeZone).getTime()
+  return {
+    icon: 'moon.stars.fill',
+    title: s.moonrise,
+    name: lang === 'gu' ? o.nameGu : o.nameEn,
+    window: o.moonrise.time,
+    targetMs: at,
+    endMs: at + 3600_000,
+    label: s.moonriseIn,
+    tone: 'good',
+    url: 'shubhpanchang://vrat',
+  }
+}
+
+export const vratCountdown = (o: Observance, lang: Lang, timeZone: string) =>
+  paranaCountdown(o, lang, timeZone) ?? moonriseCountdown(o, lang, timeZone)
+
+/** Rahu Kaal of `day`: to its start in the two hours before it, to its end while it runs. */
+export function rahuCountdown (day: PanchangDay, placeName: string, lang: Lang, timeZone: string, nowMs: number): CountdownProps | null {
+  const s = t(lang)
+  const start = zonedTimeToUtc(day.date, toMin(day.rahuKaal.start), timeZone).getTime()
+  const end = zonedTimeToUtc(day.date, toMin(day.rahuKaal.end), timeZone).getTime()
+  // Over, or more than two hours off: a countdown that long is clutter, not help.
+  if (nowMs >= end || start - nowMs > 2 * 3600_000) return null
+  const running = nowMs >= start
+  return {
+    icon: 'exclamationmark.octagon.fill',
+    title: s.rahuKaal,
+    name: placeName,
+    window: `${day.rahuKaal.start}–${day.rahuKaal.end}`,
+    targetMs: running ? end : start,
+    endMs: end,
+    label: running ? s.rahuEndsIn : s.rahuBeginsIn,
+    tone: 'bad',
+    url: 'shubhpanchang://',
+  }
+}
+
+/** Live Activities run eight hours at most: offer one only that close to its moment. */
+export const COUNTDOWN_OFFER_MS = 8 * 3600_000
+
+export const offerCountdown = (c: CountdownProps | null, nowMs: number): c is CountdownProps =>
+  !!c && nowMs < c.endMs && c.targetMs - nowMs <= COUNTDOWN_OFFER_MS

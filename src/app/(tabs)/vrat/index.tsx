@@ -1,20 +1,16 @@
 // Vrat: the coming fasts at the place, each with when it may be broken.
-import { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 
+import { LiveCountdownButton } from '@/components/live-countdown';
 import { Button, Card, Loading, Notice, Screen, Section, T, useColors } from '@/components/ui';
 import { feedUrl } from '@/lib/api';
 import { addAllDayEvent, calendarSupported, subscribe } from '@/lib/calendar';
 import { longDate, t } from '@/lib/i18n';
-import { WIDGETS } from '@/lib/features';
-import { success } from '@/lib/haptics';
-import { askAfterSuccess } from '@/lib/review';
 import { shiftDate, zonedTimeToUtc } from '@/lib/time';
-import { PARANA_OFFER_MS, paranaActivity } from '@/lib/widget-feed';
+import { vratCountdown } from '@/lib/widget-feed';
 import type { Observance } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useNow, useObservances } from '@/state/data';
-import ParanaActivity from '@/widgets/parana-activity';
 
 /** The India lists end with 2030; the API refuses ranges past them. */
 const LIST_TO = '2030-12-31';
@@ -48,7 +44,6 @@ export default function VratScreen() {
 
 function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
   const { prefs } = useApp();
-  const [tracking, setTracking] = useState(false);
   const lang = prefs.lang;
   const s = t(lang);
   const c = useColors();
@@ -57,19 +52,6 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
   const paranaText = o.parana
     ? `${longDate(o.parana.date, lang, false)} ${o.parana.end ? `${o.parana.start}–${o.parana.end}` : s.paranaAfter(o.parana.start)}`
     : null;
-  // Within eight hours of the Parana (a Live Activity's limit), offer the Lock Screen countdown.
-  const live = Platform.OS === 'ios' && WIDGETS ? paranaActivity(o, lang, prefs.place!.timezone) : null;
-  const offerLive = !!live && nowMs < live.endMs && live.startMs - nowMs <= PARANA_OFFER_MS;
-  const startLive = () => {
-    if (!live) return;
-    try {
-      for (const a of ParanaActivity.getInstances()) a.end('immediate').catch(() => {});
-      ParanaActivity.start(live, live.url, new Date(live.endMs));
-      setTracking(true);
-      success();
-      askAfterSuccess();
-    } catch { /* Live Activities switched off in Settings */ }
-  };
   return (
     <Card>
       <T kind="label">{longDate(o.date, lang)}</T>
@@ -81,11 +63,8 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
       {paranaText ? <T kind="value" color={c.good}>{s.parana}: {paranaText}</T> : null}
       {o.moonrise ? <T kind="value" color={c.good}>{s.moonrise}: {o.moonrise.time}</T> : null}
       {o.window ? <T kind="value" color={c.good}>{o.kind === 'pradosh' ? s.pradoshKaal : s.nishita}: {o.window.start}–{o.window.end}</T> : null}
-      {offerLive ? (
-        tracking
-          ? <T kind="small" color={c.good}>{s.paranaTracking}</T>
-          : <Button label={s.trackParana} onPress={startLive} />
-      ) : null}
+      {/* Parana or moonrise within eight hours: the Lock Screen countdown. */}
+      <LiveCountdownButton countdown={vratCountdown(o, lang, prefs.place!.timezone)} nowMs={nowMs} />
       {calendarSupported ? (
         <View style={{ alignSelf: 'flex-start' }}>
           <Button
