@@ -64,7 +64,7 @@ Ký hiệu cột "Cần": **RN** làm bằng JS; **CFG** chỉ cấu hình hoặ
 
 | # | Việc | Cần | Trạng thái |
 |---|---|---|---|
-| 4.1 | App Shortcuts: "Tithi hôm nay trong ShubhPanchang", "Ekadashi tới trong ShubhPanchang" | NATIVE | |
+| 4.1 | App Shortcuts: "Tithi hôm nay trong ShubhPanchang", "Ekadashi tới trong ShubhPanchang" | NATIVE | xong (build 13; câu trả lời tiếng Anh, chưa thử trên máy) |
 
 ### Đợt 5: Trang sản phẩm và đề cử (CFG, PM duyệt)
 
