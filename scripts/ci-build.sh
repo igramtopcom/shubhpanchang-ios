@@ -59,10 +59,12 @@ else
     echo "push not accepted yet, retry $i"; sleep 15
   done
   [ -n "$ok" ] || exit 1
-  # Both workflows start on a push; the one whose tag is in the message runs a job.
+  # Both workflows start on a push; only the one whose tag is in the commit
+  # message runs a job, the other is skipped. Watch the tagged one.
+  WF=ios-sim.yml
+  git log -1 --format=%B | grep -qF '[testflight]' && WF=ios-testflight.yml
   for i in $(seq 1 36); do
-    RID=$(gh run list -R "$REPO" --commit "$SHA" --json databaseId,conclusion,status \
-      -q '[.[] | select(.conclusion != "skipped")][0].databaseId' 2>/dev/null)
+    RID=$(gh run list -R "$REPO" --commit "$SHA" --workflow "$WF" --json databaseId -q '.[0].databaseId' 2>/dev/null)
     [ -n "$RID" ] && break
     sleep 5
   done

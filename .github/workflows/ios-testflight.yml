@@ -53,9 +53,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      # npm install, not npm ci: the lock file is written on Windows, where npm
+      # leaves out optional packages for other platforms (@emnapi/* went
+      # missing on run 39575249072), and npm ci refuses any gap.
       - name: Install, logic tests, typecheck
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           npm test
           npx tsc --noEmit
 
