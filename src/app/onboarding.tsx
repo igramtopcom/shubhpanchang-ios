@@ -1,10 +1,11 @@
 // First run, four steps: language, place, which vrats, reminders. Permission
 // for notifications is asked only at the step that says what it is for.
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { PlacePicker } from '@/components/place-picker';
-import { Button, Card, Chip, Screen, T } from '@/components/ui';
+import { Button, Card, Chip, Screen, T, useColors } from '@/components/ui';
+import { WIDGETS } from '@/lib/features';
 import { t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
 import type { Lang, ObservanceKind, Place } from '@/lib/types';
@@ -15,15 +16,18 @@ const KINDS: ObservanceKind[] = ['ekadashi', 'purnima', 'amavasya', 'sankashti',
 export default function Onboarding() {
   const { prefs, update } = useApp();
   const s = t(prefs.lang);
+  const c = useColors();
   const [step, setStep] = useState(0);
   const [place, setPlace] = useState<Place | null>(prefs.place);
   const [kinds, setKinds] = useState<ObservanceKind[]>(prefs.notify.kinds);
 
   const finish = async (remind: boolean) => {
     const granted = remind && notificationsSupported ? await notificationPermission(true) : false;
+    // The widget tip comes last on iPhones that have the widgets; elsewhere this ends onboarding.
+    const tip = Platform.OS === 'ios' && WIDGETS;
     update({
       place,
-      onboarded: true,
+      onboarded: !tip,
       notify: {
         ...prefs.notify,
         kinds,
@@ -33,6 +37,7 @@ export default function Onboarding() {
         family: { ...prefs.notify.family, on: granted },
       },
     });
+    if (tip) setStep(4);
   };
 
   return (
@@ -87,6 +92,34 @@ export default function Onboarding() {
           </Card>
           <Button label={s.allowNotifications} onPress={() => finish(true)} />
           <Button kind="quiet" label={s.notNow} onPress={() => finish(false)} />
+        </View>
+      ) : null}
+
+      {step === 4 ? (
+        <View style={{ gap: 14 }}>
+          <T kind="heading">{s.widgetTipTitle}</T>
+          <T kind="small">{s.widgetTipBody}</T>
+          {/* A drawn sample of the small widget, so the reader knows what to look for. */}
+          <View
+            accessible
+            accessibilityLabel={`${s.widgetSample}: ${s.notGoodNow}, ${s.nextGood} 12:24`}
+            style={{
+              alignSelf: 'center', width: 158, height: 158, borderRadius: 26, padding: 14, gap: 3,
+              backgroundColor: c.background, borderWidth: 1, borderColor: c.cardBorder,
+              shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
+            }}>
+            <T kind="small" style={{ fontSize: 11 }}>{s.widgetSample}</T>
+            <View style={{ flex: 1 }} />
+            <T kind="small" color={c.neutral} style={{ fontSize: 12, fontWeight: '600' }}>{s.nextGood}</T>
+            <T kind="heading" color={c.neutral} style={{ fontSize: 20 }}>{prefs.lang === 'gu' ? 'લાભ · 12:24' : 'Labh · 12:24'}</T>
+            <View style={{ flex: 1 }} />
+            <T kind="small" style={{ fontSize: 12 }}>{prefs.lang === 'gu' ? 'આસો સુદ દશમ' : 'Ashwin Shukla Dashami'}</T>
+          </View>
+          <Card>
+            <T kind="small">{s.widgetTipHome}</T>
+            <T kind="small">{s.widgetTipLock}</T>
+          </Card>
+          <Button label={s.done} onPress={() => update({ onboarded: true })} />
         </View>
       ) : null}
     </Screen>
