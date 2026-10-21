@@ -102,23 +102,83 @@ jobs:
             archive 2>&1 | tee archive.log | grep -E "error:|ARCHIVE (SUCCEEDED|FAILED)" || true
           grep -q "ARCHIVE SUCCEEDED" archive.log
 
-      - name: Export, sign and upload to App Store Connect
+      # An unsigned archive carries no entitlements, and the export signs with
+      # what it finds in the binaries: Universal Links (associated domains), the
+      # widgets' App Group and push would be dropped. So sign the archive ad hoc
+      # with each target's entitlements file first; the export then re-signs
+      # for the App Store and keeps them (checked below, ENT| lines).
+      - name: Put each target's entitlements on the archive (ad-hoc signature)
+        run: |
+          set -e
+          PROJ=$(ls -d ios/*.xcodeproj | head -1)
+          xcodebuild -project "$PROJ" -alltargets -configuration Release -showBuildSettings -json > settings.json 2>/dev/null
+          APP=$(ls -d "$RUNNER_TEMP"/App.xcarchive/Products/Applications/*.app | head -1)
+          python3 - "$APP" <<'PY'
+          import json, os, subprocess, sys
+          app = sys.argv[1]
+          rows = json.load(open('settings.json'))
+          ent = {r['buildSettings'].get('FULL_PRODUCT_NAME'): r['buildSettings'].get('CODE_SIGN_ENTITLEMENTS') for r in rows}
+          targets = [os.path.join(app, 'PlugIns', x) for x in sorted(os.listdir(os.path.join(app, 'PlugIns')))] if os.path.isdir(os.path.join(app, 'PlugIns')) else []
+          def sign_nested(bundle):
+              # A bundle signs only over signed contents: frameworks and dylibs first (ad hoc, no entitlements).
+              fw = os.path.join(bundle, 'Frameworks')
+              if os.path.isdir(fw):
+                  for x in sorted(os.listdir(fw)):
+                      if x.endswith(('.framework', '.dylib')):
+                          subprocess.run(['codesign', '--force', '--sign', '-', os.path.join(fw, x)], check=True)
+          for path in targets + [app]:  # inside out: extensions before the app that holds them
+              sign_nested(path)
+              name = os.path.basename(path)
+              e = ent.get(name)
+              if not e:
+                  print(f'ENTFILE|{name}|none'); continue
+              f = os.path.join('ios', e)
+              print(f'ENTFILE|{name}|{e}')
+              print(open(f).read())
+              subprocess.run(['codesign', '--force', '--sign', '-', '--entitlements', f, path], check=True)
+          PY
+
+      - name: Export and sign (cloud signing), show the entitlements
         run: |
           set -o pipefail
-          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          opts () {
+            cat <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
-            <key>destination</key><string>upload</string>
+            <key>destination</key><string>$1</string>
             <key>teamID</key><string>${APPLE_TEAM_ID}</string>
             <key>signingStyle</key><string>automatic</string>
             <key>uploadSymbols</key><true/>
           </dict></plist>
           PLIST
+          }
+          opts export > "$RUNNER_TEMP/ExportLocal.plist"
+          opts upload > "$RUNNER_TEMP/ExportOptions.plist"
+          echo "EXPORT_OPTS=$RUNNER_TEMP/ExportOptions.plist" >> "$GITHUB_ENV"
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportLocal.plist" \
+            -exportPath "$RUNNER_TEMP/ipa" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$APPSTORE_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" 2>&1 | tee export-local.log | tail -25
+          grep -q "EXPORT SUCCEEDED" export-local.log
+          cd "$RUNNER_TEMP/ipa" && unzip -q -o *.ipa
+          for b in Payload/*.app Payload/*.app/PlugIns/*.appex; do
+            [ -e "$b" ] || continue
+            echo "ENT|$(basename "$b")"
+            codesign -d --entitlements - --xml "$b" 2>/dev/null | plutil -convert xml1 -o - - | grep -E "<key>|<string>" | sed 's/^/ENT|  /'
+          done
+
+      - name: Upload to App Store Connect
+        run: |
+          set -o pipefail
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$EXPORT_OPTS" \
             -exportPath "$RUNNER_TEMP/export" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$KEY_PATH" \
@@ -136,6 +196,7 @@ jobs:
           name: ios-testflight-logs
           path: |
             archive.log
+            export-local.log
             export.log
           retention-days: 3
 

@@ -7,6 +7,7 @@ import { feedUrl } from '@/lib/api';
 import { addAllDayEvent, calendarSupported, subscribe } from '@/lib/calendar';
 import { longDate, t } from '@/lib/i18n';
 import { success } from '@/lib/haptics';
+import { askAfterSuccess } from '@/lib/review';
 import { shiftDate, zonedTimeToUtc } from '@/lib/time';
 import { PARANA_OFFER_MS, paranaActivity } from '@/lib/widget-feed';
 import type { Observance } from '@/lib/types';
@@ -65,6 +66,7 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
       ParanaActivity.start(live, live.url, new Date(live.endMs));
       setTracking(true);
       success();
+      askAfterSuccess();
     } catch { /* Live Activities switched off in Settings */ }
   };
   return (

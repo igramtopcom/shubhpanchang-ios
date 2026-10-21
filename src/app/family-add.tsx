@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 
 import { DateTimeFields, deviceToday } from '@/components/date-time-fields';
 import { success } from '@/lib/haptics';
+import { askAfterSuccess } from '@/lib/review';
 import { Button, Card, Chip, Notice, Screen, Section, T, useColors } from '@/components/ui';
 import { MONTH_EN, MONTH_GU, lunarLabel, tithiName, t } from '@/lib/i18n';
 import type { FamilyDate } from '@/lib/types';
@@ -63,6 +64,7 @@ export default function FamilyAdd() {
     update({ family: [...prefs.family, person] });
     success();
     router.back();
+    askAfterSuccess();
   }
 
   const pick = (patch: Partial<Lunar>) => {
