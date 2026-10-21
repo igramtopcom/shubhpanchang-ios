@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { DateTimeFields, deviceToday } from '@/components/date-time-fields';
 import { Button, Card, Chip, Notice, Screen, Section, T, useColors } from '@/components/ui';
 import { MONTH_EN, MONTH_GU, lunarLabel, tithiName, t } from '@/lib/i18n';
 import type { FamilyDate } from '@/lib/types';
@@ -20,9 +21,12 @@ export default function FamilyAdd() {
   const c = useColors();
   const [name, setName] = useState('');
   const [kind, setKind] = useState<FamilyDate['kind']>('shraddh');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(deviceToday);
   const [time, setTime] = useState('');
   const [lunar, setLunar] = useState<Lunar | null>(null);
+  // The date and time the tithi was found from, kept with the person; a tithi
+  // picked by hand afterwards has no such origin.
+  const [found, setFound] = useState<FamilyDate['origin']>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -38,6 +42,7 @@ export default function FamilyAdd() {
     try {
       const r = await api.tithiOf(prefs.place!, date, time || undefined);
       setLunar({ month: r.data.month, adhik: r.data.adhik, tithi: r.data.tithi });
+      setFound({ date, time: time || undefined });
     } catch {
       setError(s.loadError);
     } finally {
@@ -52,13 +57,16 @@ export default function FamilyAdd() {
       name: name.trim(),
       kind,
       lunar,
-      origin: date ? { date, time: time || undefined } : undefined,
+      origin: found,
     };
     update({ family: [...prefs.family, person] });
     router.back();
   }
 
-  const pick = (patch: Partial<Lunar>) => setLunar({ month: 6, adhik: false, tithi: 0, ...lunar, ...patch });
+  const pick = (patch: Partial<Lunar>) => {
+    setLunar({ month: 6, adhik: false, tithi: 0, ...lunar, ...patch });
+    setFound(undefined);
+  };
   const pakshaOf = (l: Lunar | null) => (l && l.tithi >= 15 ? 'krishna' : 'shukla');
 
   return (
@@ -78,8 +86,7 @@ export default function FamilyAdd() {
       </Section>
 
       <Section title={s.fromDate}>
-        <TextInput value={date} onChangeText={setDate} placeholder={s.dateFormat} placeholderTextColor={c.textMuted} autoCorrect={false} style={input} />
-        <TextInput value={time} onChangeText={setTime} placeholder={s.timeOptional} placeholderTextColor={c.textMuted} autoCorrect={false} style={input} />
+        <DateTimeFields date={date} time={time} onDate={setDate} onTime={setTime} />
         <Button kind="quiet" label={s.findTithi} onPress={findTithi} disabled={busy} />
         {error ? <Notice text={error} /> : null}
       </Section>

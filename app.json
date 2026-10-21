@@ -54,7 +54,8 @@
         {
           "locationWhenInUsePermission": "Your location sets sunrise, Rahu Kaal and the Parana time for where you are. It is rounded to about 1 km and never stored on our server."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
