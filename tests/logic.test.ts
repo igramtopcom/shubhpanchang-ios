@@ -263,14 +263,16 @@ describe('the app scheme and the screenshot seed link', () => {
   })
 })
 
-import { TOUR, TOUR_START, TOUR_STEP } from '../src/lib/tour'
+import { TOUR, seedFor, stepIndex } from '../src/lib/tour'
 
 describe('screenshot tour', () => {
   it('names every capture once and starts with a seeded Today', () => {
     expect(new Set(TOUR.map(s => s.shot)).size).toBe(TOUR.length)
     expect(TOUR[0].seed && TOUR[0].route).toBe('/')
-    expect(TOUR_START).toBeGreaterThanOrEqual(15)
-    expect(TOUR_STEP).toBeGreaterThanOrEqual(10)
+    // A step carries the sample data of the last seed before it.
+    expect(seedFor(3)).toEqual(TOUR[0].seed)
+    expect(seedFor(8)?.lang).toBe('en')
+    expect([stepIndex('4'), stepIndex(4), stepIndex(undefined), stepIndex('99'), stepIndex('x')]).toEqual([4, 4, null, null, null])
   })
 })
 

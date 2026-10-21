@@ -3,19 +3,16 @@
 //
 // iOS asks "Open in ShubhPanchang?" for every custom-scheme link opened from
 // outside (xcrun simctl openurl), and the dialog stays over the screen, so CI
-// cannot drive the app by links. Instead the app walks through its own screens
-// on a fixed clock from launch, and CI captures each at the matching moment.
-// The workflow's capture times are TOUR_START + i * TOUR_STEP + a few seconds;
-// keep the two in step.
+// cannot drive the app by links. Instead CI launches the app once per step
+// with a launch argument, `-tourStep N`; iOS puts launch arguments into
+// NSUserDefaults, which React Native's Settings reads. The app fills in the
+// sample data of that step and opens its screen, and CI takes the picture.
+// Each step stands alone, so a slow capture cannot shift the next one (the
+// old clock-driven tour did, runs 39609607254 and 39616676756).
 
 import type { Lang } from './types'
 
 export const SCREENSHOT_BUILD = process.env.EXPO_PUBLIC_SCREENSHOT_SEED === '1'
-
-/** Seconds after launch of the first step (onboarding is captured before it). */
-export const TOUR_START = 20
-/** Seconds between steps: room for the API answers to arrive. */
-export const TOUR_STEP = 20
 
 export interface TourStep {
   /** Fill in a language, a place and sample family dates first. */
@@ -39,3 +36,16 @@ export const TOUR: TourStep[] = [
   { route: '/', shot: '11-today-dark-en' },
   { route: '/calendar', shot: '12-calendar-dark-en' },
 ]
+
+/** A `-tourStep` launch argument as a step index, or null (first launch: onboarding). */
+export function stepIndex (raw: unknown): number | null {
+  if (raw === undefined || raw === null || raw === '') return null
+  const v = Number(raw)
+  return Number.isInteger(v) && v >= 0 && v < TOUR.length ? v : null
+}
+
+/** The sample data in force at step i: the last seed at or before it. */
+export function seedFor (i: number): NonNullable<TourStep['seed']> {
+  for (let k = i; k >= 0; k--) if (TOUR[k].seed) return TOUR[k].seed!
+  return TOUR[0].seed!
+}

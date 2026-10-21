@@ -8,7 +8,7 @@ name: iOS screenshots (ShubhPanchang)
 #
 # Run trigger: a push to main whose commit message has [screens], or by hand.
 # The repository is public only for the run (scripts/ci-build.sh).
-# Build note: screenshot run 4 (shots early in each step).
+# Build note: screenshot run 6 (one launch per step).
 
 on:
   push:
@@ -72,30 +72,21 @@ jobs:
           xcrun simctl ui "$UDID" appearance light
           APP=$(ls -d dd/Build/Products/Release-iphonesimulator/*.app | head -1)
           xcrun simctl install "$UDID" "$APP"
-          mkdir -p shots warm
-          # The simulator's first screenshots take tens of seconds (run 39604820009:
-          # 14 s, then 60 s), which threw the capture times off the app's clock.
-          # Take them before the app starts. A capture still takes a few seconds and
-          # the app's clock runs a little ahead of L (run 39609607254), so each shot is
-          # aimed early in its 20 s step.
-          xcrun simctl io "$UDID" screenshot warm/1.png >/dev/null; xcrun simctl io "$UDID" screenshot warm/2.png >/dev/null
-          shot () { xcrun simctl io "$UDID" screenshot "shots/$1.png" >/dev/null && echo "shot $1 at +$(( $(date +%s) - L ))s"; }
-          # "if", not "&&": the step runs under bash -e, and a false test would end it.
-          at () { local t=$(( L + $1 - $(date +%s) )); if [ "$t" -gt 0 ]; then sleep "$t"; fi; }
+          mkdir -p shots
+          shot () { xcrun simctl io "$UDID" screenshot "shots/$1.png" >/dev/null && echo "shot $1"; }
 
-          # The app walks itself through its screens (src/lib/tour.ts: step i at
-          # TOUR_START + i * TOUR_STEP seconds after launch, 20 and 20). Opening
-          # shubhpanchang:// links from here would raise iOS's "Open in ...?"
-          # dialog over every screen (run 39598825231). Keep this list in step
-          # with TOUR.
+          # One launch per step (src/lib/tour.ts): `-tourStep N` reaches the app
+          # through NSUserDefaults and it opens that step's screen with sample
+          # data. A slow capture only delays the next launch, it cannot land on
+          # the wrong screen. Keep SHOTS in step with TOUR.
           SHOTS=(02-today-gu 03-vrat-gu 04-family-gu 05-calendar-gu 06-settings-gu 07-family-add-gu 08-place-gu 09-today-en-nj 10-vrat-en-nj 11-today-dark-en 12-calendar-dark-en)
           xcrun simctl launch "$UDID" in.shubhpanchang.app
-          L=$(date +%s)
-          at 10; shot 01-onboarding
+          sleep 12; shot 01-onboarding
           for i in "${!SHOTS[@]}"; do
             # Steps 9 and 10 are in dark appearance.
-            if [ "$i" = 9 ]; then at $(( 20 + 20 * 9 - 6 )); xcrun simctl ui "$UDID" appearance dark; fi
-            at $(( 20 + 20 * i + 6 )); shot "${SHOTS[$i]}"
+            if [ "$i" = 9 ]; then xcrun simctl ui "$UDID" appearance dark; fi
+            xcrun simctl launch --terminate-running-process "$UDID" in.shubhpanchang.app -tourStep "$i"
+            sleep 14; shot "${SHOTS[$i]}"
           done
           ls -la shots
 
