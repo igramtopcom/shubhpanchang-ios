@@ -13,7 +13,7 @@ name: iOS TestFlight upload (ShubhPanchang)
 # The build number is the run number, so every upload is a new build.
 #
 # The repository is public only for the run (scripts/ci-build.sh).
-# Build note: first TestFlight build.
+# Build note: first TestFlight build (secrets set 2026-10-21).
 
 on:
   push:
