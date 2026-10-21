@@ -24,8 +24,7 @@ export default function VratScreen() {
   const list = (obs.data ?? []).filter(o => prefs.notify.kinds.includes(o.kind));
 
   return (
-    <Screen>
-      <T kind="title">{s.tabVrat}</T>
+    <Screen header onRefresh={obs.reload} refreshing={obs.loading && !!obs.data}>
       <Card>
         <T kind="small">{s.feedNote}</T>
         <Button kind="quiet" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />

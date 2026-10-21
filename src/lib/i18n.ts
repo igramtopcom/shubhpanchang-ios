@@ -120,6 +120,14 @@ export const STRINGS = {
     cancel: 'રદ કરો',
     save: 'સાચવો',
     remove: 'કાઢી નાખો',
+    removeQ: (name: string) => `${name}ની તિથિ કાઢી નાખીએ?`,
+    removeBody: 'તેની યાદ પણ બંધ થશે. iPhone કેલેન્ડરમાં ઉમેરેલી તારીખ રહેશે.',
+    prevMonth: 'પાછલો મહિનો',
+    nextMonth: 'આગલો મહિનો',
+    tierBest: 'શુભ',
+    tierOk: 'મધ્યમ',
+    tierAvoid: 'ટાળો',
+    vratDay: 'વ્રત',
     noVratSoon: 'આવતા દિવસોમાં કોઈ વ્રત નથી.',
     personName: 'નામ',
     personNamePh: 'દા.ત. બા, દાદા',
@@ -223,6 +231,14 @@ export const STRINGS = {
     cancel: 'Cancel',
     save: 'Save',
     remove: 'Remove',
+    removeQ: (name: string) => `Remove ${name}'s tithi?`,
+    removeBody: 'Its reminders stop too. Dates already added to iPhone Calendar stay there.',
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+    tierBest: 'good',
+    tierOk: 'fair',
+    tierAvoid: 'avoid',
+    vratDay: 'vrat',
     noVratSoon: 'No vrat in the coming days.',
     personName: 'Name',
     personNamePh: 'e.g. Ba, Dada',
@@ -258,6 +274,16 @@ export const STRINGS = {
 
 export type Strings = typeof STRINGS['gu']
 export const t = (lang: Lang): Strings => STRINGS[lang] as unknown as Strings
+
+/** Countries of the listed cities, for the place list (no ISO codes on screen). */
+const COUNTRY: Record<string, { en: string; gu: string }> = {
+  IN: { en: 'India', gu: 'ભારત' }, US: { en: 'United States', gu: 'અમેરિકા' }, GB: { en: 'United Kingdom', gu: 'યુકે' },
+  CA: { en: 'Canada', gu: 'કેનેડા' }, AU: { en: 'Australia', gu: 'ઑસ્ટ્રેલિયા' }, KE: { en: 'Kenya', gu: 'કેન્યા' },
+  TZ: { en: 'Tanzania', gu: 'તાન્ઝાનિયા' }, NL: { en: 'Netherlands', gu: 'નેધરલેન્ડ્સ' }, DE: { en: 'Germany', gu: 'જર્મની' },
+  BE: { en: 'Belgium', gu: 'બેલ્જિયમ' }, FR: { en: 'France', gu: 'ફ્રાન્સ' }, PT: { en: 'Portugal', gu: 'પોર્ટુગલ' },
+  CH: { en: 'Switzerland', gu: 'સ્વિત્ઝર્લેન્ડ' }, AE: { en: 'UAE', gu: 'યુએઈ' }, SG: { en: 'Singapore', gu: 'સિંગાપોર' },
+}
+export const countryName = (code: string, lang: Lang) => COUNTRY[code]?.[lang] ?? code
 
 /** A place's name in the reader's language. */
 export const placeName = (p: { name: { en: string; gu: string } | null; lat: number; lon: number }, lang: Lang) =>

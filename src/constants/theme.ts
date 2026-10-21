@@ -10,7 +10,8 @@ export const Colors = {
   light: {
     text: '#3E2723',
     textSecondary: '#6D4C41',
-    textMuted: '#8D6E63',
+    // #8D6E63 read 4.39:1 on the parchment ground; this one passes 4.5:1 on every light surface.
+    textMuted: '#795548',
     background: '#FFF8F0',
     card: '#FFFFFF',
     cardBorder: '#FFE0B2',

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import * as Location from 'expo-location';
 
-import { placeName, t } from '@/lib/i18n';
+import { countryName, placeName, t } from '@/lib/i18n';
 import { placeFromFix, searchCities } from '@/lib/places';
 import type { City, Place } from '@/lib/types';
 import { deviceTimeZone, useApp } from '@/state/app';
@@ -44,7 +44,7 @@ export function PlacePicker({ value, onChange }: { value: Place | null; onChange
         <Card>
           <T kind="label">{s.placeChosen}</T>
           <T kind="heading">{placeName(value, prefs.lang)}</T>
-          <T kind="small">{value.timezone}</T>
+          {value.timezone !== 'Asia/Kolkata' ? <T kind="small">{value.timezone.replace(/_/g, ' ')}</T> : null}
         </Card>
       ) : null}
       <Button label={status === 'locating' ? s.locating : s.useMyLocation} onPress={locate} disabled={status === 'locating' || !cities} />
@@ -73,7 +73,7 @@ export function PlacePicker({ value, onChange }: { value: Place | null; onChange
                 backgroundColor: selected ? c.backgroundSelected : pressed ? c.backgroundElement : 'transparent',
               })}>
               <T>{city.name[prefs.lang]}{prefs.lang === 'gu' ? `  ·  ${city.name.en}` : ''}</T>
-              <T kind="small">{city.region === 'diaspora' ? `${city.country} · ${city.timezone}` : city.country}</T>
+              {city.region === 'diaspora' ? <T kind="small">{countryName(city.country, prefs.lang)}</T> : null}
             </Pressable>
           );
         })}

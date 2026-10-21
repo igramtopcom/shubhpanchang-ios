@@ -38,10 +38,10 @@ export default function Today() {
   const until = (end: number) => `${hhmm(end)}${end >= DAY_MIN ? ` (${s.tomorrow})` : ''}`;
 
   return (
-    <Screen>
-      <Pressable onPress={() => router.push('/place')} accessibilityRole="button">
-        <T kind="small">{placeName(place, lang)}  ›</T>
-        <T kind="title">{longDate(now.date, lang)}</T>
+    <Screen header onRefresh={() => { win.reload(); obs.reload(); }} refreshing={win.loading && !!win.data}>
+      <Pressable onPress={() => router.push('/place')} accessibilityRole="button" accessibilityHint={s.settingsPlace}>
+        <T kind="heading">{longDate(now.date, lang)}</T>
+        <T kind="small" color={c.brand}>{placeName(place, lang)}  ›</T>
       </Pressable>
 
       {win.stale ? <Notice text={s.offline} /> : null}
@@ -89,12 +89,24 @@ export default function Today() {
               const active = sh.slot && sh.slot.name === slot.name && sh.slot.period === slot.period
                 && hhmm(sh.slot.start) === slot.start;
               const color = tier === 'best' ? c.good : tier === 'avoid' ? c.bad : c.neutral;
+              const tierWord = tier === 'best' ? s.tierBest : tier === 'avoid' ? s.tierAvoid : s.tierOk;
               return (
-                <View key={`${slot.period}${i}`} style={{
-                  flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 8, borderRadius: 8,
-                  backgroundColor: active ? c.backgroundSelected : 'transparent',
-                }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color, marginRight: 10 }} />
+                <View
+                  key={`${slot.period}${i}`}
+                  accessible
+                  accessibilityLabel={`${chogName(slot.name, lang)}, ${slot.start}–${slot.end}, ${tierWord}`}
+                  accessibilityState={{ selected: !!active }}
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 8, borderRadius: 8,
+                    backgroundColor: active ? c.backgroundSelected : 'transparent',
+                  }}>
+                  {/* Shape as well as colour: filled = good, ring = fair, bar = avoid. */}
+                  <View style={[
+                    { width: 10, height: 10, marginRight: 10 },
+                    tier === 'best' ? { borderRadius: 5, backgroundColor: color }
+                      : tier === 'avoid' ? { height: 4, borderRadius: 2, backgroundColor: color }
+                        : { borderRadius: 5, borderWidth: 2, borderColor: color },
+                  ]} />
                   <T style={{ flex: 1, fontWeight: active ? '700' : '400' }}>{chogName(slot.name, lang)}</T>
                   <T kind="small" style={{ fontVariant: ['tabular-nums'] }}>{slot.start}–{slot.end}</T>
                 </View>

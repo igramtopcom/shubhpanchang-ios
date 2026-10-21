@@ -2,28 +2,49 @@
 // Cards carry a hairline warm border, values are navy, good is green, Rahu red.
 import type { ReactNode } from 'react';
 import {
-  ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, useColorScheme,
+  ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useColorScheme,
   type StyleProp, type TextStyle, type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { tick } from '@/lib/haptics';
 
 export function useColors() {
   return Colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
 }
 
-export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
+/**
+ * A page. `header`: it sits under a native navigation bar (the tabs, see
+ * tab-stack.tsx), so the ScrollView is the screen's own and lets iOS inset it
+ * under the bar and fold the large title. onRefresh adds pull-to-refresh;
+ * refreshing is true while that reload runs.
+ */
+export function Screen({ children, scroll = true, header = false, onRefresh, refreshing = false }: {
+  children: ReactNode; scroll?: boolean; header?: boolean; onRefresh?: () => void; refreshing?: boolean;
+}) {
   const c = useColors();
-  const body = <View style={styles.inner}>{children}</View>;
+  const body = <View style={[styles.inner, header && { paddingTop: Spacing.two }]}>{children}</View>;
+  const refresh = onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.brand} /> : undefined;
+  if (header) {
+    return (
+      <ScrollView
+        style={{ flex: 1, backgroundColor: c.background }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.scroll}
+        refreshControl={refresh}>
+        {body}
+      </ScrollView>
+    );
+  }
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.background }}>
-      {scroll ? <ScrollView contentContainerStyle={styles.scroll}>{body}</ScrollView> : body}
+      {scroll ? <ScrollView contentContainerStyle={styles.scroll} refreshControl={refresh}>{body}</ScrollView> : body}
     </SafeAreaView>
   );
 }
 
-export function T({ children, style, kind = 'body', color, numberOfLines, shrink }: {
+export function T({ children, style, kind = 'body', color, numberOfLines, shrink, maxScale }: {
   children: ReactNode;
   style?: StyleProp<TextStyle>;
   kind?: 'title' | 'heading' | 'body' | 'small' | 'label' | 'value' | 'big';
@@ -31,6 +52,8 @@ export function T({ children, style, kind = 'body', color, numberOfLines, shrink
   numberOfLines?: number;
   /** Shrink the type (to 60%) rather than cut the word, for one-line labels in tight cells. */
   shrink?: boolean;
+  /** Largest Dynamic Type scale, for text in fixed-size cells (calendar days). */
+  maxScale?: number;
 }) {
   const c = useColors();
   const base: TextStyle = {
@@ -47,6 +70,7 @@ export function T({ children, style, kind = 'body', color, numberOfLines, shrink
       numberOfLines={shrink ? 1 : numberOfLines}
       adjustsFontSizeToFit={shrink}
       minimumFontScale={shrink ? 0.6 : undefined}
+      maxFontSizeMultiplier={maxScale}
       style={[base, color ? { color } : null, style]}>
       {children}
     </Text>
@@ -63,7 +87,7 @@ export function Card({ children, style, tone }: { children: ReactNode; style?: S
 /** Label on the left, value on the right. */
 export function Row({ label, value, note, color }: { label: string; value: string; note?: string; color?: string }) {
   return (
-    <View style={styles.row}>
+    <View style={styles.row} accessible accessibilityLabel={`${label}${note ? `, ${note}` : ''}: ${value}`}>
       <View style={{ flex: 1, minWidth: 0 }}>
         <T kind="small">{label}</T>
         {note ? <T kind="small" style={{ fontSize: 12 }}>{note}</T> : null}
@@ -79,7 +103,7 @@ export function Chip({ label, selected, onPress }: { label: string; selected?: b
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      onPress={onPress}
+      onPress={onPress ? () => { tick(); onPress(); } : undefined}
       style={({ pressed }) => [
         styles.chip,
         { backgroundColor: selected ? c.brand : c.backgroundElement, borderColor: selected ? c.brand : c.cardBorder },
@@ -90,19 +114,24 @@ export function Chip({ label, selected, onPress }: { label: string; selected?: b
   );
 }
 
-export function Button({ label, onPress, kind = 'primary', disabled }: { label: string; onPress: () => void; kind?: 'primary' | 'quiet'; disabled?: boolean }) {
+export function Button({ label, onPress, kind = 'primary', disabled, a11yLabel }: {
+  label: string; onPress: () => void; kind?: 'primary' | 'quiet' | 'destructive'; disabled?: boolean; a11yLabel?: string;
+}) {
   const c = useColors();
   const primary = kind === 'primary';
+  const tone = kind === 'destructive' ? c.bad : c.brand;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={a11yLabel}
+      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: primary ? c.brand : 'transparent', borderColor: c.brand, opacity: disabled ? 0.45 : pressed ? 0.8 : 1 },
+        { backgroundColor: primary ? c.brand : 'transparent', borderColor: tone, opacity: disabled ? 0.45 : pressed ? 0.8 : 1 },
       ]}>
-      <Text style={{ color: primary ? c.onBrand : c.brand, fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{label}</Text>
+      <Text style={{ color: primary ? c.onBrand : tone, fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{label}</Text>
     </Pressable>
   );
 }
@@ -145,6 +174,7 @@ const styles = StyleSheet.create({
   },
   card: { borderWidth: 1, borderRadius: Radius.card, padding: Spacing.three, gap: Spacing.two },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.one },
-  chip: { borderWidth: 1, borderRadius: Radius.chip, paddingVertical: Spacing.two, paddingHorizontal: Spacing.three },
-  button: { borderWidth: 1.5, borderRadius: Radius.button, paddingVertical: 12, paddingHorizontal: Spacing.three },
+  // 44 pt: the smallest target the Human Interface Guidelines allow.
+  chip: { borderWidth: 1, borderRadius: Radius.chip, minHeight: 44, justifyContent: 'center', paddingVertical: Spacing.two, paddingHorizontal: Spacing.three },
+  button: { borderWidth: 1.5, borderRadius: Radius.button, minHeight: 44, justifyContent: 'center', paddingVertical: 12, paddingHorizontal: Spacing.three },
 });

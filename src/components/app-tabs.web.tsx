@@ -16,7 +16,7 @@ export default function AppTabs() {
       <TabList asChild>
         {/* A Slot child takes one style object, not an array (expo-router throws otherwise). */}
         <View style={StyleSheet.flatten([styles.bar, { backgroundColor: c.card, borderTopColor: c.cardBorder }])}>
-          <TabTrigger name="index" href="/" asChild><TabButton>{s.tabToday}</TabButton></TabTrigger>
+          <TabTrigger name="(today)" href="/" asChild><TabButton>{s.tabToday}</TabButton></TabTrigger>
           <TabTrigger name="vrat" href="/vrat" asChild><TabButton>{s.tabVrat}</TabButton></TabTrigger>
           <TabTrigger name="family" href="/family" asChild><TabButton>{s.tabFamily}</TabButton></TabTrigger>
           <TabTrigger name="calendar" href="/calendar" asChild><TabButton>{s.tabCalendar}</TabButton></TabTrigger>

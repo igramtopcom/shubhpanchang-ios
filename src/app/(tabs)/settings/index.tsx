@@ -6,6 +6,7 @@ import Constants from 'expo-constants';
 import { Button, Card, Chip, Screen, Section, T, useColors } from '@/components/ui';
 import { feedUrl } from '@/lib/api';
 import { subscribe } from '@/lib/calendar';
+import { tick } from '@/lib/haptics';
 import { placeName, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
 import type { NotifySettings } from '@/lib/notify-plan';
@@ -31,19 +32,19 @@ export default function SettingsScreen() {
   const toggle = (label: string, value: boolean, onChange: (v: boolean) => void) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6 }}>
       <T style={{ flex: 1 }}>{label}</T>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: c.brand }} disabled={!notificationsSupported} />
+      <Switch value={value} onValueChange={v => { tick(); onChange(v); }} trackColor={{ true: c.brand }} disabled={!notificationsSupported} accessibilityLabel={label} />
     </View>
   );
 
   return (
-    <Screen>
-      <T kind="title">{s.tabSettings}</T>
+    <Screen header>
 
       <Section title={s.settingsPlace}>
         <Pressable onPress={() => router.push('/place')} accessibilityRole="button">
           <Card>
             <T kind="heading">{placeName(place, lang)}  ›</T>
-            <T kind="small">{place.timezone}</T>
+            {/* The zone matters abroad (whose clock the times are on); in India it is always IST. */}
+            {place.timezone !== 'Asia/Kolkata' ? <T kind="small">{place.timezone.replace(/_/g, ' ')}</T> : null}
           </Card>
         </Pressable>
       </Section>

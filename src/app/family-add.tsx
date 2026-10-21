@@ -7,6 +7,7 @@ import { TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { DateTimeFields, deviceToday } from '@/components/date-time-fields';
+import { success } from '@/lib/haptics';
 import { Button, Card, Chip, Notice, Screen, Section, T, useColors } from '@/components/ui';
 import { MONTH_EN, MONTH_GU, lunarLabel, tithiName, t } from '@/lib/i18n';
 import type { FamilyDate } from '@/lib/types';
@@ -60,6 +61,7 @@ export default function FamilyAdd() {
       origin: found,
     };
     update({ family: [...prefs.family, person] });
+    success();
     router.back();
   }
 

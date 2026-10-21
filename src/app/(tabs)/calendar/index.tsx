@@ -50,11 +50,11 @@ export default function CalendarScreen() {
   const sel = days.data?.find(d => d.date === selected) ?? null;
 
   return (
-    <Screen>
+    <Screen header>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <Button kind="quiet" label="‹" onPress={() => setMonth(addMonths(month, -1))} disabled={month <= MIN_MONTH} />
-        <T kind="heading">{MONTHS_CIVIL[lang][m - 1]} {y}</T>
-        <Button kind="quiet" label="›" onPress={() => setMonth(addMonths(month, 1))} disabled={month >= MAX_MONTH} />
+        <Button kind="quiet" label="‹" a11yLabel={s.prevMonth} onPress={() => setMonth(addMonths(month, -1))} disabled={month <= MIN_MONTH} />
+        <T kind="heading" style={{ flexShrink: 1, textAlign: 'center' }}>{MONTHS_CIVIL[lang][m - 1]} {y}</T>
+        <Button kind="quiet" label="›" a11yLabel={s.nextMonth} onPress={() => setMonth(addMonths(month, 1))} disabled={month >= MAX_MONTH} />
       </View>
 
       {days.stale ? <Notice text={s.offline} /> : null}
@@ -78,13 +78,18 @@ export default function CalendarScreen() {
                     key={d.date}
                     onPress={() => setSelected(d.date)}
                     accessibilityRole="button"
-                    accessibilityLabel={longDate(d.date, lang)}
+                    accessibilityLabel={[
+                      longDate(d.date, lang),
+                      lang === 'gu' ? d.tithi.nameGu : d.tithi.name,
+                      ...(vratByDate.get(d.date) ?? []),
+                    ].join(', ')}
+                    accessibilityState={{ selected: isSel }}
                     style={{
                       flex: 1, aspectRatio: 0.8, margin: 2, borderRadius: 10, padding: 4, alignItems: 'center',
                       backgroundColor: isSel ? c.backgroundSelected : c.card,
                       borderWidth: isToday ? 1.5 : 1, borderColor: isToday ? c.brand : c.cardBorder,
                     }}>
-                    <T style={{ fontWeight: '700', fontSize: 16 }}>{Number(d.date.slice(8))}</T>
+                    <T style={{ fontWeight: '700', fontSize: 16 }} maxScale={1.3}>{Number(d.date.slice(8))}</T>
                     <T kind="small" shrink style={{ fontSize: 10.5 }}>{lang === 'gu' ? d.tithi.nameGu : d.tithi.name}</T>
                     {vrat ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.good, marginTop: 2 }} /> : null}
                   </Pressable>

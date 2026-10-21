@@ -1,5 +1,5 @@
 // Family dates kept by tithi: each person's next day, worked out at the place.
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { Button, Card, Loading, Notice, Screen, T, useColors } from '@/components/ui';
@@ -16,9 +16,13 @@ export default function FamilyScreen() {
   const now = useNow(prefs.place!.timezone);
   const next = useFamilyNext(now.date);
 
+  const remove = (id: string, name: string) => Alert.alert(s.removeQ(name), s.removeBody, [
+    { text: s.cancel, style: 'cancel' },
+    { text: s.remove, style: 'destructive', onPress: () => update({ family: prefs.family.filter(f => f.id !== id) }) },
+  ]);
+
   return (
-    <Screen>
-      <T kind="title">{s.familyTitle}</T>
+    <Screen header onRefresh={next.reload} refreshing={next.loading && !!next.data}>
       {!prefs.family.length ? <Card><T kind="small">{s.familyEmpty}</T></Card> : null}
       <Button label={s.addPerson} onPress={() => router.push('/family-add')} />
       {next.stale ? <Notice text={s.offline} /> : null}
@@ -45,7 +49,7 @@ export default function FamilyScreen() {
                   onPress={() => addAllDayEvent({ date: occ.date, title: `${person.name} · ${kind}`, notes: label })}
                 />
               ) : null}
-              <Button kind="quiet" label={s.remove} onPress={() => update({ family: prefs.family.filter(f => f.id !== person.id) })} />
+              <Button kind="destructive" label={s.remove} onPress={() => remove(person.id, person.name)} />
             </View>
           </Card>
         );

@@ -9,11 +9,12 @@ export default function AppTabs() {
   const c = useColors();
   const s = t(useApp().prefs.lang);
   return (
+    // No backgroundColor: a painted bar would hide the system's Liquid Glass.
     <NativeTabs
-      backgroundColor={c.card}
+      tintColor={c.brand}
       indicatorColor={c.backgroundSelected}
       labelStyle={{ selected: { color: c.brand } }}>
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="(today)">
         <NativeTabs.Trigger.Label>{s.tabToday}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="sun.max" md="wb_sunny" />
       </NativeTabs.Trigger>
