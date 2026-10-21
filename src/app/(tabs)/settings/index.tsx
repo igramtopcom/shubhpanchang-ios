@@ -29,6 +29,14 @@ export default function SettingsScreen() {
     update({ notify: { ...prefs.notify, ...patch } });
   };
 
+  // The tab bar is rebuilt for the new language (app-tabs.tsx), which reopens
+  // the first tab: come back here, where the reader was.
+  const switchLang = (l: Lang) => {
+    if (l === lang) return;
+    update({ lang: l });
+    setTimeout(() => router.navigate('/settings'), 0);
+  };
+
   const toggle = (label: string, value: boolean, onChange: (v: boolean) => void) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6 }}>
       <T style={{ flex: 1 }}>{label}</T>
@@ -52,7 +60,7 @@ export default function SettingsScreen() {
       <Section title={s.settingsLanguage}>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           {(['gu', 'en'] as Lang[]).map(l => (
-            <Chip key={l} label={l === 'gu' ? 'ગુજરાતી' : 'English'} selected={lang === l} onPress={() => update({ lang: l })} />
+            <Chip key={l} label={l === 'gu' ? 'ગુજરાતી' : 'English'} selected={lang === l} onPress={() => switchLang(l)} />
           ))}
         </View>
       </Section>

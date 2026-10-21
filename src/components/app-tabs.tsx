@@ -7,10 +7,14 @@ import { useColors } from './ui';
 
 export default function AppTabs() {
   const c = useColors();
-  const s = t(useApp().prefs.lang);
+  const lang = useApp().prefs.lang;
+  const s = t(lang);
   return (
     // No backgroundColor: a painted bar would hide the system's Liquid Glass.
+    // key: UITabBar keeps the old item widths when labels change language
+    // ("Fam…", "Sett…" after Gujarati -> English), so the bar is rebuilt.
     <NativeTabs
+      key={lang}
       tintColor={c.brand}
       indicatorColor={c.backgroundSelected}
       labelStyle={{ selected: { color: c.brand } }}>
