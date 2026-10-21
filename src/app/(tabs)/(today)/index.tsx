@@ -1,14 +1,17 @@
 // Today: the answer first ("is now a good time, until when, else when next"),
 // then the day's tithi, sun and moon, Rahu Kaal and the choghadiya table.
 import { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
-import { router } from 'expo-router';
+import { Pressable, Share, View } from 'react-native';
+import { Stack, router } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 
 import { LiveCountdownButton } from '@/components/live-countdown';
 import { Card, Loading, Notice, Row, Screen, Section, T, useColors } from '@/components/ui';
 import { chogName, longDate, placeName, t } from '@/lib/i18n';
 import { chogTier, shubhNow, timeline } from '@/lib/shubh';
 import { DAY_MIN, hhmm, shiftDate, zonedTimeToUtc } from '@/lib/time';
+import { tick } from '@/lib/haptics';
+import { shareMessage } from '@/lib/share';
 import { rahuCountdown } from '@/lib/widget-feed';
 import type { Lang, PanchangDay } from '@/lib/types';
 import { useApp } from '@/state/app';
@@ -37,6 +40,20 @@ export default function Today() {
 
   return (
     <Screen header onRefresh={() => { win.reload(); obs.reload(); }} refreshing={win.loading && !!win.data}>
+      {/* Send today's panchang (WhatsApp first, as on the website): the share button in the bar. */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (day ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={s.shareToday}
+              hitSlop={10}
+              onPress={() => { tick(); Share.share({ message: shareMessage(day, place, lang) }).catch(() => {}); }}>
+              <SymbolView name="square.and.arrow.up" tintColor={c.brand} size={22} />
+            </Pressable>
+          ) : null),
+        }}
+      />
       <Pressable onPress={() => router.push('/place')} accessibilityRole="button" accessibilityHint={s.settingsPlace}>
         <T kind="heading">{longDate(now.date, lang)}</T>
         <T kind="small" color={c.brand}>{placeName(place, lang)}  ›</T>

@@ -9,6 +9,7 @@ import { STRINGS, lunarLabel, tithiName, longDate } from '../src/lib/i18n'
 import { Api, feedUrl, placeQuery, type KV } from '../src/lib/api'
 import { moonSymbol, offerCountdown, paranaCountdown, rahuCountdown, todayEntries, vratCountdown, vratEntries } from '../src/lib/widget-feed'
 import { siriToday, siriVrat } from '../src/lib/siri-feed'
+import { shareMessage } from '../src/lib/share'
 import type { Observance, PanchangDay } from '../src/lib/types'
 
 /* Fixtures are real /api/v1 answers: Ahmedabad 21-23 Oct 2026, New Jersey
@@ -407,5 +408,20 @@ describe('Lock Screen countdowns', () => {
     expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(12, 30))).toMatchObject({ label: 'Rahu Kaal begins in', targetMs: ms(13, 50) })
     expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(14, 0))).toMatchObject({ label: 'Rahu Kaal ends in', targetMs: ms(15, 16) })
     expect(rahuCountdown(d, 'Ahmedabad', 'en', 'Asia/Kolkata', ms(15, 20))).toBeNull()
+  })
+})
+
+describe("today's panchang message (share.ts)", () => {
+  const d = days.find(x => x.date === '2026-10-22')!
+  const ahd = { city: 'ahmedabad', name: { en: 'Ahmedabad', gu: 'અમદાવાદ' }, lat: 23.03, lon: 72.58, timezone: 'Asia/Kolkata' }
+  it('follows the website message, for the reader\'s place, with ?ref=app', () => {
+    const en = shareMessage(d, ahd, 'en')
+    expect(en.split('\n')[0]).toBe("🙏 Today's Panchang · Thursday, 22 October · Ahmedabad")
+    expect(en).toContain('🚫 Rahu Kaal: 13:50–15:16 (Avoid)')
+    expect(en.endsWith('https://shubhpanchang.in/panchang/ahmedabad?lang=en&ref=app')).toBe(true)
+    const gu = shareMessage(d, ahd, 'gu')
+    expect(gu).toContain('રાહુ કાળ: 13:50–15:16 (ટાળો)')
+    expect(gu.endsWith('https://shubhpanchang.in/panchang/ahmedabad?ref=app')).toBe(true)
+    expect(en + gu).not.toContain('—')
   })
 })
