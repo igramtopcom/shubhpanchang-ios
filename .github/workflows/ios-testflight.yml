@@ -79,7 +79,11 @@ jobs:
             console.log('version', c.expo.version, 'build', c.expo.ios.buildNumber);
           "
 
+      # Widgets stay out until the App Group group.in.shubhpanchang.app is
+      # registered on developer.apple.com (app.config.js); then set this to 'on'.
       - name: Generate the native project (expo prebuild, CocoaPods)
+        env:
+          SP_WIDGETS: 'off'
         run: npx expo prebuild --platform ios --clean
 
       - name: Write the API key to a temp file (mode 600)
@@ -133,8 +137,14 @@ jobs:
               if not e:
                   print(f'ENTFILE|{name}|none'); continue
               f = os.path.join('ios', e)
-              print(f'ENTFILE|{name}|{e}')
-              print(open(f).read())
+              # The app sends local notifications only; aps-environment (remote push,
+              # added by expo-notifications) would need Push on the App ID for nothing.
+              import plistlib
+              ents = plistlib.load(open(f, 'rb'))
+              ents.pop('aps-environment', None)
+              f = f + '.signed'
+              plistlib.dump(ents, open(f, 'wb'))
+              print(f'ENTFILE|{name}|{e}|{sorted(ents)}')
               subprocess.run(['codesign', '--force', '--sign', '-', '--entitlements', f, path], check=True)
           PY
 

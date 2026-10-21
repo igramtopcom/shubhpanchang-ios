@@ -6,6 +6,7 @@ import { Button, Card, Loading, Notice, Screen, Section, T, useColors } from '@/
 import { feedUrl } from '@/lib/api';
 import { addAllDayEvent, calendarSupported, subscribe } from '@/lib/calendar';
 import { longDate, t } from '@/lib/i18n';
+import { WIDGETS } from '@/lib/features';
 import { success } from '@/lib/haptics';
 import { askAfterSuccess } from '@/lib/review';
 import { shiftDate, zonedTimeToUtc } from '@/lib/time';
@@ -57,7 +58,7 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
     ? `${longDate(o.parana.date, lang, false)} ${o.parana.end ? `${o.parana.start}–${o.parana.end}` : s.paranaAfter(o.parana.start)}`
     : null;
   // Within eight hours of the Parana (a Live Activity's limit), offer the Lock Screen countdown.
-  const live = Platform.OS === 'ios' ? paranaActivity(o, lang, prefs.place!.timezone) : null;
+  const live = Platform.OS === 'ios' && WIDGETS ? paranaActivity(o, lang, prefs.place!.timezone) : null;
   const offerLive = !!live && nowMs < live.endMs && live.startMs - nowMs <= PARANA_OFFER_MS;
   const startLive = () => {
     if (!live) return;
