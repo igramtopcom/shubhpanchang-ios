@@ -7,6 +7,7 @@ import { planNotifications, DEFAULT_SETTINGS, PLAN_LIMIT } from '../src/lib/noti
 import { STRINGS, lunarLabel, tithiName, longDate } from '../src/lib/i18n'
 import { Api, feedUrl, placeQuery, type KV } from '../src/lib/api'
 import { moonSymbol, todayEntries, vratEntries } from '../src/lib/widget-feed'
+import { siriToday, siriVrat } from '../src/lib/siri-feed'
 import type { Observance, PanchangDay } from '../src/lib/types'
 
 /* Fixtures are real /api/v1 answers: Ahmedabad 21-23 Oct 2026, New Jersey
@@ -316,5 +317,22 @@ describe('widget timeline (widget-feed.ts)', () => {
     const e = vratEntries({ nowMs: Date.parse(`${shiftDate(first.date, -1)}T12:00:00Z`), today: shiftDate(first.date, -1), timeZone: 'America/New_York', lang: 'en', observances: obs, kinds: ['ekadashi'] })
     expect(e[0].props).toMatchObject({ when: 'Tomorrow', name: first.nameEn })
     expect(e[1].props).toMatchObject({ when: 'Today', label: "Today's vrat" })
+  })
+})
+
+describe('Siri answers (siri-feed.ts)', () => {
+  it('says the tithi, Rahu Kaal and the daytime good windows', () => {
+    const t = siriToday(days, 'Ahmedabad', '2026-10-22', 1)['2026-10-22']
+    expect(t).toMatch(/^Thursday, 22 October in Ahmedabad: Ashwin .* Rahu Kaal is 13:50 to 15:16\./)
+    expect(t).toContain('Labh 12:24 to 13:50')
+    expect(t).not.toContain('Amrit') // all of it inside Rahu Kaal
+  })
+  it('names the next vrat and its Parana, today or tomorrow', () => {
+    const obs = observancesNj.observances as unknown as Observance[]
+    const first = obs.find(o => o.kind === 'ekadashi')!
+    const v = siriVrat(obs, ['ekadashi'], shiftDate(first.date, -1), 2)
+    expect(v[shiftDate(first.date, -1)]).toMatch(new RegExp(`^The next vrat is ${first.nameEn}, tomorrow\.`))
+    expect(v[first.date]).toContain(', today.')
+    if (first.parana?.end) expect(v[first.date]).toContain(`${first.parana.start} to ${first.parana.end}`)
   })
 })

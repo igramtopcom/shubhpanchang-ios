@@ -124,7 +124,8 @@
             }
           ]
         }
-      ]
+      ],
+      "./plugins/app-shortcuts"
     ],
     "experiments": {
       "typedRoutes": true,

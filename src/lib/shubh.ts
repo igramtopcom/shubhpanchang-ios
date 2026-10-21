@@ -75,6 +75,14 @@ function minusRahu (s: Slot, rahu: Span[]): Span[] {
   return parts
 }
 
+/** Every good window (good slot minus Rahu Kaal) on the timeline, in order. */
+export function goodWindows (t: Timeline): (Span & { name: string })[] {
+  return t.slots
+    .filter(s => s.tier === 'best')
+    .flatMap(s => minusRahu(s, t.rahu).map(p => ({ ...p, name: s.name })))
+    .sort((a, b) => a.start - b.start)
+}
+
 export interface ShubhNow {
   /** The slot running now, if the timeline covers now. */
   slot: Slot | null
@@ -89,10 +97,7 @@ export interface ShubhNow {
 export function shubhNow (t: Timeline, now: number): ShubhNow {
   const slot = t.slots.find(s => now >= s.start && now < s.end) ?? null
   const rahu = t.rahu.find(r => now >= r.start && now < r.end) ?? null
-  const windows = t.slots
-    .filter(s => s.tier === 'best')
-    .flatMap(s => minusRahu(s, t.rahu).map(p => ({ ...p, name: s.name })))
-    .sort((a, b) => a.start - b.start)
+  const windows = goodWindows(t)
   const good = windows.find(w => now >= w.start && now < w.end) ?? null
   const next = windows.find(w => w.start > now) ?? null
   return { slot, rahu, good, next }
