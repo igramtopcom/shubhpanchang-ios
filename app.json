@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "ShubhPanchang",
+    "slug": "shubhpanchang",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/sp-icon.png",
+    "scheme": "shubhpanchang",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "in.shubhpanchang.app",
+      "supportsTablet": false,
+      "associatedDomains": [
+        "applinks:shubhpanchang.in"
+      ],
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
+    },
+    "android": {
+      "package": "in.shubhpanchang.app",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFF8F0",
+          "image": "./assets/images/sp-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      "expo-localization",
+      "expo-sqlite",
+      "expo-notifications",
+      [
+        "expo-calendar",
+        {
+          "writeOnlyAccess": true,
+          "writeOnlyCalendarPermission": "ShubhPanchang adds vrat days and family tithi dates to your calendar when you ask it to."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Your location sets sunrise, Rahu Kaal and the Parana time for where you are. It is rounded to about 1 km and never stored on our server."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
