@@ -2,13 +2,13 @@ name: iOS screenshots (ShubhPanchang)
 
 # Opens every screen on an iPhone simulator and keeps a screenshot of each, for
 # review (and later the App Store). A Release build for the SIMULATOR with
-# EXPO_PUBLIC_SCREENSHOT_SEED=1, which enables shubhpanchang://seed?... (src/app/
-# seed.tsx: language, place, sample family dates); every other build ignores
-# that link. No Apple secrets, nothing published: artifacts only.
+# EXPO_PUBLIC_SCREENSHOT_SEED=1, in which the app walks itself through its
+# screens with sample data (src/lib/tour.ts); every other build leaves that
+# out. No Apple secrets, nothing published: artifacts only.
 #
 # Run trigger: a push to main whose commit message has [screens], or by hand.
 # The repository is public only for the run (scripts/ci-build.sh).
-# Build note: screenshot run 2 (the app tours itself; no links).
+# Build note: screenshot run 3 (warm-up shots, 20 s steps).
 
 on:
   push:
@@ -72,13 +72,17 @@ jobs:
           xcrun simctl ui "$UDID" appearance light
           APP=$(ls -d dd/Build/Products/Release-iphonesimulator/*.app | head -1)
           xcrun simctl install "$UDID" "$APP"
-          mkdir -p shots
+          mkdir -p shots warm
+          # The simulator's first screenshots take tens of seconds (run 39604820009:
+          # 14 s, then 60 s), which threw the capture times off the app's clock.
+          # Take them before the app starts.
+          xcrun simctl io "$UDID" screenshot warm/1.png >/dev/null; xcrun simctl io "$UDID" screenshot warm/2.png >/dev/null
           shot () { xcrun simctl io "$UDID" screenshot "shots/$1.png" >/dev/null && echo "shot $1 at +$(( $(date +%s) - L ))s"; }
           # "if", not "&&": the step runs under bash -e, and a false test would end it.
           at () { local t=$(( L + $1 - $(date +%s) )); if [ "$t" -gt 0 ]; then sleep "$t"; fi; }
 
           # The app walks itself through its screens (src/lib/tour.ts: step i at
-          # TOUR_START + i * TOUR_STEP seconds after launch, 20 and 12). Opening
+          # TOUR_START + i * TOUR_STEP seconds after launch, 20 and 20). Opening
           # shubhpanchang:// links from here would raise iOS's "Open in ...?"
           # dialog over every screen (run 39598825231). Keep this list in step
           # with TOUR.
@@ -88,8 +92,8 @@ jobs:
           at 14; shot 01-onboarding
           for i in "${!SHOTS[@]}"; do
             # Steps 9 and 10 are in dark appearance.
-            if [ "$i" = 9 ]; then at $(( 20 + 12 * 9 - 4 )); xcrun simctl ui "$UDID" appearance dark; fi
-            at $(( 20 + 12 * i + 10 )); shot "${SHOTS[$i]}"
+            if [ "$i" = 9 ]; then at $(( 20 + 20 * 9 - 6 )); xcrun simctl ui "$UDID" appearance dark; fi
+            at $(( 20 + 20 * i + 14 )); shot "${SHOTS[$i]}"
           done
           ls -la shots
 

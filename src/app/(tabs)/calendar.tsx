@@ -85,7 +85,7 @@ export default function CalendarScreen() {
                       borderWidth: isToday ? 1.5 : 1, borderColor: isToday ? c.brand : c.cardBorder,
                     }}>
                     <T style={{ fontWeight: '700', fontSize: 16 }}>{Number(d.date.slice(8))}</T>
-                    <T kind="small" numberOfLines={1} style={{ fontSize: 10.5 }}>{lang === 'gu' ? d.tithi.nameGu : d.tithi.name.slice(0, 6)}</T>
+                    <T kind="small" shrink style={{ fontSize: 10.5 }}>{lang === 'gu' ? d.tithi.nameGu : d.tithi.name}</T>
                     {vrat ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.good, marginTop: 2 }} /> : null}
                   </Pressable>
                 );

@@ -242,7 +242,8 @@ export const STRINGS = {
     aboutTitle: 'About the calculations',
     aboutBody: 'Every tithi, sunrise and Parana time comes from the same engine as shubhpanchang.in. Ekadashi and Parana follow Drik Panchang’s rules, and shraddh dates were checked against 346 Drik Panchang pages.',
     today: 'Today',
-    tomorrow: 'Tomorrow',
+    // Only ever inside parentheses after a time: "05:17 (tomorrow)".
+    tomorrow: 'tomorrow',
     vratToday: "Today's vrat",
     until: (x: string) => `until ${x}`,
     aparahna: 'Aparahna',

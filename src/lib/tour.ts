@@ -15,7 +15,7 @@ export const SCREENSHOT_BUILD = process.env.EXPO_PUBLIC_SCREENSHOT_SEED === '1'
 /** Seconds after launch of the first step (onboarding is captured before it). */
 export const TOUR_START = 20
 /** Seconds between steps: room for the API answers to arrive. */
-export const TOUR_STEP = 12
+export const TOUR_STEP = 20
 
 export interface TourStep {
   /** Fill in a language, a place and sample family dates first. */

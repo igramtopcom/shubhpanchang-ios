@@ -23,12 +23,14 @@ export function Screen({ children, scroll = true }: { children: ReactNode; scrol
   );
 }
 
-export function T({ children, style, kind = 'body', color, numberOfLines }: {
+export function T({ children, style, kind = 'body', color, numberOfLines, shrink }: {
   children: ReactNode;
   style?: StyleProp<TextStyle>;
   kind?: 'title' | 'heading' | 'body' | 'small' | 'label' | 'value' | 'big';
   color?: string;
   numberOfLines?: number;
+  /** Shrink the type (to 60%) rather than cut the word, for one-line labels in tight cells. */
+  shrink?: boolean;
 }) {
   const c = useColors();
   const base: TextStyle = {
@@ -40,7 +42,15 @@ export function T({ children, style, kind = 'body', color, numberOfLines }: {
     value: { fontSize: 17, fontWeight: '600', color: c.value, fontVariant: ['tabular-nums'] },
     big: { fontSize: 24, fontWeight: '700', color: c.value, fontVariant: ['tabular-nums'] },
   }[kind] as TextStyle;
-  return <Text numberOfLines={numberOfLines} style={[base, color ? { color } : null, style]}>{children}</Text>;
+  return (
+    <Text
+      numberOfLines={shrink ? 1 : numberOfLines}
+      adjustsFontSizeToFit={shrink}
+      minimumFontScale={shrink ? 0.6 : undefined}
+      style={[base, color ? { color } : null, style]}>
+      {children}
+    </Text>
+  );
 }
 
 export function Card({ children, style, tone }: { children: ReactNode; style?: StyleProp<ViewStyle>; tone?: 'good' | 'bad' | 'neutral' }) {
