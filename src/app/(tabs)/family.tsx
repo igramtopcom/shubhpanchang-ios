@@ -33,7 +33,7 @@ export default function FamilyScreen() {
             <T kind="small">{label} · {person.kind === 'birthday' ? s.birthdayRule : s.shraddhRule}</T>
             {occ ? (
               <>
-                <T kind="value">{s.nextOn}: {longDate(occ.date, lang, true, occ.date.slice(0, 4) !== now.date.slice(0, 4))}</T>
+                <T kind="value">{occ.date === now.date ? s.today : s.nextOn}: {longDate(occ.date, lang, true, occ.date.slice(0, 4) !== now.date.slice(0, 4))}</T>
                 {occ.aparahna ? <T kind="small" color={c.good}>{s.aparahna} {occ.aparahna.start}–{occ.aparahna.end}</T> : null}
               </>
             ) : null}

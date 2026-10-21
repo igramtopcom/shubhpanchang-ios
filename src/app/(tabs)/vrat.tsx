@@ -57,6 +57,8 @@ function VratCard({ o }: { o: Observance }) {
       <T kind="heading">{name}</T>
       {o.popular ? <T kind="small">{o.popular[lang]}</T> : null}
       {moved ? <T kind="small">{s.keptHere(longDate(o.indiaDate!, lang, false))}</T> : null}
+      {/* Abroad only: festival dates are not localised yet (the website says the same beside the row). */}
+      {o.reason === 'festival-bound' ? <T kind="small">{s.festivalIndiaDate}</T> : null}
       {paranaText ? <T kind="value" color={c.good}>{s.parana}: {paranaText}</T> : null}
       {o.moonrise ? <T kind="value" color={c.good}>{s.moonrise}: {o.moonrise.time}</T> : null}
       {o.window ? <T kind="value" color={c.good}>{o.kind === 'pradosh' ? s.pradoshKaal : s.nishita}: {o.window.start}–{o.window.end}</T> : null}
