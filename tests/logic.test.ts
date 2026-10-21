@@ -252,3 +252,17 @@ describe('api client calls fetch the way browsers allow', () => {
     await expect(new Api(kv, strict).cities()).resolves.toMatchObject({ stale: false })
   })
 })
+
+describe('the app scheme and the screenshot seed link', () => {
+  it('reads shubhpanchang://<route> like the web paths', () => {
+    expect(routeForWebPath('shubhpanchang://vrat')).toBe('/vrat')
+    expect(routeForWebPath('shubhpanchang://family-add')).toBe('/family-add')
+    expect(routeForWebPath('shubhpanchang://settings/')).toBe('/settings')
+    expect(routeForWebPath('shubhpanchang://')).toBe('/')
+  })
+  it('opens the seed screen only in a screenshot build', () => {
+    expect(routeForWebPath('shubhpanchang://seed?lang=en&city=newjersey-us', true)).toBe('/seed?lang=en&city=newjersey-us')
+    expect(routeForWebPath('shubhpanchang://seed?lang=en', false)).toBe('/')
+    expect(routeForWebPath('https://shubhpanchang.in/seed', false)).toBe('/')
+  })
+})

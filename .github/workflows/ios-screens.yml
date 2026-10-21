@@ -1,0 +1,106 @@
+name: iOS screenshots (ShubhPanchang)
+
+# Opens every screen on an iPhone simulator and keeps a screenshot of each, for
+# review (and later the App Store). A Release build for the SIMULATOR with
+# EXPO_PUBLIC_SCREENSHOT_SEED=1, which enables shubhpanchang://seed?... (src/app/
+# seed.tsx: language, place, sample family dates); every other build ignores
+# that link. No Apple secrets, nothing published: artifacts only.
+#
+# Run trigger: a push to main whose commit message has [screens], or by hand.
+# The repository is public only for the run (scripts/ci-build.sh).
+# Build note: first screenshot run.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-screens
+  cancel-in-progress: true
+
+jobs:
+  screens:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[screens]') }}
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      EXPO_PUBLIC_SCREENSHOT_SEED: '1'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # npm install, not npm ci: see ios-sim.yml.
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Select the newest Xcode
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+
+      - name: Generate the native project (expo prebuild, CocoaPods)
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Build for the simulator (Release, screenshot seed on, no signing)
+        run: |
+          set -o pipefail
+          WS=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath dd CODE_SIGNING_ALLOWED=NO build 2>&1 \
+            | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Open every screen and capture it
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)['devices']
+          c=[(r,x['udid'],x['name']) for r,l in d.items() if 'iOS' in r for x in l if x['name'].startswith('iPhone') and 'Pro Max' not in x['name'] and 'Plus' not in x['name']]
+          c.sort()
+          print(c[-1][1])")
+          xcrun simctl list devices | grep "$UDID"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance light
+          APP=$(ls -d dd/Build/Products/Release-iphonesimulator/*.app | head -1)
+          xcrun simctl install "$UDID" "$APP"
+          mkdir -p shots
+          shot () { sleep "${2:-8}"; xcrun simctl io "$UDID" screenshot "shots/$1.png" && echo "shot $1"; }
+          go () { xcrun simctl openurl "$UDID" "$1"; }
+
+          xcrun simctl launch "$UDID" in.shubhpanchang.app
+          shot 01-onboarding 15
+
+          go "shubhpanchang://seed?lang=gu&city=ahmedabad";    shot 02-today-gu 15
+          go "shubhpanchang://vrat";                            shot 03-vrat-gu
+          go "shubhpanchang://family";                          shot 04-family-gu
+          go "shubhpanchang://calendar";                        shot 05-calendar-gu
+          go "shubhpanchang://settings";                        shot 06-settings-gu
+          go "shubhpanchang://family-add";                      shot 07-family-add-gu
+          go "shubhpanchang://place";                           shot 08-place-gu
+
+          go "shubhpanchang://seed?lang=en&city=newjersey-us"; shot 09-today-en-nj 15
+          go "shubhpanchang://vrat";                            shot 10-vrat-en-nj
+
+          xcrun simctl ui "$UDID" appearance dark
+          go "shubhpanchang://";                                shot 11-today-dark-en
+          go "shubhpanchang://calendar";                        shot 12-calendar-dark-en
+          ls -la shots
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-screens
+          path: |
+            shots
+            build.log
+          retention-days: 3

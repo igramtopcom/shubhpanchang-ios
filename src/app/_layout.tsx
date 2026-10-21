@@ -40,6 +40,8 @@ function Gate() {
         <Stack.Protected guard={!prefs.onboarded}>
           <Stack.Screen name="onboarding" />
         </Stack.Protected>
+        {/* Screenshot builds only (src/app/seed.tsx); elsewhere it just opens Today. */}
+        <Stack.Screen name="seed" />
       </Stack>
     </ThemeProvider>
   );

@@ -5,6 +5,7 @@ Cùng cách với Sondra iOS và Sanftly: không cần Mac, không có chứng c
 | Workflow | Chạy khi | Việc | Cần gì |
 |---|---|---|---|
 | `ios-sim.yml` | commit có `[sim]`, hoặc chạy tay | test logic, typecheck, `expo prebuild`, build Release cho Simulator (không ký), mở app, chụp màn hình | không cần secret |
+| `ios-screens.yml` | commit có `[screens]`, hoặc chạy tay | build simulator có bật link `shubhpanchang://seed` (chỉ bản này), mở từng màn và chụp: onboarding, 7 màn tiếng Gujarati (Ahmedabad), 2 màn tiếng Anh (New Jersey), 2 màn chế độ tối | không cần secret |
 | `ios-testflight.yml` | commit có `[testflight]`, hoặc chạy tay | archive không ký → export ký trên cloud → đẩy lên App Store Connect (TestFlight); số build = số lần chạy | 4 secret bên dưới |
 
 Thành công thật sự khi log có `BUILD SUCCEEDED` (simulator), hoặc `EXPORT SUCCEEDED` và `Uploaded` (TestFlight). Job xanh thôi là chưa đủ: workflow tự kiểm tra các dòng này.

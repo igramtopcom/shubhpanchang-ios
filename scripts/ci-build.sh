@@ -63,6 +63,7 @@ else
   # message runs a job, the other is skipped. Watch the tagged one.
   WF=ios-sim.yml
   git log -1 --format=%B | grep -qF '[testflight]' && WF=ios-testflight.yml
+  git log -1 --format=%B | grep -qF '[screens]' && WF=ios-screens.yml
   for i in $(seq 1 36); do
     RID=$(gh run list -R "$REPO" --commit "$SHA" --workflow "$WF" --json databaseId -q '.[0].databaseId' 2>/dev/null)
     [ -n "$RID" ] && break
