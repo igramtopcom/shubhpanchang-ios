@@ -336,3 +336,20 @@ describe('Siri answers (siri-feed.ts)', () => {
     if (first.parana?.end) expect(v[first.date]).toContain(`${first.parana.start} to ${first.parana.end}`)
   })
 })
+
+describe('Api request sharing', () => {
+  it('sends one request for identical calls made together, and reuses it briefly', async () => {
+    const store = new Map<string, string>()
+    const kv: KV = {
+      getItem: async k => store.get(k) ?? null, setItem: async (k, v) => { store.set(k, v) },
+      removeItem: async k => { store.delete(k) }, getAllKeys: async () => [...store.keys()],
+    }
+    let calls = 0
+    const fake = (async () => { calls++; await new Promise(r => setTimeout(r, 5)); return { ok: true, status: 200, json: async () => ({ engine: 'v12', cities: [] }) } }) as unknown as typeof fetch
+    const api = new Api(kv, fake)
+    await Promise.all([api.cities(), api.cities(), api.cities()])
+    expect(calls).toBe(1)
+    await api.cities()
+    expect(calls).toBe(1)
+  })
+})

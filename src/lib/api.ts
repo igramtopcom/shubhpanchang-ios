@@ -56,23 +56,59 @@ function urlFor (path: string, params: Record<string, string | number | undefine
  */
 const globalFetch: typeof fetch = (input, init) => fetch(input, init)
 
+/** Identical requests within this window share one answer. */
+const RECENT_MS = 30_000
+/** Give up on a request after this long and serve the stored answer. */
+const TIMEOUT_MS = 15_000
+
 export class Api {
   private fetchImpl: typeof fetch
   constructor (private kv: KV, fetchImpl: typeof fetch = globalFetch) {
     this.fetchImpl = fetchImpl
   }
 
+  /**
+   * One request per URL at a time, and its answer reused for a short while:
+   * Today, the notification plan, the widgets and Siri all read the same
+   * 62-day window when the app opens (four identical requests before this).
+   */
+  private inFlight = new Map<string, Promise<{ body: any; fetchedAt: number }>>()
+  private recent = new Map<string, { body: any; fetchedAt: number }>()
+
+  private fetchBody (url: string): Promise<{ body: any; fetchedAt: number }> {
+    const hit = this.recent.get(url)
+    if (hit && Date.now() - hit.fetchedAt < RECENT_MS) return Promise.resolve(hit)
+    let p = this.inFlight.get(url)
+    if (!p) {
+      p = (async () => {
+        // A request that hangs falls back to the stored answer instead of spinning on.
+        const ctl = typeof AbortController === 'function' ? new AbortController() : null
+        const timer = ctl ? setTimeout(() => ctl.abort(), TIMEOUT_MS) : null
+        try {
+          const f = this.fetchImpl
+          const res = await f(url, { headers: { Accept: 'application/json' }, signal: ctl?.signal })
+          const body = await res.json()
+          if (!res.ok) throw new ApiError(body?.error ?? 'HTTP_ERROR', body?.message ?? `HTTP ${res.status}`, res.status)
+          await this.noteEngine(body.engine)
+          const got = { body, fetchedAt: Date.now() }
+          await this.kv.setItem(CACHE_PREFIX + url, JSON.stringify(got))
+          this.recent.set(url, got)
+          return got
+        } finally {
+          if (timer) clearTimeout(timer)
+          this.inFlight.delete(url)
+        }
+      })()
+      this.inFlight.set(url, p)
+    }
+    return p
+  }
+
   private async get<T> (path: string, params: Record<string, string | number | undefined>, pick: (body: any) => T): Promise<Fetched<T>> {
     const url = urlFor(path, params)
     const key = CACHE_PREFIX + url
     try {
-      const f = this.fetchImpl
-      const res = await f(url, { headers: { Accept: 'application/json' } })
-      const body = await res.json()
-      if (!res.ok) throw new ApiError(body?.error ?? 'HTTP_ERROR', body?.message ?? `HTTP ${res.status}`, res.status)
-      await this.noteEngine(body.engine)
-      const fetchedAt = Date.now()
-      await this.kv.setItem(key, JSON.stringify({ body, fetchedAt }))
+      const { body, fetchedAt } = await this.fetchBody(url)
       return { data: pick(body), stale: false, fetchedAt }
     } catch (e) {
       // A 4xx is a real answer (bad input), not a network failure: never mask it.
