@@ -1,0 +1,92 @@
+name: iOS simulator build (ShubhPanchang)
+
+# Builds the app for the iPhone simulator WITHOUT signing, launches it and
+# keeps a screenshot. No Apple secrets, nothing published: artifacts only.
+#
+# macOS runners on a private repository are billed 10x and Actions on this
+# account fail on billing, so the repository is made public for the run and
+# private again right after (owner's rule, as for Sondra iOS and Sanftly;
+# announce before opening, report after closing). scripts/ci-build.sh does it.
+#
+# Run trigger: a push to main whose commit message has [sim], or a manual run.
+# Build note: first CI build of the Expo app.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-sim
+  cancel-in-progress: true
+
+jobs:
+  sim:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[sim]') }}
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Logic tests and typecheck
+        run: |
+          npm test
+          npx tsc --noEmit
+
+      - name: Select the newest Xcode
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          echo "using $X"
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+
+      - name: Generate the native project (expo prebuild, CocoaPods)
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Build for the simulator (Release, no signing)
+        run: |
+          set -o pipefail
+          WS=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          echo "SCHEME=$SCHEME" >> "$GITHUB_ENV"
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath dd CODE_SIGNING_ALLOWED=NO build 2>&1 \
+            | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Launch on a simulator and take a screenshot
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)['devices']
+          c=[(r,x['udid']) for r,l in d.items() if 'iOS' in r for x in l if x['name'].startswith('iPhone')]
+          c.sort()
+          print(c[-1][1])")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          APP=$(ls -d dd/Build/Products/Release-iphonesimulator/*.app | head -1)
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" in.shubhpanchang.app
+          sleep 20
+          mkdir -p shots
+          xcrun simctl io "$UDID" screenshot shots/launch.png
+          ls -la shots
+
+      - name: Keep the build log and the screenshot
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-sim
+          path: |
+            build.log
+            shots
+          retention-days: 3

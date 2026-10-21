@@ -18,7 +18,8 @@
       },
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true
-      }
+      },
+      "appleTeamId": "2GX4UMPT5P"
     },
     "android": {
       "package": "in.shubhpanchang.app",

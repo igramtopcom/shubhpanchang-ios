@@ -2,7 +2,8 @@
 
 Expo SDK 58 (React Native 0.88, Expo Router). Bundle ID `in.shubhpanchang.app`, App Store
 Connect record "ShubhPanchang: Vrat & Tithi" (Apple ID 6825234507). Plan: the "Kế hoạch app iOS
-ShubhPanchang" artifact; API contract: `../docs/api-v1.md`.
+ShubhPanchang" artifact; API contract: `docs/api-v1.md` in igramtopcom/shubhpanchang (the website,
+where this app lived as `mobile/` until it moved here).
 
 The app computes nothing astronomical itself: every tithi, sunrise, Parana and vrat day comes
 from `https://shubhpanchang.in/api/v1`, the same engine as the website, and is stored on the
@@ -21,16 +22,14 @@ phone for offline use (dropped when the server's engine version changes).
 ## Commands (from this folder)
 
 ```bash
-npm test                      # logic tests (vitest from the repo root)
+npm test                      # logic tests (vitest)
 npm run typecheck
 npx expo lint
 npx expo start --web --port 8083   # visual check in a browser (no notifications / Calendar on web)
 ```
 
-Native modules (notifications, Calendar, location, SQLite storage) need a development build:
-`npx eas-cli@latest build --profile development --platform ios`, which needs an Expo account
-linked to the Apple Developer team `2GX4UMPT5P` (the PM signs in; the build runs in the cloud,
-no Mac needed).
+Builds run on GitHub Actions (macOS), as for Sondra iOS and Sanftly: `docs/CI.md`. The
+repository is public only for the duration of a build (`scripts/ci-build.sh`).
 
 ## Not done yet (weeks 5-7 of the plan)
 
