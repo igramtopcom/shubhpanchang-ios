@@ -6,6 +6,7 @@ import { toMinutes, hhmm, zonedNow, zonedTimeToUtc, shiftDate } from '../src/lib
 import { planNotifications, DEFAULT_SETTINGS, PLAN_LIMIT } from '../src/lib/notify-plan'
 import { STRINGS, lunarLabel, tithiName, longDate } from '../src/lib/i18n'
 import { Api, feedUrl, placeQuery, type KV } from '../src/lib/api'
+import { moonSymbol, todayEntries, vratEntries } from '../src/lib/widget-feed'
 import type { Observance, PanchangDay } from '../src/lib/types'
 
 /* Fixtures are real /api/v1 answers: Ahmedabad 21-23 Oct 2026, New Jersey
@@ -270,5 +271,48 @@ describe('screenshot tour', () => {
     expect(TOUR[0].seed && TOUR[0].route).toBe('/')
     expect(TOUR_START).toBeGreaterThanOrEqual(15)
     expect(TOUR_STEP).toBeGreaterThanOrEqual(10)
+  })
+})
+
+describe('widget timeline (widget-feed.ts)', () => {
+  // 22 Oct 2026 09:00 IST = 03:30 UTC. Rog until 09:32; next good window Labh 12:24-13:50;
+  // Rahu Kaal 13:50-15:16 eats the Amrit slot.
+  const nowMs = Date.parse('2026-10-22T03:30:00Z')
+  const entries = todayEntries({
+    nowMs, today: '2026-10-22', timeZone: 'Asia/Kolkata', lang: 'en',
+    days, observances: [], kinds: ['ekadashi'], hours: 12,
+  })
+  const atIst = (h: number, m: number) => Date.parse(`2026-10-22T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00+05:30`)
+
+  it('starts now, waiting for Labh at 12:24, counting to that instant', () => {
+    expect(entries[0].date.getTime()).toBe(nowMs)
+    expect(entries[0].props).toMatchObject({ state: 'wait', name: 'Labh', at: '12:24', untilMs: atIst(12, 24) })
+  })
+
+  it('turns good at 12:24 and into Rahu Kaal at 13:50, with an entry at each change only', () => {
+    const good = entries.find(e => e.props.state === 'good')!
+    expect(good.date.getTime()).toBe(atIst(12, 24))
+    expect(good.props).toMatchObject({ name: 'Labh', at: 'until 13:50' })
+    const rahu = entries.find(e => e.props.state === 'rahu')!
+    expect(rahu.date.getTime()).toBe(atIst(13, 50))
+    expect(rahu.props.at).toBe('until 15:16')
+    // 09:32 (Rog -> Udveg) changes nothing on the widget, so it is not an entry.
+    expect(entries.some(e => e.date.getTime() === atIst(9, 32))).toBe(false)
+    expect(entries.map(e => e.date.getTime())).toEqual([...entries.map(e => e.date.getTime())].sort((a, b) => a - b))
+  })
+
+  it('names the tithi and its moon', () => {
+    expect(entries[0].props.tithi).toMatch(/Ashwin Shukla/)
+    expect(moonSymbol(14)).toBe('moonphase.full.moon')
+    expect(moonSymbol(29)).toBe('moonphase.new.moon')
+    expect(moonSymbol(7)).toBe('moonphase.first.quarter')
+  })
+
+  it('next-vrat entries flip Tomorrow to Today at midnight', () => {
+    const obs = observancesNj.observances as unknown as Observance[]
+    const first = obs.find(o => o.kind === 'ekadashi')!
+    const e = vratEntries({ nowMs: Date.parse(`${shiftDate(first.date, -1)}T12:00:00Z`), today: shiftDate(first.date, -1), timeZone: 'America/New_York', lang: 'en', observances: obs, kinds: ['ekadashi'] })
+    expect(e[0].props).toMatchObject({ when: 'Tomorrow', name: first.nameEn })
+    expect(e[1].props).toMatchObject({ when: 'Today', label: "Today's vrat" })
   })
 })

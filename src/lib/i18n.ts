@@ -128,6 +128,10 @@ export const STRINGS = {
     tierOk: 'મધ્યમ',
     tierAvoid: 'ટાળો',
     vratDay: 'વ્રત',
+    tomorrowCap: 'આવતીકાલે',
+    paranaBeginsIn: 'પારણા શરૂ થવામાં',
+    trackParana: 'લૉક સ્ક્રીન પર પારણાની ગણતરી',
+    paranaTracking: 'લૉક સ્ક્રીન પર દેખાય છે',
     noVratSoon: 'આવતા દિવસોમાં કોઈ વ્રત નથી.',
     personName: 'નામ',
     personNamePh: 'દા.ત. બા, દાદા',
@@ -239,6 +243,10 @@ export const STRINGS = {
     tierOk: 'fair',
     tierAvoid: 'avoid',
     vratDay: 'vrat',
+    tomorrowCap: 'Tomorrow',
+    paranaBeginsIn: 'Parana begins in',
+    trackParana: 'Count down to Parana on the Lock Screen',
+    paranaTracking: 'Showing on the Lock Screen',
     noVratSoon: 'No vrat in the coming days.',
     personName: 'Name',
     personNamePh: 'e.g. Ba, Dada',
@@ -284,6 +292,12 @@ const COUNTRY: Record<string, { en: string; gu: string }> = {
   CH: { en: 'Switzerland', gu: 'સ્વિત્ઝર્લેન્ડ' }, AE: { en: 'UAE', gu: 'યુએઈ' }, SG: { en: 'Singapore', gu: 'સિંગાપોર' },
 }
 export const countryName = (code: string, lang: Lang) => COUNTRY[code]?.[lang] ?? code
+
+const CHOG_GU: Record<string, string> = {
+  Amrit: 'અમૃત', Shubh: 'શુભ', Labh: 'લાભ', Char: 'ચલ', Udveg: 'ઉદ્વેગ', Rog: 'રોગ', Kaal: 'કાળ',
+}
+/** A choghadiya's name in the reader's language. */
+export const chogName = (n: string, lang: Lang) => (lang === 'gu' ? CHOG_GU[n] ?? n : n)
 
 /** A place's name in the reader's language. */
 export const placeName = (p: { name: { en: string; gu: string } | null; lat: number; lon: number }, lang: Lang) =>
