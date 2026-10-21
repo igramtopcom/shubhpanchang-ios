@@ -79,11 +79,13 @@ jobs:
             console.log('version', c.expo.version, 'build', c.expo.ios.buildNumber);
           "
 
-      # Widgets stay out until the App Group group.in.shubhpanchang.app is
-      # registered on developer.apple.com (app.config.js); then set this to 'on'.
+      # Widgets need the App Group group.in.shubhpanchang.app, registered on
+      # developer.apple.com (2026-10-22) with App Groups on in.shubhpanchang.app
+      # and in.shubhpanchang.app.widgets: an API key cannot create App Groups.
+      # 'off' builds without the widget extension (app.config.js).
       - name: Generate the native project (expo prebuild, CocoaPods)
         env:
-          SP_WIDGETS: 'off'
+          SP_WIDGETS: 'on'
         run: npx expo prebuild --platform ios --clean
 
       - name: Write the API key to a temp file (mode 600)

@@ -54,11 +54,11 @@ Ký hiệu cột "Cần": **RN** làm bằng JS; **CFG** chỉ cấu hình hoặ
 
 | # | Việc | Cần | Trạng thái |
 |---|---|---|---|
-| 3.1 | Widget màn hình chính: nhỏ (tithi + giờ shubh kế tiếp), vừa (tithi, Rahu Kaal, vrat sắp tới) | NATIVE | code xong, chờ App Group |
-| 3.2 | Widget màn hình khoá: chữ nhật (shubh kế tiếp / parana), inline (tithi), tròn (ngày tới vrat) | NATIVE | code xong, chờ App Group |
-| 3.3 | Widget không dựa vào màu (chế độ tinted / clear), nền gỡ được cho StandBy | NATIVE | code xong, chờ App Group |
-| 3.4 | Live Activity "Parana": đếm ngược tới giờ được ăn lại, trên màn hình khoá và Dynamic Island (≤ 8 giờ, bắt đầu sáng ngày parana) | NATIVE | code xong, chờ App Group |
-| 3.5 | Bấm widget mở đúng ngày hay đúng vrat | NATIVE | code xong, chờ App Group |
+| 3.1 | Widget màn hình chính: nhỏ (tithi + giờ shubh kế tiếp), vừa (tithi, Rahu Kaal, vrat sắp tới) | NATIVE | code xong, bật từ build 14 |
+| 3.2 | Widget màn hình khoá: chữ nhật (shubh kế tiếp / parana), inline (tithi), tròn (ngày tới vrat) | NATIVE | code xong, bật từ build 14 |
+| 3.3 | Widget không dựa vào màu (chế độ tinted / clear), nền gỡ được cho StandBy | NATIVE | code xong, bật từ build 14 |
+| 3.4 | Live Activity "Parana": đếm ngược tới giờ được ăn lại, trên màn hình khoá và Dynamic Island (≤ 8 giờ, bắt đầu sáng ngày parana) | NATIVE | code xong, bật từ build 14 |
+| 3.5 | Bấm widget mở đúng ngày hay đúng vrat | NATIVE | code xong, bật từ build 14 |
 
 ### Đợt 4: Siri và Spotlight (NATIVE, Swift)
 
@@ -84,7 +84,7 @@ Ký hiệu cột "Cần": **RN** làm bằng JS; **CFG** chỉ cấu hình hoặ
 - Màu là cách duy nhất để hiểu nghĩa.
 - Onboarding dài.
 
-## Việc cần PM làm để bật widget và Live Activity
+## Widget và Live Activity: App Group (đã đăng ký 22/10/2026)
 
 Khóa API của App Store Connect không tạo được App Group, nên lần ký trên đám mây thất bại (run 39629150307). Vì vậy bản TestFlight hiện build **không có widget** (`SP_WIDGETS: 'off'` trong `.github/workflows/ios-testflight.yml`).
 
