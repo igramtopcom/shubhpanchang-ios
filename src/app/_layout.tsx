@@ -3,7 +3,9 @@ import { useColorScheme } from 'react-native';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { ScreenshotTour } from '@/components/screenshot-tour';
 import { Colors } from '@/constants/theme';
+import { SCREENSHOT_BUILD } from '@/lib/tour';
 import { AppProvider, useApp } from '@/state/app';
 
 SplashScreen.preventAutoHideAsync();
@@ -31,6 +33,7 @@ function Gate() {
 
   return (
     <ThemeProvider value={theme}>
+      {SCREENSHOT_BUILD ? <ScreenshotTour /> : null}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={prefs.onboarded}>
           <Stack.Screen name="(tabs)" />
@@ -40,8 +43,6 @@ function Gate() {
         <Stack.Protected guard={!prefs.onboarded}>
           <Stack.Screen name="onboarding" />
         </Stack.Protected>
-        {/* Screenshot builds only (src/app/seed.tsx); elsewhere it just opens Today. */}
-        <Stack.Screen name="seed" />
       </Stack>
     </ThemeProvider>
   );

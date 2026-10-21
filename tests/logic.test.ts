@@ -260,9 +260,15 @@ describe('the app scheme and the screenshot seed link', () => {
     expect(routeForWebPath('shubhpanchang://settings/')).toBe('/settings')
     expect(routeForWebPath('shubhpanchang://')).toBe('/')
   })
-  it('opens the seed screen only in a screenshot build', () => {
-    expect(routeForWebPath('shubhpanchang://seed?lang=en&city=newjersey-us', true)).toBe('/seed?lang=en&city=newjersey-us')
-    expect(routeForWebPath('shubhpanchang://seed?lang=en', false)).toBe('/')
-    expect(routeForWebPath('https://shubhpanchang.in/seed', false)).toBe('/')
+})
+
+import { TOUR, TOUR_START, TOUR_STEP } from '../src/lib/tour'
+
+describe('screenshot tour', () => {
+  it('names every capture once and starts with a seeded Today', () => {
+    expect(new Set(TOUR.map(s => s.shot)).size).toBe(TOUR.length)
+    expect(TOUR[0].seed && TOUR[0].route).toBe('/')
+    expect(TOUR_START).toBeGreaterThanOrEqual(15)
+    expect(TOUR_STEP).toBeGreaterThanOrEqual(10)
   })
 })
