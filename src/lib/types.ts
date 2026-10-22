@@ -3,6 +3,13 @@
 
 export type Lang = 'gu' | 'en'
 
+/**
+ * Whose Ekadashi the reader keeps: the Smarta panchang, or a Vaishnava
+ * sampradaya of Gujarat, whose calendars keep some a day later
+ * (docs/sampradaya-ekadashi.md in the website repo).
+ */
+export type Sampradaya = 'smarta' | 'swaminarayan' | 'pushtimarg'
+
 export interface Place {
   /** City id from /api/v1/cities, or null for raw coordinates. */
   city: string | null

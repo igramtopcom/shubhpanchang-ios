@@ -9,10 +9,11 @@ import { Button, Card, Chip, Screen, T, useColors, type Symbol } from '@/compone
 import { WIDGETS } from '@/lib/features';
 import { t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
-import type { Lang, ObservanceKind, Place } from '@/lib/types';
+import type { Lang, ObservanceKind, Place, Sampradaya } from '@/lib/types';
 import { useApp } from '@/state/app';
 
 const KINDS: ObservanceKind[] = ['ekadashi', 'purnima', 'amavasya', 'sankashti', 'pradosh', 'shivaratri'];
+const SAMPRADAYAS: Sampradaya[] = ['smarta', 'swaminarayan', 'pushtimarg'];
 
 export default function Onboarding() {
   const { prefs, update } = useApp();
@@ -21,6 +22,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [place, setPlace] = useState<Place | null>(prefs.place);
   const [kinds, setKinds] = useState<ObservanceKind[]>(prefs.notify.kinds);
+  const [sampradaya, setSampradaya] = useState<Sampradaya>(prefs.sampradaya);
 
   const finish = async (remind: boolean) => {
     const granted = remind && notificationsSupported ? await notificationPermission(true) : false;
@@ -28,6 +30,7 @@ export default function Onboarding() {
     const tip = Platform.OS === 'ios' && WIDGETS;
     update({
       place,
+      sampradaya,
       onboarded: !tip,
       notify: {
         ...prefs.notify,
@@ -108,6 +111,17 @@ export default function Onboarding() {
               />
             ))}
           </View>
+          {kinds.includes('ekadashi') ? (
+            <View style={{ gap: 8, paddingTop: 8 }}>
+              <T kind="heading">{s.sampradayaQ}</T>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {SAMPRADAYAS.map(x => (
+                  <Chip key={x} label={s[`sampradaya_${x}` as const]} selected={sampradaya === x} onPress={() => setSampradaya(x)} />
+                ))}
+              </View>
+              <T kind="small">{s.sampradayaHint}</T>
+            </View>
+          ) : null}
           <Button label={s.next} onPress={() => setStep(3)} />
         </View>
       ) : null}

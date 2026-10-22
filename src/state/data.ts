@@ -62,8 +62,9 @@ export function usePanchangWindow(): Loaded<PanchangDay[]> & { today: string } {
   const place = prefs.place;
   const today = useNow(place?.timezone).date;
   const from = shiftDate(today, -1);
-  const key = place ? `panchang:${placeKey(place)}:${from}` : null;
-  const res = useLoad(key, () => api.panchang(place!, from, 62));
+  const sampradaya = prefs.sampradaya;
+  const key = place ? `panchang:${placeKey(place)}:${sampradaya}:${from}` : null;
+  const res = useLoad(key, () => api.panchang(place!, from, 62, sampradaya));
   return { ...res, today };
 }
 
@@ -73,15 +74,17 @@ export function useMonth(month: string): Loaded<PanchangDay[]> {
   const first = `${month}-01`;
   const [y, m] = month.split('-').map(Number);
   const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
-  const key = place ? `month:${placeKey(place)}:${month}` : null;
-  return useLoad(key, () => api.panchang(place!, first, days));
+  const sampradaya = prefs.sampradaya;
+  const key = place ? `month:${placeKey(place)}:${sampradaya}:${month}` : null;
+  return useLoad(key, () => api.panchang(place!, first, days, sampradaya));
 }
 
 export function useObservances(from: string, to: string): Loaded<Observance[]> {
   const { api, prefs } = useApp();
   const place = prefs.place;
-  const key = place ? `obs:${placeKey(place)}:${from}:${to}` : null;
-  return useLoad(key, () => api.observances(place!, from, to));
+  const sampradaya = prefs.sampradaya;
+  const key = place ? `obs:${placeKey(place)}:${sampradaya}:${from}:${to}` : null;
+  return useLoad(key, () => api.observances(place!, from, to, sampradaya));
 }
 
 export function useFestivals(from: string, to: string): Loaded<Festival[]> {

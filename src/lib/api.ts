@@ -7,7 +7,7 @@
 // different engine, everything stored is dropped, because any of it could now
 // be wrong. Offline, the last stored answer is served and flagged `stale`.
 
-import type { City, FamilyDate, Festival, LunarDate, Observance, PanchangDay, Place, TithiOccurrence } from './types'
+import type { City, FamilyDate, Festival, LunarDate, Observance, PanchangDay, Place, TithiOccurrence, Sampradaya } from './types'
 
 export const API_BASE = 'https://shubhpanchang.in/api/v1'
 
@@ -38,6 +38,11 @@ export function placeQuery (p: Place): Record<string, string> {
   return p.city
     ? { city: p.city }
     : { lat: p.lat.toFixed(2), lon: p.lon.toFixed(2), tz: p.timezone }
+}
+
+/** Left out for Smarta, so a Smarta reader's stored answers and URLs stay as they were. */
+export function sampradayaQuery (s: Sampradaya): Record<string, string> {
+  return s === 'smarta' ? {} : { sampradaya: s }
 }
 
 function urlFor (path: string, params: Record<string, string | number | undefined>): string {
@@ -138,12 +143,12 @@ export class Api {
     })) as City[])
   }
 
-  panchang (place: Place, from: string, days: number) {
-    return this.get('/panchang', { ...placeQuery(place), from, days }, b => b.days as PanchangDay[])
+  panchang (place: Place, from: string, days: number, sampradaya: Sampradaya = 'smarta') {
+    return this.get('/panchang', { ...placeQuery(place), from, days, ...sampradayaQuery(sampradaya) }, b => b.days as PanchangDay[])
   }
 
-  observances (place: Place, from: string, to: string) {
-    return this.get('/observances', { ...placeQuery(place), from, to }, b => b.observances as Observance[])
+  observances (place: Place, from: string, to: string, sampradaya: Sampradaya = 'smarta') {
+    return this.get('/observances', { ...placeQuery(place), from, to, ...sampradayaQuery(sampradaya) }, b => b.observances as Observance[])
   }
 
   festivals (place: Place, from: string, to: string) {
@@ -170,9 +175,9 @@ export class Api {
 }
 
 /** The subscription feed URL for a place (docs/api-v1.md, "Calendar feed for one place"). */
-export function feedUrl (p: Place, lang: 'gu' | 'en', scheme: 'webcal' | 'https' = 'webcal'): string {
+export function feedUrl (p: Place, lang: 'gu' | 'en', scheme: 'webcal' | 'https' = 'webcal', sampradaya: Sampradaya = 'smarta'): string {
   const path = p.city
     ? `${p.city}.ics`
     : `${p.lat.toFixed(2)},${p.lon.toFixed(2)}/${p.timezone}.ics`
-  return `${scheme}://shubhpanchang.in/feed/${lang}/${path}`
+  return `${scheme}://shubhpanchang.in/feed/${lang}/${path}${sampradaya === 'smarta' ? '' : `?sampradaya=${sampradaya}`}`
 }

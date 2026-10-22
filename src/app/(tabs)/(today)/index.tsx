@@ -113,6 +113,7 @@ export default function Today() {
                 {s.parana}: {longDate(nextVrat.parana.date, lang, false)} {nextVrat.parana.end ? `${nextVrat.parana.start}–${nextVrat.parana.end}` : s.paranaAfter(nextVrat.parana.start)}
               </T>
             ) : null}
+            {nextVrat.kind === 'ekadashi' && !nextVrat.parana && prefs.sampradaya !== 'smarta' ? <T kind="small">{s.paranaMandir}</T> : null}
             {nextVrat.moonrise ? <T kind="small" color={c.good}>{s.moonrise}: {nextVrat.moonrise.time}</T> : null}
           </Card>
         </Pressable>

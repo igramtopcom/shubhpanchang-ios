@@ -6,12 +6,13 @@ import { getCalendars, getLocales } from 'expo-localization';
 import { Api } from '@/lib/api';
 import { DEFAULT_SETTINGS, type NotifySettings } from '@/lib/notify-plan';
 import { kv } from '@/lib/storage';
-import type { FamilyDate, Lang, Place } from '@/lib/types';
+import type { FamilyDate, Lang, Place, Sampradaya } from '@/lib/types';
 
 export interface Prefs {
   onboarded: boolean;
   lang: Lang;
   place: Place | null;
+  sampradaya: Sampradaya;
   notify: NotifySettings;
   family: FamilyDate[];
 }
@@ -32,6 +33,7 @@ const initialPrefs = (): Prefs => ({
   onboarded: false,
   lang: defaultLang(),
   place: null,
+  sampradaya: 'smarta',
   notify: DEFAULT_SETTINGS,
   family: [],
 });

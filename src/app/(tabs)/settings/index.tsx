@@ -11,9 +11,10 @@ import { tick } from '@/lib/haptics';
 import { placeName, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
 import type { NotifySettings } from '@/lib/notify-plan';
-import type { Lang, ObservanceKind } from '@/lib/types';
+import type { Lang, ObservanceKind, Sampradaya } from '@/lib/types';
 import { useApp } from '@/state/app';
 
+const SAMPRADAYAS: Sampradaya[] = ['smarta', 'swaminarayan', 'pushtimarg'];
 const KINDS: ObservanceKind[] = ['ekadashi', 'purnima', 'amavasya', 'sankashti', 'pradosh', 'shivaratri'];
 
 export default function SettingsScreen() {
@@ -70,6 +71,15 @@ export default function SettingsScreen() {
         </View>
       </Section>
 
+      <Section title={s.settingsSampradaya}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {SAMPRADAYAS.map(x => (
+            <Chip key={x} label={s[`sampradaya_${x}` as const]} selected={prefs.sampradaya === x} onPress={() => update({ sampradaya: x })} />
+          ))}
+        </View>
+        <T kind="small">{s.sampradayaHint}</T>
+      </Section>
+
       <Section title={s.whichVrat}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {KINDS.map(k => (
@@ -96,7 +106,7 @@ export default function SettingsScreen() {
 
       <Card>
         <T kind="small">{s.feedNote}</T>
-        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
+        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang, 'webcal', prefs.sampradaya))} />
       </Card>
 
       <Section title={s.aboutTitle}>

@@ -193,6 +193,18 @@ describe('api client', () => {
     expect(feedUrl({ ...place, city: null, lat: 40.5187, lon: -74.4121, timezone: 'America/New_York' }, 'en'))
       .toBe('webcal://shubhpanchang.in/feed/en/40.52,-74.41/America/New_York.ics')
   })
+
+  it('asks for a sampradaya\'s Ekadashi only when the reader follows one', async () => {
+    expect(feedUrl(place, 'gu', 'webcal', 'smarta')).toBe('webcal://shubhpanchang.in/feed/gu/ahmedabad.ics')
+    expect(feedUrl(place, 'gu', 'webcal', 'swaminarayan')).toBe('webcal://shubhpanchang.in/feed/gu/ahmedabad.ics?sampradaya=swaminarayan')
+    const urls: string[] = []
+    const spy = (async (url: string) => { urls.push(url); return new Response(JSON.stringify({ engine: 'v12', observances: [] }), { status: 200 }) }) as any
+    const api = new Api(memory(), spy)
+    await api.observances(place, '2026-07-01', '2026-07-31')
+    await api.observances(place, '2026-07-01', '2026-07-31', 'pushtimarg')
+    expect(urls[0]).not.toContain('sampradaya')
+    expect(urls[1]).toContain('sampradaya=pushtimarg')
+  })
 })
 
 import { routeForWebPath } from '../src/lib/links'

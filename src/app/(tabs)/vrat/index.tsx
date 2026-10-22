@@ -49,7 +49,7 @@ export default function VratScreen() {
       <Segmented values={[s.segVrat, s.segFestivals]} index={seg} onChange={setSeg} />
       <Card>
         <T kind="small">{s.feedNote}</T>
-        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
+        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang, 'webcal', prefs.sampradaya))} />
       </Card>
       {current.stale ? <Notice text={s.offline} /> : null}
       {current.error && !current.data ? <Notice text={s.loadError} onRetry={current.reload} retryLabel={s.retry} /> : null}
@@ -80,6 +80,8 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
   const c = useColors();
   const name = lang === 'gu' ? o.nameGu : o.nameEn;
   const moved = o.indiaDate && o.indiaDate !== o.date;
+  // A sampradaya's Ekadashi: its own day, and the Parana its mandir prints.
+  const sect = o.kind === 'ekadashi' && prefs.sampradaya !== 'smarta' ? s[`sampradaya_${prefs.sampradaya}` as const] : null;
   const paranaText = o.parana
     ? `${longDate(o.parana.date, lang, false)} ${o.parana.end ? `${o.parana.start}–${o.parana.end}` : s.paranaAfter(o.parana.start)}`
     : null;
@@ -88,10 +90,11 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
       <T kind="label">{longDate(o.date, lang)}</T>
       <T kind="heading">{name}</T>
       {o.popular ? <T kind="small">{o.popular[lang]}</T> : null}
-      {moved ? <T kind="small">{s.keptHere(longDate(o.indiaDate!, lang, false))}</T> : null}
+      {moved ? <T kind="small">{sect ? s.keptBySampradaya(sect, longDate(o.indiaDate!, lang, false)) : s.keptHere(longDate(o.indiaDate!, lang, false))}</T> : null}
       {/* Abroad only: festival dates are not localised yet (the website says the same beside the row). */}
       {o.reason === 'festival-bound' ? <T kind="small">{s.festivalIndiaDate}</T> : null}
       {paranaText ? <T kind="value" color={c.good}>{s.parana}: {paranaText}</T> : null}
+      {sect && !o.parana ? <T kind="small">{s.paranaMandir}</T> : null}
       {o.moonrise ? <T kind="value" color={c.good}>{s.moonrise}: {o.moonrise.time}</T> : null}
       {o.window ? <T kind="value" color={c.good}>{o.kind === 'pradosh' ? s.pradoshKaal : s.nishita}: {o.window.start}–{o.window.end}</T> : null}
       {/* Parana or moonrise within eight hours: the Lock Screen countdown. */}
