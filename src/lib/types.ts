@@ -81,8 +81,8 @@ export interface Festival {
   type: 'major' | 'regional' | 'vrat'
   about: { en: string; gu: string } | null
   indiaDate: string
-  /** india-list; local-day (moved to the place's day); india-date (abroad, kept on India's date). */
-  reason: 'india-list' | 'local-day' | 'india-date'
+  /** india-list; local-day (moved to the place's day); local-same (worked out here, India's day too); india-date (abroad, kept on India's date). */
+  reason: 'india-list' | 'local-day' | 'local-same' | 'india-date'
   url: string
 }
 
