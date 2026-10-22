@@ -8,7 +8,12 @@ export type Lang = 'gu' | 'en'
  * sampradaya of Gujarat, whose calendars keep some a day later
  * (docs/sampradaya-ekadashi.md in the website repo).
  */
-export type Sampradaya = 'smarta' | 'swaminarayan' | 'pushtimarg'
+export type Sampradaya = 'smarta' | 'swaminarayan' | 'baps' | 'pushtimarg' | 'jain'
+
+export const SAMPRADAYAS: Sampradaya[] = ['smarta', 'swaminarayan', 'baps', 'pushtimarg', 'jain']
+
+/** The sampradayas that keep the Vaishnava Ekadashi (a day later at times). Jains keep the parva tithis instead. */
+export const isVaishnava = (s: Sampradaya) => s === 'swaminarayan' || s === 'baps' || s === 'pushtimarg'
 
 export interface Place {
   /** City id from /api/v1/cities, or null for raw coordinates. */
@@ -62,7 +67,7 @@ export interface PanchangDay {
   } | null
 }
 
-export type ObservanceKind = 'ekadashi' | 'purnima' | 'amavasya' | 'sankashti' | 'pradosh' | 'shivaratri'
+export type ObservanceKind = 'ekadashi' | 'purnima' | 'amavasya' | 'sankashti' | 'pradosh' | 'shivaratri' | 'parva'
 
 export interface Observance {
   kind: ObservanceKind
@@ -88,9 +93,11 @@ export interface Festival {
   type: 'major' | 'regional' | 'vrat'
   about: { en: string; gu: string } | null
   indiaDate: string
-  /** india-list; local-day (moved to the place's day); local-same (worked out here, India's day too); india-date (abroad, kept on India's date). */
-  reason: 'india-list' | 'local-day' | 'local-same' | 'india-date'
-  url: string
+  /** india-list; local-day (moved to the place's day); local-same (worked out here, India's day too); india-date (abroad, kept on India's date); sampradaya (an utsav of the reader's sampradaya). */
+  reason: 'india-list' | 'local-day' | 'local-same' | 'india-date' | 'sampradaya'
+  /** The festival's page on the site; null for a sampradaya utsav, which has none. */
+  url: string | null
+  sampradaya?: Sampradaya
 }
 
 export interface LunarDate {

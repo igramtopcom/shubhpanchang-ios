@@ -19,7 +19,7 @@ export function FestivalCard({ f, today }: { f: Festival; today: string }) {
   const name = gu ? f.nameGu : f.nameEn;
   const about = f.about ? (gu ? f.about.gu : f.about.en) : null;
   const kind = f.type === 'major' ? s.festMajor : f.type === 'regional' ? s.festRegional : s.festVrat;
-  const url = `${f.url}${gu ? '' : '?lang=en'}`;
+  const url = f.url ? `${f.url}${gu ? '' : '?lang=en'}` : null;
   return (
     <Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -40,7 +40,7 @@ export function FestivalCard({ f, today }: { f: Festival; today: string }) {
             onPress={() => addAllDayEvent({ date: f.date, title: name, notes: [about, url].filter(Boolean).join('\n\n') })}
           />
         ) : null}
-        <Button kind="plain" compact icon="book" label={s.readMore} onPress={() => { WebBrowser.openBrowserAsync(url).catch(() => {}); }} />
+        {url ? <Button kind="plain" compact icon="book" label={s.readMore} onPress={() => { WebBrowser.openBrowserAsync(url).catch(() => {}); }} /> : null}
       </View>
     </Card>
   );

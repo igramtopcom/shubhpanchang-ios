@@ -151,8 +151,8 @@ export class Api {
     return this.get('/observances', { ...placeQuery(place), from, to, ...sampradayaQuery(sampradaya) }, b => b.observances as Observance[])
   }
 
-  festivals (place: Place, from: string, to: string) {
-    return this.get('/festivals', { ...placeQuery(place), from, to }, b => b.festivals as Festival[])
+  festivals (place: Place, from: string, to: string, sampradaya: Sampradaya = 'smarta') {
+    return this.get('/festivals', { ...placeQuery(place), from, to, ...sampradayaQuery(sampradaya) }, b => b.festivals as Festival[])
   }
 
   tithiOf (place: Place, date: string, time?: string) {

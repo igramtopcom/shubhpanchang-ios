@@ -13,7 +13,7 @@ import { addAllDayEvent, calendarSupported, subscribe } from '@/lib/calendar';
 import { longDate, t } from '@/lib/i18n';
 import { shiftDate, zonedTimeToUtc } from '@/lib/time';
 import { vratCountdown } from '@/lib/widget-feed';
-import type { Observance } from '@/lib/types';
+import { isVaishnava, type Observance } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useFestivals, useNow, useObservances } from '@/state/data';
 
@@ -81,7 +81,7 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
   const name = lang === 'gu' ? o.nameGu : o.nameEn;
   const moved = o.indiaDate && o.indiaDate !== o.date;
   // A sampradaya's Ekadashi: its own day, and the Parana its mandir prints.
-  const sect = o.kind === 'ekadashi' && prefs.sampradaya !== 'smarta' ? s[`sampradaya_${prefs.sampradaya}` as const] : null;
+  const sect = o.kind === 'ekadashi' && isVaishnava(prefs.sampradaya) ? s[`sampradaya_${prefs.sampradaya}` as const] : null;
   const paranaText = o.parana
     ? `${longDate(o.parana.date, lang, false)} ${o.parana.end ? `${o.parana.start}–${o.parana.end}` : s.paranaAfter(o.parana.start)}`
     : null;

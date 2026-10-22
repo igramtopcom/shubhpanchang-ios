@@ -9,11 +9,15 @@ import { Button, Card, Chip, Screen, T, useColors, type Symbol } from '@/compone
 import { WIDGETS } from '@/lib/features';
 import { t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
-import type { Lang, ObservanceKind, Place, Sampradaya } from '@/lib/types';
+import { SAMPRADAYAS, type Lang, type ObservanceKind, type Place, type Sampradaya } from '@/lib/types';
 import { useApp } from '@/state/app';
 
 const KINDS: ObservanceKind[] = ['ekadashi', 'purnima', 'amavasya', 'sankashti', 'pradosh', 'shivaratri'];
-const SAMPRADAYAS: Sampradaya[] = ['smarta', 'swaminarayan', 'pushtimarg'];
+/** The vrats offered: a Jain reader also gets the parva tithis. */
+const kindsFor = (s: Sampradaya): ObservanceKind[] => (s === 'jain' ? ['parva', ...KINDS] : KINDS);
+/** Choosing Jain turns the parva tithis on; leaving it turns them off. */
+const withParva = (kinds: ObservanceKind[], s: Sampradaya): ObservanceKind[] =>
+  s === 'jain' ? (kinds.includes('parva') ? kinds : ['parva', ...kinds]) : kinds.filter(k => k !== 'parva');
 
 export default function Onboarding() {
   const { prefs, update } = useApp();
@@ -100,9 +104,16 @@ export default function Onboarding() {
 
       {step === 2 ? (
         <View style={{ gap: 12 }}>
-          <T kind="heading">{s.whichVrat}</T>
+          <T kind="heading">{s.sampradayaQ}</T>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {KINDS.map(k => (
+            {SAMPRADAYAS.map(x => (
+              <Chip key={x} label={s[`sampradaya_${x}` as const]} selected={sampradaya === x} onPress={() => { setSampradaya(x); setKinds(withParva(kinds, x)); }} />
+            ))}
+          </View>
+          <T kind="small">{s.sampradayaHint}</T>
+          <T kind="heading" style={{ paddingTop: 8 }}>{s.whichVrat}</T>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {kindsFor(sampradaya).map(k => (
               <Chip
                 key={k}
                 label={s[`kind_${k}` as const]}
@@ -111,17 +122,6 @@ export default function Onboarding() {
               />
             ))}
           </View>
-          {kinds.includes('ekadashi') ? (
-            <View style={{ gap: 8, paddingTop: 8 }}>
-              <T kind="heading">{s.sampradayaQ}</T>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                {SAMPRADAYAS.map(x => (
-                  <Chip key={x} label={s[`sampradaya_${x}` as const]} selected={sampradaya === x} onPress={() => setSampradaya(x)} />
-                ))}
-              </View>
-              <T kind="small">{s.sampradayaHint}</T>
-            </View>
-          ) : null}
           <Button label={s.next} onPress={() => setStep(3)} />
         </View>
       ) : null}

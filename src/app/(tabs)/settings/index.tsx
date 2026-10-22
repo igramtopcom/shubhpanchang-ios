@@ -11,11 +11,15 @@ import { tick } from '@/lib/haptics';
 import { placeName, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
 import type { NotifySettings } from '@/lib/notify-plan';
-import type { Lang, ObservanceKind, Sampradaya } from '@/lib/types';
+import { SAMPRADAYAS, type Lang, type ObservanceKind, type Sampradaya } from '@/lib/types';
 import { useApp } from '@/state/app';
 
-const SAMPRADAYAS: Sampradaya[] = ['smarta', 'swaminarayan', 'pushtimarg'];
 const KINDS: ObservanceKind[] = ['ekadashi', 'purnima', 'amavasya', 'sankashti', 'pradosh', 'shivaratri'];
+/** The vrats offered: a Jain reader also gets the parva tithis. */
+const kindsFor = (s: Sampradaya): ObservanceKind[] => (s === 'jain' ? ['parva', ...KINDS] : KINDS);
+/** Choosing Jain turns the parva tithis on; leaving it turns them off. */
+const withParva = (kinds: ObservanceKind[], s: Sampradaya): ObservanceKind[] =>
+  s === 'jain' ? (kinds.includes('parva') ? kinds : ['parva', ...kinds]) : kinds.filter(k => k !== 'parva');
 
 export default function SettingsScreen() {
   const { prefs, update } = useApp();
@@ -74,7 +78,7 @@ export default function SettingsScreen() {
       <Section title={s.settingsSampradaya}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {SAMPRADAYAS.map(x => (
-            <Chip key={x} label={s[`sampradaya_${x}` as const]} selected={prefs.sampradaya === x} onPress={() => update({ sampradaya: x })} />
+            <Chip key={x} label={s[`sampradaya_${x}` as const]} selected={prefs.sampradaya === x} onPress={() => update({ sampradaya: x, notify: { ...prefs.notify, kinds: withParva(prefs.notify.kinds, x) } })} />
           ))}
         </View>
         <T kind="small">{s.sampradayaHint}</T>
@@ -82,7 +86,7 @@ export default function SettingsScreen() {
 
       <Section title={s.whichVrat}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {KINDS.map(k => (
+          {kindsFor(prefs.sampradaya).map(k => (
             <Chip
               key={k}
               label={s[`kind_${k}` as const]}

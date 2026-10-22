@@ -90,8 +90,9 @@ export function useObservances(from: string, to: string): Loaded<Observance[]> {
 export function useFestivals(from: string, to: string): Loaded<Festival[]> {
   const { api, prefs } = useApp();
   const place = prefs.place;
-  const key = place ? `fest:${placeKey(place)}:${from}:${to}` : null;
-  return useLoad(key, () => api.festivals(place!, from, to));
+  const sampradaya = prefs.sampradaya;
+  const key = place ? `fest:${placeKey(place)}:${sampradaya}:${from}:${to}` : null;
+  return useLoad(key, () => api.festivals(place!, from, to, sampradaya));
 }
 
 /** The next day each family date falls on, from today. */

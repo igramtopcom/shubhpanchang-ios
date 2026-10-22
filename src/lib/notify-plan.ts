@@ -92,14 +92,17 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
         date: shiftDate(o.date, -1),
         minutes: settings.vratEve.minutes,
         title: gu ? `આવતીકાલે ${name}` : `Tomorrow: ${name}`,
-        body: o.kind === 'sankashti' && o.moonrise
+        body: o.kind === 'parva'
+          ? (gu ? 'આવતીકાલે પર્વ તિથિ.' : 'A parva tithi tomorrow.')
+          : o.kind === 'sankashti' && o.moonrise
           ? (gu ? `ઉપવાસ આવતીકાલે. ચંદ્રોદય ${o.moonrise.time}.` : `Fast tomorrow. Moonrise ${o.moonrise.time}.`)
           : o.window
             ? `${o.kind === 'pradosh' ? s.pradoshKaal : s.nishita} ${o.window.start}–${o.window.end}.`
           : paranaText
             ? (gu ? `ઉપવાસ આવતીકાલે. પારણા ${paranaText}.` : `Fast tomorrow. Parana ${paranaText}.`)
             : (gu ? 'ઉપવાસ આવતીકાલે.' : 'Fast tomorrow.'),
-        priority: 1,
+        // A Jain reader's parva tithis come a dozen a month: below the fasts.
+        priority: o.kind === 'parva' ? 2 : 1,
         url: '/vrat',
       })
     }

@@ -13,7 +13,7 @@ import { DAY_MIN, daysBetween, hhmm, shiftDate, zonedTimeToUtc } from '@/lib/tim
 import { tick } from '@/lib/haptics';
 import { shareMessage } from '@/lib/share';
 import { rahuCountdown } from '@/lib/widget-feed';
-import type { Lang, PanchangDay } from '@/lib/types';
+import { isVaishnava, type Lang, type PanchangDay } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useFestivals, useNow, useObservances, usePanchangWindow } from '@/state/data';
 
@@ -113,7 +113,7 @@ export default function Today() {
                 {s.parana}: {longDate(nextVrat.parana.date, lang, false)} {nextVrat.parana.end ? `${nextVrat.parana.start}–${nextVrat.parana.end}` : s.paranaAfter(nextVrat.parana.start)}
               </T>
             ) : null}
-            {nextVrat.kind === 'ekadashi' && !nextVrat.parana && prefs.sampradaya !== 'smarta' ? <T kind="small">{s.paranaMandir}</T> : null}
+            {nextVrat.kind === 'ekadashi' && !nextVrat.parana && isVaishnava(prefs.sampradaya) ? <T kind="small">{s.paranaMandir}</T> : null}
             {nextVrat.moonrise ? <T kind="small" color={c.good}>{s.moonrise}: {nextVrat.moonrise.time}</T> : null}
           </Card>
         </Pressable>
