@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import * as Location from 'expo-location';
+import { SymbolView } from 'expo-symbols';
 
 import { countryName, placeName, t } from '@/lib/i18n';
 import { placeFromFix, searchCities } from '@/lib/places';
@@ -69,11 +70,17 @@ export function PlacePicker({ value, onChange }: { value: Place | null; onChange
               accessibilityState={{ selected }}
               onPress={() => onChange({ city: city.city, name: city.name, lat: city.lat, lon: city.lon, timezone: city.timezone })}
               style={({ pressed }) => ({
+                flexDirection: 'row', alignItems: 'center', gap: 10,
                 paddingVertical: 12, paddingHorizontal: 12, borderRadius: 10,
-                backgroundColor: selected ? c.backgroundSelected : pressed ? c.backgroundElement : 'transparent',
+                backgroundColor: selected ? c.brandSoft : pressed ? c.backgroundElement : 'transparent',
               })}>
-              <T>{city.name[prefs.lang]}{prefs.lang === 'gu' ? `  ·  ${city.name.en}` : ''}</T>
-              {city.region === 'diaspora' ? <T kind="small">{countryName(city.country, prefs.lang)}</T> : null}
+              <View style={{ flex: 1 }}>
+                <T color={selected ? c.brand : undefined} style={selected ? { fontWeight: '600' } : null}>
+                  {city.name[prefs.lang]}{prefs.lang === 'gu' ? `  ·  ${city.name.en}` : ''}
+                </T>
+                {city.region === 'diaspora' ? <T kind="small">{countryName(city.country, prefs.lang)}</T> : null}
+              </View>
+              {selected ? <SymbolView name="checkmark" size={15} weight="bold" tintColor={c.brand} /> : null}
             </Pressable>
           );
         })}
