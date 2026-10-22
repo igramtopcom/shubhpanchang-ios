@@ -19,6 +19,8 @@ export const Colors = {
     backgroundSelected: '#FFCCBC',
     brand: '#C0390E',
     brandStrong: '#8D1F00',
+    // Tinted buttons and selected chips: brand text on it reads 4.84:1.
+    brandSoft: '#FDEEE6',
     onBrand: '#FFFFFF',
     value: '#1A237E',
     good: '#1B5E20',
@@ -27,6 +29,10 @@ export const Colors = {
     badBg: '#FFEBEE',
     neutral: '#8D5A00',
     neutralBg: '#FFF3E0',
+    // Card outlines in a state's hue, lighter than its text (decoration, not meaning).
+    goodBorder: '#A5D6A7',
+    badBorder: '#EF9A9A',
+    neutralBorder: '#FFCC80',
   },
   dark: {
     text: '#F5E9E0',
@@ -39,6 +45,8 @@ export const Colors = {
     backgroundSelected: '#4A2A1C',
     brand: '#FF8A65',
     brandStrong: '#FFAB91',
+    // Brand text on it reads 6.66:1.
+    brandSoft: '#33201A',
     onBrand: '#1B1411',
     value: '#9FA8DA',
     good: '#81C784',
@@ -47,6 +55,9 @@ export const Colors = {
     badBg: '#3A1F1F',
     neutral: '#FFCC80',
     neutralBg: '#3A2A14',
+    goodBorder: '#2E4A31',
+    badBorder: '#5A2A2A',
+    neutralBorder: '#5A4320',
   },
 } as const;
 

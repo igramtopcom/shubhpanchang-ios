@@ -2,6 +2,7 @@
 import { Pressable, Switch, View } from 'react-native';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
+import { SymbolView } from 'expo-symbols';
 
 import { Button, Card, Chip, Screen, Section, T, useColors } from '@/components/ui';
 import { feedUrl } from '@/lib/api';
@@ -50,7 +51,11 @@ export default function SettingsScreen() {
       <Section title={s.settingsPlace}>
         <Pressable onPress={() => router.push('/place')} accessibilityRole="button">
           <Card>
-            <T kind="heading">{placeName(place, lang)}  ›</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <SymbolView name="location.fill" size={15} tintColor={c.brand} />
+              <T kind="heading" style={{ flex: 1 }}>{placeName(place, lang)}</T>
+              <SymbolView name="chevron.right" size={14} weight="semibold" tintColor={c.textMuted} />
+            </View>
             {/* The zone matters abroad (whose clock the times are on); in India it is always IST. */}
             {place.timezone !== 'Asia/Kolkata' ? <T kind="small">{place.timezone.replace(/_/g, ' ')}</T> : null}
           </Card>
@@ -90,7 +95,7 @@ export default function SettingsScreen() {
 
       <Card>
         <T kind="small">{s.feedNote}</T>
-        <Button kind="quiet" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
+        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
       </Card>
 
       <Section title={s.aboutTitle}>

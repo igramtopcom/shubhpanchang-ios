@@ -3,7 +3,7 @@
 // (/api/v1/tithi-of, at the time of day when known) and the reader confirms.
 // Those who know the tithi pick it directly.
 import { useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { DateTimeFields, deviceToday } from '@/components/date-time-fields';
@@ -75,7 +75,12 @@ export default function FamilyAdd() {
 
   return (
     <Screen>
-      <T kind="title">{s.addPerson}</T>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <T kind="title">{s.addPerson}</T>
+        <Pressable onPress={() => router.back()} accessibilityRole="button" hitSlop={12} style={{ minHeight: 44, justifyContent: 'center' }}>
+          <T style={{ color: c.brand, fontWeight: '600' }}>{s.cancel}</T>
+        </Pressable>
+      </View>
 
       <Section title={s.personName}>
         <TextInput value={name} onChangeText={setName} placeholder={s.personNamePh} placeholderTextColor={c.textMuted} style={input} />
@@ -91,7 +96,7 @@ export default function FamilyAdd() {
 
       <Section title={s.fromDate}>
         <DateTimeFields date={date} time={time} onDate={setDate} onTime={setTime} />
-        <Button kind="quiet" label={s.findTithi} onPress={findTithi} disabled={busy} />
+        <Button kind="quiet" icon="magnifyingglass" label={s.findTithi} onPress={findTithi} disabled={busy} />
         {error ? <Notice text={error} /> : null}
       </Section>
 
@@ -125,7 +130,6 @@ export default function FamilyAdd() {
       ) : null}
 
       <Button label={s.save} onPress={save} disabled={!lunar || !name.trim()} />
-      <Button kind="quiet" label={s.cancel} onPress={() => router.back()} />
     </Screen>
   );
 }

@@ -1,10 +1,11 @@
 // First run, four steps: language, place, which vrats, reminders. Permission
 // for notifications is asked only at the step that says what it is for.
 import { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { Image, Platform, Pressable, View } from 'react-native';
+import { SymbolView } from 'expo-symbols';
 
 import { PlacePicker } from '@/components/place-picker';
-import { Button, Card, Chip, Screen, T, useColors } from '@/components/ui';
+import { Button, Card, Chip, Screen, T, useColors, type Symbol } from '@/components/ui';
 import { WIDGETS } from '@/lib/features';
 import { t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
@@ -42,10 +43,37 @@ export default function Onboarding() {
 
   return (
     <Screen>
-      <View style={{ gap: 6 }}>
-        <T kind="title">{s.welcome}</T>
-        <T kind="small">{s.welcomeBody}</T>
-      </View>
+      {step === 0 ? (
+        // First screen: who this is for and what it does, before any question.
+        <View style={{ gap: 14, paddingTop: 12 }}>
+          <Image
+            source={require('../../assets/images/icon-light.png')}
+            accessibilityIgnoresInvertColors
+            style={{ width: 84, height: 84, borderRadius: 19 }}
+          />
+          <T kind="title" style={{ fontSize: 34 }}>{s.welcome}</T>
+          <T>{s.welcomeBody}</T>
+          <View style={{ gap: 12, paddingVertical: 4 }}>
+            {([['moon.stars.fill', s.onbVrat], ['person.2.fill', s.onbFamily], ['lock.iphone', s.onbLock]] as [Symbol, string][]).map(([icon, text]) => (
+              <View key={text} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.brandSoft, alignItems: 'center', justifyContent: 'center' }}>
+                  <SymbolView name={icon} size={18} tintColor={c.brand} />
+                </View>
+                <T style={{ flex: 1 }}>{text}</T>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : (
+        // Later steps: back, and where the reader is in the few steps there are.
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Pressable onPress={() => setStep(step - 1)} accessibilityRole="button" hitSlop={12} style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <SymbolView name="chevron.left" size={15} weight="semibold" tintColor={c.brand} />
+            <T style={{ color: c.brand, fontWeight: '600' }}>{s.back}</T>
+          </Pressable>
+          <T kind="small">{s.stepOf(step + 1, Platform.OS === 'ios' && WIDGETS ? 5 : 4)}</T>
+        </View>
+      )}
 
       {step === 0 ? (
         <View style={{ gap: 12 }}>
@@ -91,7 +119,7 @@ export default function Onboarding() {
             {!notificationsSupported ? <T kind="small">{s.notificationsWeb}</T> : null}
           </Card>
           <Button label={s.allowNotifications} onPress={() => finish(true)} />
-          <Button kind="quiet" label={s.notNow} onPress={() => finish(false)} />
+          <Button kind="plain" label={s.notNow} onPress={() => finish(false)} />
         </View>
       ) : null}
 

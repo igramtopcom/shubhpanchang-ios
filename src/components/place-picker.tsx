@@ -47,7 +47,7 @@ export function PlacePicker({ value, onChange }: { value: Place | null; onChange
           {value.timezone !== 'Asia/Kolkata' ? <T kind="small">{value.timezone.replace(/_/g, ' ')}</T> : null}
         </Card>
       ) : null}
-      <Button label={status === 'locating' ? s.locating : s.useMyLocation} onPress={locate} disabled={status === 'locating' || !cities} />
+      <Button icon="location.fill" label={status === 'locating' ? s.locating : s.useMyLocation} onPress={locate} disabled={status === 'locating' || !cities} />
       {status === 'denied' ? <Notice text={s.locationDenied} /> : null}
       {status === 'error' ? <Notice text={s.loadError} /> : null}
       <TextInput

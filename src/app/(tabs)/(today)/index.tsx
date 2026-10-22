@@ -6,7 +6,7 @@ import { Stack, router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
 import { LiveCountdownButton } from '@/components/live-countdown';
-import { Card, Loading, Notice, Row, Screen, Section, T, useColors } from '@/components/ui';
+import { Card, Loading, Notice, Row, Screen, Section, T, Tag, useColors } from '@/components/ui';
 import { chogName, longDate, placeName, t } from '@/lib/i18n';
 import { chogTier, shubhNow, timeline } from '@/lib/shubh';
 import { DAY_MIN, hhmm, shiftDate, zonedTimeToUtc } from '@/lib/time';
@@ -54,10 +54,23 @@ export default function Today() {
           ) : null),
         }}
       />
-      <Pressable onPress={() => router.push('/place')} accessibilityRole="button" accessibilityHint={s.settingsPlace}>
+      <View style={{ gap: 6 }}>
         <T kind="heading">{longDate(now.date, lang)}</T>
-        <T kind="small" color={c.brand}>{placeName(place, lang)}  ›</T>
-      </Pressable>
+        {/* The place, as a button: it decides every time on the page. */}
+        <Pressable
+          onPress={() => router.push('/place')}
+          accessibilityRole="button"
+          accessibilityLabel={`${s.settingsPlace}: ${placeName(place, lang)}`}
+          style={({ pressed }) => ({
+            alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36,
+            paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: c.brandSoft, opacity: pressed ? 0.75 : 1,
+          })}
+          hitSlop={6}>
+          <SymbolView name="location.fill" size={13} tintColor={c.brand} />
+          <T kind="small" color={c.brand} style={{ fontWeight: '600' }}>{placeName(place, lang)}</T>
+          <SymbolView name="chevron.down" size={11} weight="semibold" tintColor={c.brand} />
+        </Pressable>
+      </View>
 
       {win.stale ? <Notice text={s.offline} /> : null}
       {win.error && !win.data ? <Notice text={s.loadError} onRetry={win.reload} retryLabel={s.retry} /> : null}
@@ -75,7 +88,8 @@ export default function Today() {
           <Card>
             <T kind="label">{nextVrat.date === now.date ? s.vratToday : s.upcomingVrat}</T>
             <T kind="heading">{lang === 'gu' ? nextVrat.nameGu : nextVrat.nameEn}</T>
-            <T kind="small">{longDate(nextVrat.date, lang)}</T>
+            {/* Today's date is the page's own heading; say it only for a later day. */}
+            {nextVrat.date !== now.date ? <T kind="small">{longDate(nextVrat.date, lang)}</T> : null}
             {nextVrat.parana ? (
               <T kind="small" color={c.good}>
                 {s.parana}: {longDate(nextVrat.parana.date, lang, false)} {nextVrat.parana.end ? `${nextVrat.parana.start}–${nextVrat.parana.end}` : s.paranaAfter(nextVrat.parana.start)}
@@ -184,12 +198,14 @@ function TithiCard({ day, lang }: { day: PanchangDay; lang: Lang }) {
       </T>
       <T kind="small">{s.until(endText)} · {gu ? `વિ.સં. ${day.vikramSamvat}` : `VS ${day.vikramSamvat}`}</T>
       <T kind="small">{s.nakshatra}: {gu ? day.nakshatra.nameGu : day.nakshatra.name}</T>
-      {(day.vrat?.items ?? (day.vrat ? [{ en: day.vrat.en, gu: day.vrat.guDialect ?? day.vrat.gu }] : [])).map(item => (
-        <T key={item.en} kind="small">
-          {gu ? item.gu : item.en}
-          {'time' in item && item.time ? ` · ${gu ? item.time.label.gu : item.time.label.en} ${item.time.value}` : ''}
-        </T>
-      ))}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+        {(day.vrat?.items ?? (day.vrat ? [{ en: day.vrat.en, gu: day.vrat.guDialect ?? day.vrat.gu }] : [])).map(item => (
+          <Tag
+            key={item.en}
+            label={`${gu ? item.gu : item.en}${'time' in item && item.time ? ` · ${gu ? item.time.label.gu : item.time.label.en} ${item.time.value}` : ''}`}
+          />
+        ))}
+      </View>
     </Card>
   );
 }

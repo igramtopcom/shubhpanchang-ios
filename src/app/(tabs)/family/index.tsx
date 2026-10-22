@@ -1,8 +1,9 @@
 // Family dates kept by tithi: each person's next day, worked out at the place.
-import { Alert, View } from 'react-native';
-import { router } from 'expo-router';
+import { Alert, Pressable, View } from 'react-native';
+import { Stack, router } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 
-import { Button, Card, Loading, Notice, Screen, T, useColors } from '@/components/ui';
+import { Button, Card, Loading, Notice, Screen, T, Tag, useColors } from '@/components/ui';
 import { addAllDayEvent, calendarSupported } from '@/lib/calendar';
 import { longDate, lunarLabel, t } from '@/lib/i18n';
 import { useApp } from '@/state/app';
@@ -23,8 +24,22 @@ export default function FamilyScreen() {
 
   return (
     <Screen header onRefresh={next.reload} refreshing={next.loading && !!next.data}>
-      {!prefs.family.length ? <Card><T kind="small">{s.familyEmpty}</T></Card> : null}
-      <Button label={s.addPerson} onPress={() => router.push('/family-add')} />
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable accessibilityRole="button" accessibilityLabel={s.addPerson} hitSlop={10} onPress={() => router.push('/family-add')}>
+              <SymbolView name="plus" size={22} weight="semibold" tintColor={c.brand} />
+            </Pressable>
+          ),
+        }}
+      />
+      {!prefs.family.length ? (
+        <Card style={{ alignItems: 'center', paddingVertical: 28, gap: 12 }}>
+          <SymbolView name="person.2.fill" size={36} tintColor={c.brand} />
+          <T kind="small" style={{ textAlign: 'center' }}>{s.familyEmpty}</T>
+          <Button icon="plus" label={s.addPerson} onPress={() => router.push('/family-add')} />
+        </Card>
+      ) : null}
       {next.stale ? <Notice text={s.offline} /> : null}
       {next.loading && !next.data && prefs.family.length ? <Loading /> : null}
       {(next.data ?? []).map(({ person, next: occ }) => {
@@ -32,7 +47,7 @@ export default function FamilyScreen() {
         const kind = person.kind === 'birthday' ? s.birthday : s.shraddh;
         return (
           <Card key={person.id}>
-            <T kind="label">{kind}</T>
+            <Tag label={kind} tone="brand" />
             <T kind="heading">{person.name}</T>
             <T kind="small">{label} · {person.kind === 'birthday' ? s.birthdayRule : s.shraddhRule}</T>
             {occ ? (
@@ -45,11 +60,13 @@ export default function FamilyScreen() {
               {occ && calendarSupported ? (
                 <Button
                   kind="quiet"
+                  compact
+                  icon="calendar.badge.plus"
                   label={s.addToCalendar}
                   onPress={() => addAllDayEvent({ date: occ.date, title: `${person.name} · ${kind}`, notes: label })}
                 />
               ) : null}
-              <Button kind="destructive" label={s.remove} onPress={() => remove(person.id, person.name)} />
+              <Button kind="destructive" compact icon="trash" label={s.remove} onPress={() => remove(person.id, person.name)} />
             </View>
           </Card>
         );

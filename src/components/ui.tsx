@@ -6,9 +6,13 @@ import {
   type StyleProp, type TextStyle, type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 
 import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { tick } from '@/lib/haptics';
+import { useApp } from '@/state/app';
+
+export type Symbol = SymbolViewProps['name'];
 
 export function useColors() {
   return Colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
@@ -56,6 +60,7 @@ export function T({ children, style, kind = 'body', color, numberOfLines, shrink
   maxScale?: number;
 }) {
   const c = useColors();
+  const gu = useApp().prefs.lang === 'gu';
   const base: TextStyle = {
     title: { fontSize: 28, fontWeight: '700', color: c.text, letterSpacing: -0.3 },
     heading: { fontSize: 18, fontWeight: '600', color: c.text },
@@ -65,13 +70,18 @@ export function T({ children, style, kind = 'body', color, numberOfLines, shrink
     value: { fontSize: 17, fontWeight: '600', color: c.value, fontVariant: ['tabular-nums'] },
     big: { fontSize: 24, fontWeight: '700', color: c.value, fontVariant: ['tabular-nums'] },
   }[kind] as TextStyle;
+  // Gujarati glyphs sit smaller on the same size and break apart when spaced:
+  // set small text a touch larger and never letter-space it.
+  const script: TextStyle | null = gu
+    ? { letterSpacing: 0, ...(kind === 'small' || kind === 'label' ? { fontSize: (base.fontSize ?? 13) + 1 } : null) }
+    : null;
   return (
     <Text
       numberOfLines={shrink ? 1 : numberOfLines}
       adjustsFontSizeToFit={shrink}
       minimumFontScale={shrink ? 0.6 : undefined}
       maxFontSizeMultiplier={maxScale}
-      style={[base, color ? { color } : null, style]}>
+      style={[base, script, color ? { color } : null, style]}>
       {children}
     </Text>
   );
@@ -80,7 +90,7 @@ export function T({ children, style, kind = 'body', color, numberOfLines, shrink
 export function Card({ children, style, tone }: { children: ReactNode; style?: StyleProp<ViewStyle>; tone?: 'good' | 'bad' | 'neutral' }) {
   const c = useColors();
   const bg = tone === 'good' ? c.goodBg : tone === 'bad' ? c.badBg : tone === 'neutral' ? c.neutralBg : c.card;
-  const border = tone === 'good' ? c.good : tone === 'bad' ? c.bad : tone === 'neutral' ? c.neutral : c.cardBorder;
+  const border = tone === 'good' ? c.goodBorder : tone === 'bad' ? c.badBorder : tone === 'neutral' ? c.neutralBorder : c.cardBorder;
   return <View style={[styles.card, { backgroundColor: bg, borderColor: border }, style]}>{children}</View>;
 }
 
@@ -97,6 +107,7 @@ export function Row({ label, value, note, color }: { label: string; value: strin
   );
 }
 
+/** A choice. Selected: tinted with a check, so a row of chosen chips stays calm. */
 export function Chip({ label, selected, onPress }: { label: string; selected?: boolean; onPress?: () => void }) {
   const c = useColors();
   return (
@@ -106,20 +117,29 @@ export function Chip({ label, selected, onPress }: { label: string; selected?: b
       onPress={onPress ? () => { tick(); onPress(); } : undefined}
       style={({ pressed }) => [
         styles.chip,
-        { backgroundColor: selected ? c.brand : c.backgroundElement, borderColor: selected ? c.brand : c.cardBorder },
+        selected
+          ? { backgroundColor: c.brandSoft, borderColor: c.brand }
+          : { backgroundColor: c.backgroundElement, borderColor: c.cardBorder },
         pressed && { opacity: 0.75 },
       ]}>
-      <Text style={{ color: selected ? c.onBrand : c.text, fontSize: 15, fontWeight: '500' }}>{label}</Text>
+      {selected ? <SymbolView name="checkmark" size={13} weight="bold" tintColor={c.brand} /> : null}
+      <Text style={{ color: selected ? c.brand : c.text, fontSize: 15, fontWeight: selected ? '600' : '500' }}>{label}</Text>
     </Pressable>
   );
 }
 
-export function Button({ label, onPress, kind = 'primary', disabled, a11yLabel }: {
-  label: string; onPress: () => void; kind?: 'primary' | 'quiet' | 'destructive'; disabled?: boolean; a11yLabel?: string;
+/**
+ * primary: the one main action of a screen (filled). quiet: secondary actions
+ * (tinted, no border). plain: a text button. destructive: red text.
+ * compact: sized to its label, for actions inside a card.
+ */
+export function Button({ label, onPress, kind = 'primary', disabled, a11yLabel, icon, compact }: {
+  label: string; onPress: () => void; kind?: 'primary' | 'quiet' | 'plain' | 'destructive';
+  disabled?: boolean; a11yLabel?: string; icon?: Symbol; compact?: boolean;
 }) {
   const c = useColors();
-  const primary = kind === 'primary';
-  const tone = kind === 'destructive' ? c.bad : c.brand;
+  const bg = kind === 'primary' ? c.brand : kind === 'quiet' ? c.brandSoft : 'transparent';
+  const fg = kind === 'primary' ? c.onBrand : kind === 'destructive' ? c.bad : c.brand;
   return (
     <Pressable
       accessibilityRole="button"
@@ -129,10 +149,23 @@ export function Button({ label, onPress, kind = 'primary', disabled, a11yLabel }
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: primary ? c.brand : 'transparent', borderColor: tone, opacity: disabled ? 0.45 : pressed ? 0.8 : 1 },
+        compact && styles.buttonCompact,
+        { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.75 : 1 },
       ]}>
-      <Text style={{ color: primary ? c.onBrand : tone, fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{label}</Text>
+      {icon ? <SymbolView name={icon} size={compact ? 16 : 18} weight="semibold" tintColor={fg} /> : null}
+      {label ? <Text style={{ color: fg, fontSize: compact ? 15 : 16, fontWeight: '600', textAlign: 'center', flexShrink: 1 }}>{label}</Text> : null}
     </Pressable>
+  );
+}
+
+/** A small label on a card: an observance of the day, a kind of date. */
+export function Tag({ label, tone = 'good' }: { label: string; tone?: 'good' | 'brand' }) {
+  const c = useColors();
+  const fg = tone === 'good' ? c.good : c.brand;
+  return (
+    <View style={{ alignSelf: 'flex-start', backgroundColor: tone === 'good' ? c.goodBg : c.brandSoft, borderRadius: Radius.chip, paddingVertical: 4, paddingHorizontal: 10 }}>
+      <T kind="small" color={fg} style={{ fontWeight: '600' }}>{label}</T>
+    </View>
   );
 }
 
@@ -175,6 +208,13 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: Radius.card, padding: Spacing.three, gap: Spacing.two },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingVertical: Spacing.one },
   // 44 pt: the smallest target the Human Interface Guidelines allow.
-  chip: { borderWidth: 1, borderRadius: Radius.chip, minHeight: 44, justifyContent: 'center', paddingVertical: Spacing.two, paddingHorizontal: Spacing.three },
-  button: { borderWidth: 1.5, borderRadius: Radius.button, minHeight: 44, justifyContent: 'center', paddingVertical: 12, paddingHorizontal: Spacing.three },
+  chip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    borderWidth: 1, borderRadius: Radius.chip, minHeight: 44, paddingVertical: Spacing.two, paddingHorizontal: Spacing.three,
+  },
+  button: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    borderRadius: Radius.button, minHeight: 48, paddingVertical: 12, paddingHorizontal: Spacing.three,
+  },
+  buttonCompact: { alignSelf: 'flex-start', minHeight: 44, paddingVertical: 10, paddingHorizontal: 14 },
 });

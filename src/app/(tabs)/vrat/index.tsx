@@ -29,7 +29,7 @@ export default function VratScreen() {
     <Screen header onRefresh={obs.reload} refreshing={obs.loading && !!obs.data}>
       <Card>
         <T kind="small">{s.feedNote}</T>
-        <Button kind="quiet" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
+        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
       </Card>
       {obs.stale ? <Notice text={s.offline} /> : null}
       {obs.error && !obs.data ? <Notice text={s.loadError} onRetry={obs.reload} retryLabel={s.retry} /> : null}
@@ -69,6 +69,8 @@ function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
         <View style={{ alignSelf: 'flex-start' }}>
           <Button
             kind="quiet"
+            compact
+            icon="calendar.badge.plus"
             label={s.addToCalendar}
             onPress={() => addAllDayEvent({
               date: o.date,
