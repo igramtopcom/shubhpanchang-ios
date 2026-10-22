@@ -7,7 +7,7 @@
 // The app's own scheme (shubhpanchang://vrat) and notification taps use the
 // app's routes directly. Anything unknown opens Today rather than failing.
 
-export type AppRoute = '/' | '/vrat' | '/family' | '/calendar' | '/settings' | '/family-add' | '/place'
+export type AppRoute = '/' | '/vrat' | '/vrat?seg=festivals' | '/family' | '/calendar' | '/settings' | '/family-add' | '/place'
 
 /** The path of a link: https://shubhpanchang.in/vrat and shubhpanchang://vrat both give "/vrat". */
 function pathOf (u: URL): string {
@@ -23,7 +23,7 @@ export function routeForWebPath (path: string): AppRoute {
   if (p === '/' || p === '') return '/'
   if (/^\/(panchang|choghadiya|hora)(\/|$)/.test(p)) return '/'
   if (/^\/(ekadashi|purnima|amavasya|sankashti-chaturthi)-\d{4}\/?$/.test(p)) return '/vrat'
-  if (/^\/festivals(\/|$)/.test(p)) return '/vrat'
+  if (/^\/festivals(\/|$)/.test(p)) return '/vrat?seg=festivals'
   if (/^\/calendar(\/|$)/.test(p)) return '/calendar'
   // The app's own routes, when a notification, a widget or the app's scheme opens one.
   if (/^\/(vrat|family|calendar|settings|family-add|place)$/.test(p)) return p as AppRoute

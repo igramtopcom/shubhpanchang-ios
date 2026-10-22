@@ -158,6 +158,29 @@ export function Button({ label, onPress, kind = 'primary', disabled, a11yLabel, 
   );
 }
 
+/** Two or three views of one list, as iOS draws a segmented control. */
+export function Segmented({ values, index, onChange }: { values: string[]; index: number; onChange: (i: number) => void }) {
+  const c = useColors();
+  return (
+    <View accessibilityRole="tablist" style={{ flexDirection: 'row', padding: 3, borderRadius: 12, backgroundColor: c.backgroundElement, gap: 3 }}>
+      {values.map((v, i) => (
+        <Pressable
+          key={v}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: i === index }}
+          onPress={() => { if (i !== index) { tick(); onChange(i); } }}
+          style={{
+            flex: 1, minHeight: 38, borderRadius: 9, alignItems: 'center', justifyContent: 'center',
+            backgroundColor: i === index ? c.card : 'transparent',
+            shadowColor: '#000', shadowOpacity: i === index ? 0.08 : 0, shadowRadius: 4, shadowOffset: { width: 0, height: 1 },
+          }}>
+          <Text style={{ color: i === index ? c.brand : c.textSecondary, fontSize: 15, fontWeight: i === index ? '700' : '500' }}>{v}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 /** A small label on a card: an observance of the day, a kind of date. */
 export function Tag({ label, tone = 'good' }: { label: string; tone?: 'good' | 'brand' }) {
   const c = useColors();

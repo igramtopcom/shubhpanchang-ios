@@ -13,7 +13,7 @@
 import { chogName, longDate, t } from './i18n'
 import { shubhNow, timeline } from './shubh'
 import { DAY_MIN, daysBetween, hhmm, shiftDate, zonedTimeToUtc } from './time'
-import type { Lang, Observance, ObservanceKind, PanchangDay } from './types'
+import type { Festival, Lang, Observance, ObservanceKind, PanchangDay } from './types'
 
 export interface TodayProps {
   /** 'good' = in a good window; 'rahu' = Rahu Kaal; 'wait' = neither. */
@@ -37,6 +37,12 @@ export interface TodayProps {
   vratLabel: string
   vrat: string
   vratWhen: string
+  /** The day's festivals ('' if none). */
+  festToday: string
+  /** The next festival within a month, after today ('' if none). */
+  festLabel: string
+  nextFest: string
+  nextFestWhen: string
   url: string
 }
 
@@ -97,9 +103,11 @@ export function todayEntries (opts: {
   days: PanchangDay[]
   observances: Observance[]
   kinds: ObservanceKind[]
+  festivals?: Festival[]
   hours?: number
 }): Entry<TodayProps>[] {
   const { nowMs, today, timeZone, lang, days, observances, kinds } = opts
+  const festivals = opts.festivals ?? []
   const s = t(lang)
   const base = today
   const tl = timeline(days.filter(d => d.date >= shiftDate(base, -1) && d.date <= shiftDate(base, 3)), base)
@@ -122,6 +130,7 @@ export function todayEntries (opts: {
     if (!day) continue
     const sh = shubhNow(tl, m)
     const next = observances.find(o => kinds.includes(o.kind) && o.date >= date)
+    const nextFest = festivals.find(f => f.date > date && f.date <= shiftDate(date, 30))
     let props: Pick<TodayProps, 'state' | 'head' | 'name' | 'at' | 'untilMs'>
     if (sh.good) {
       props = { state: 'good', head: s.goodNow, name: chogName(sh.good.name, lang), at: s.until(hhmm(sh.good.end)), untilMs: msOf(sh.good.end) }
@@ -150,6 +159,10 @@ export function todayEntries (opts: {
       vratLabel: s.upcomingVrat,
       vrat: next ? (lang === 'gu' ? next.nameGu : next.nameEn) : s.noVratSoon,
       vratWhen: next ? whenText(next.date, date, lang) : '',
+      festToday: festivals.filter(f => f.date === date).map(f => (lang === 'gu' ? f.nameGu : f.nameEn)).join(' · '),
+      festLabel: s.festNext,
+      nextFest: nextFest ? (lang === 'gu' ? nextFest.nameGu : nextFest.nameEn) : '',
+      nextFestWhen: nextFest ? whenText(nextFest.date, date, lang) : '',
       url: 'shubhpanchang://',
     }
     if (prev && JSON.stringify(prev) === JSON.stringify(full)) continue

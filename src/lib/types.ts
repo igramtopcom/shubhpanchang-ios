@@ -72,6 +72,20 @@ export interface Observance {
   window?: { start: string; end: string; endDate: string }
 }
 
+/** A festival at the place (/api/v1/festivals): Diwali, Navratri, Uttarayan... */
+export interface Festival {
+  slug: string
+  date: string
+  nameEn: string
+  nameGu: string
+  type: 'major' | 'regional' | 'vrat'
+  about: { en: string; gu: string } | null
+  indiaDate: string
+  /** india-list; local-day (moved to the place's day); india-date (abroad, kept on India's date). */
+  reason: 'india-list' | 'local-day' | 'india-date'
+  url: string
+}
+
 export interface LunarDate {
   month: number
   adhik: boolean

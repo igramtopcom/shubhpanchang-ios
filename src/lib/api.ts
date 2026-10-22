@@ -7,7 +7,7 @@
 // different engine, everything stored is dropped, because any of it could now
 // be wrong. Offline, the last stored answer is served and flagged `stale`.
 
-import type { City, FamilyDate, LunarDate, Observance, PanchangDay, Place, TithiOccurrence } from './types'
+import type { City, FamilyDate, Festival, LunarDate, Observance, PanchangDay, Place, TithiOccurrence } from './types'
 
 export const API_BASE = 'https://shubhpanchang.in/api/v1'
 
@@ -144,6 +144,10 @@ export class Api {
 
   observances (place: Place, from: string, to: string) {
     return this.get('/observances', { ...placeQuery(place), from, to }, b => b.observances as Observance[])
+  }
+
+  festivals (place: Place, from: string, to: string) {
+    return this.get('/festivals', { ...placeQuery(place), from, to }, b => b.festivals as Festival[])
   }
 
   tithiOf (place: Place, date: string, time?: string) {

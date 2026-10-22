@@ -9,13 +9,13 @@ import { LiveCountdownButton } from '@/components/live-countdown';
 import { Card, Loading, Notice, Row, Screen, Section, T, Tag, useColors } from '@/components/ui';
 import { chogName, longDate, placeName, t } from '@/lib/i18n';
 import { chogTier, shubhNow, timeline } from '@/lib/shubh';
-import { DAY_MIN, hhmm, shiftDate, zonedTimeToUtc } from '@/lib/time';
+import { DAY_MIN, daysBetween, hhmm, shiftDate, zonedTimeToUtc } from '@/lib/time';
 import { tick } from '@/lib/haptics';
 import { shareMessage } from '@/lib/share';
 import { rahuCountdown } from '@/lib/widget-feed';
 import type { Lang, PanchangDay } from '@/lib/types';
 import { useApp } from '@/state/app';
-import { useNow, useObservances, usePanchangWindow } from '@/state/data';
+import { useFestivals, useNow, useObservances, usePanchangWindow } from '@/state/data';
 
 
 export default function Today() {
@@ -27,6 +27,7 @@ export default function Today() {
   const now = useNow(place.timezone);
   const win = usePanchangWindow();
   const obs = useObservances(now.date, shiftDate(now.date, 14));
+  const fest = useFestivals(now.date, shiftDate(now.date, 30));
 
   const day = win.data?.find(d => d.date === now.date) ?? null;
   const tl = useMemo(
@@ -35,6 +36,7 @@ export default function Today() {
   );
   const sh = tl ? shubhNow(tl, now.minutes) : null;
   const nextVrat = obs.data?.find(o => prefs.notify.kinds.includes(o.kind)) ?? null;
+  const festNow = fest.data?.filter(f => f.date === (fest.data?.[0]?.date ?? '')) ?? [];
 
   const until = (end: number) => `${hhmm(end)}${end >= DAY_MIN ? ` (${s.tomorrow})` : ''}`;
 
@@ -81,6 +83,22 @@ export default function Today() {
           <ShubhCard sh={sh} now={now.minutes} lang={lang} until={until} />
           <TithiCard day={day} lang={lang} />
         </>
+      ) : null}
+
+      {festNow.length ? (
+        // Today's festival, else the next one within a month: tap for the festival list.
+        <Pressable onPress={() => router.navigate('/vrat?seg=festivals')} accessibilityRole="button">
+          <Card tone={festNow[0].date === now.date ? 'neutral' : undefined}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <SymbolView name="sparkles" size={15} tintColor={c.brand} />
+              <T kind="label" color={c.brand}>{festNow[0].date === now.date ? s.festToday : s.festNext}</T>
+            </View>
+            <T kind="heading">{festNow.map(f => (lang === 'gu' ? f.nameGu : f.nameEn)).join(' · ')}</T>
+            {festNow[0].date !== now.date ? (
+              <T kind="small">{longDate(festNow[0].date, lang)} · {s.inDays(daysBetween(now.date, festNow[0].date))}</T>
+            ) : null}
+          </Card>
+        </Pressable>
       ) : null}
 
       {nextVrat ? (

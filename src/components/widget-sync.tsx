@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { todayEntries, vratEntries } from '@/lib/widget-feed';
 import { shiftDate } from '@/lib/time';
 import { useApp } from '@/state/app';
-import { useNow, useObservances, usePanchangWindow } from '@/state/data';
+import { useFestivals, useNow, useObservances, usePanchangWindow } from '@/state/data';
 import TodayWidget from '@/widgets/today-widget';
 import VratWidget from '@/widgets/vrat-widget';
 
@@ -17,17 +17,18 @@ export function WidgetSync() {
   const now = useNow(place?.timezone);
   const days = usePanchangWindow();
   const obs = useObservances(now.date, shiftDate(now.date, 62));
+  const fest = useFestivals(now.date, shiftDate(now.date, 62));
 
   const ready = !!place && !!days.data && !!obs.data;
   const signature = ready
-    ? JSON.stringify([now.date, prefs.lang, prefs.notify.kinds, place!.timezone, days.data!.length, obs.data!.map(o => o.date + o.kind)])
+    ? JSON.stringify([now.date, prefs.lang, prefs.notify.kinds, place!.timezone, days.data!.length, obs.data!.map(o => o.date + o.kind), (fest.data ?? []).map(f => f.date + f.slug)])
     : '';
 
   useEffect(() => {
     if (!ready) return;
     const common = { nowMs: Date.now(), today: now.date, timeZone: place!.timezone, lang: prefs.lang, kinds: prefs.notify.kinds };
     try {
-      TodayWidget.updateTimeline(todayEntries({ ...common, days: days.data!, observances: obs.data! }));
+      TodayWidget.updateTimeline(todayEntries({ ...common, days: days.data!, observances: obs.data!, festivals: fest.data ?? [] }));
       VratWidget.updateTimeline(vratEntries({ ...common, observances: obs.data! }));
     } catch { /* no widget extension (web preview): nothing to update */ }
     // Rebuilt when what the timeline reads changes, not on every clock tick.

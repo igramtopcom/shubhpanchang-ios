@@ -17,7 +17,7 @@ export const SCREENSHOT_BUILD = process.env.EXPO_PUBLIC_SCREENSHOT_SEED === '1'
 export interface TourStep {
   /** Fill in a language, a place and sample family dates first. */
   seed?: { lang: Lang; city: string }
-  route: '/' | '/vrat' | '/family' | '/calendar' | '/settings' | '/family-add' | '/place'
+  route: '/' | '/vrat' | '/vrat?seg=festivals' | '/family' | '/calendar' | '/settings' | '/family-add' | '/place'
   /** File name of the capture CI takes at this step. */
   shot: string
 }
@@ -35,6 +35,9 @@ export const TOUR: TourStep[] = [
   // CI switches the simulator to dark appearance before these two.
   { route: '/', shot: '11-today-dark-en' },
   { route: '/calendar', shot: '12-calendar-dark-en' },
+  // CI switches back to light appearance for the festival lists.
+  { seed: { lang: 'gu', city: 'ahmedabad' }, route: '/vrat?seg=festivals', shot: '13-festivals-gu' },
+  { seed: { lang: 'en', city: 'newjersey-us' }, route: '/vrat?seg=festivals', shot: '14-festivals-en-nj' },
 ]
 
 /** A `-tourStep` launch argument as a step index, or null (first launch: onboarding). */

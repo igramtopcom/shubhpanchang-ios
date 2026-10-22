@@ -56,7 +56,7 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
       <VStack alignment="leading" spacing={1} modifiers={[widgetURL(p.url)]}>
         <Text modifiers={[font({ textStyle: 'caption', weight: 'bold' }), lineLimit(1)]}>{p.head}</Text>
         <Text modifiers={[font({ textStyle: 'headline' }), lineLimit(1), minimumScaleFactor(0.7)]}>{headline}</Text>
-        <Text modifiers={[font({ textStyle: 'caption' }), lineLimit(1)]}>{p.tithi}</Text>
+        <Text modifiers={[font({ textStyle: 'caption' }), lineLimit(1)]}>{p.festToday || p.tithi}</Text>
       </VStack>
     );
   }
@@ -65,7 +65,7 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
     <VStack alignment="leading" spacing={3}>
       <HStack spacing={5}>
         <Image systemName={p.moon as never} size={13} color={soft} />
-        <Text modifiers={[font({ textStyle: 'caption2' }), foregroundStyle(soft), lineLimit(1), minimumScaleFactor(0.7)]}>{p.date}</Text>
+        <Text modifiers={[font({ textStyle: 'caption2', weight: p.festToday ? 'bold' : 'regular' }), foregroundStyle(p.festToday && !plain ? (dark ? '#FF8A65' : '#C0390E') : soft), lineLimit(1), minimumScaleFactor(0.7)]}>{p.festToday || p.date}</Text>
       </HStack>
       <Spacer />
       <Text modifiers={[font({ textStyle: 'caption', weight: 'semibold' }), foregroundStyle(tone), lineLimit(2)]}>{p.head}</Text>
@@ -87,8 +87,12 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
           <Text modifiers={[font({ textStyle: 'headline' }), foregroundStyle(plain ? ink : (dark ? '#EF9A9A' : '#C62828')), lineLimit(1)]}>{p.rahu}</Text>
           <Spacer />
           <Text modifiers={[font({ textStyle: 'caption2' }), foregroundStyle(soft)]}>{p.vratLabel}</Text>
-          <Text modifiers={[font({ textStyle: 'subheadline', weight: 'semibold' }), foregroundStyle(ink), lineLimit(2), minimumScaleFactor(0.8)]}>{p.vrat}</Text>
-          <Text modifiers={[font({ textStyle: 'caption' }), foregroundStyle(soft), lineLimit(1)]}>{p.vratWhen}</Text>
+          <Text modifiers={[font({ textStyle: 'subheadline', weight: 'semibold' }), foregroundStyle(ink), lineLimit(1), minimumScaleFactor(0.75)]}>{p.vratWhen ? `${p.vrat} · ${p.vratWhen}` : p.vrat}</Text>
+          {p.nextFest ? <Spacer /> : null}
+          {p.nextFest ? <Text modifiers={[font({ textStyle: 'caption2' }), foregroundStyle(soft)]}>{p.festLabel}</Text> : null}
+          {p.nextFest ? (
+            <Text modifiers={[font({ textStyle: 'subheadline', weight: 'semibold' }), foregroundStyle(plain ? ink : (dark ? '#FF8A65' : '#C0390E')), lineLimit(1), minimumScaleFactor(0.75)]}>{`${p.nextFest} · ${p.nextFestWhen}`}</Text>
+          ) : null}
         </VStack>
       </HStack>
     );
@@ -103,5 +107,6 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
 
 export default createWidget<TodayProps>('TodayWidget', TodayWidget, {
   state: 'wait', head: 'ShubhPanchang', name: '', at: '', untilMs: 0, date: '', tithi: '', tithiShort: '',
-  tithiNum: 1, moon: 'moon.stars', rahuLabel: '', rahu: '', vratLabel: '', vrat: '', vratWhen: '', url: 'shubhpanchang://',
+  tithiNum: 1, moon: 'moon.stars', rahuLabel: '', rahu: '', vratLabel: '', vrat: '', vratWhen: '',
+  festToday: '', festLabel: '', nextFest: '', nextFestWhen: '', url: 'shubhpanchang://',
 });

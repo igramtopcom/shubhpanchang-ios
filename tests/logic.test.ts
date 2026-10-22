@@ -10,7 +10,7 @@ import { Api, feedUrl, placeQuery, type KV } from '../src/lib/api'
 import { moonSymbol, offerCountdown, paranaCountdown, rahuCountdown, todayEntries, vratCountdown, vratEntries } from '../src/lib/widget-feed'
 import { siriToday, siriVrat } from '../src/lib/siri-feed'
 import { shareMessage } from '../src/lib/share'
-import type { Observance, PanchangDay } from '../src/lib/types'
+import type { Festival, Observance, PanchangDay } from '../src/lib/types'
 
 /* Fixtures are real /api/v1 answers: Ahmedabad 21-23 Oct 2026, New Jersey
  * observances Oct-Dec 2026. 22 Oct, day block: Shubh 06:39, Rog 08:06,
@@ -207,7 +207,7 @@ describe('Universal Links land on the right screen', () => {
     expect(routeForWebPath('/hora')).toBe('/')
     expect(routeForWebPath('/ekadashi-2027')).toBe('/vrat')
     expect(routeForWebPath('/sankashti-chaturthi-2026?city=london-uk')).toBe('/vrat')
-    expect(routeForWebPath('/festivals/diwali-2026')).toBe('/vrat')
+    expect(routeForWebPath('/festivals/diwali-2026')).toBe('/vrat?seg=festivals') // the festival list
     expect(routeForWebPath('/calendar/2027/3')).toBe('/calendar')
     expect(routeForWebPath('https://shubhpanchang.in/purnima-2028')).toBe('/vrat')
   })
@@ -423,5 +423,51 @@ describe("today's panchang message (share.ts)", () => {
     expect(gu).toContain('રાહુ કાળ: 13:50–15:16 (ટાળો)')
     expect(gu.endsWith('https://shubhpanchang.in/panchang/ahmedabad?ref=app')).toBe(true)
     expect(en + gu).not.toContain('—')
+  })
+})
+
+describe('festivals in the app', () => {
+  const fest = (slug: string, date: string, nameEn: string): Festival => ({
+    slug, date, nameEn, nameGu: `gu ${nameEn}`, type: 'major', about: { en: `${nameEn} is a festival.`, gu: 'તહેવાર' },
+    indiaDate: date, reason: 'india-list', url: `https://shubhpanchang.in/festivals/${slug}`,
+  })
+  const diwali = fest('diwali-2026', '2026-11-08', 'Diwali')
+  const base = {
+    now: { date: '2026-11-01', minutes: 9 * 60 }, lang: 'en' as const, family: [], days: [],
+  }
+
+  it('reminds the evening before a festival, as a priority-2 notification', () => {
+    const plan = planNotifications({ ...base, settings: { ...DEFAULT_SETTINGS, morning: { ...DEFAULT_SETTINGS.morning, on: false } }, observances: [], festivals: [diwali] })
+    expect(plan).toEqual([expect.objectContaining({ id: 'fest:diwali-2026', date: '2026-11-07', title: 'Tomorrow: Diwali', body: 'Diwali is a festival.', priority: 2 })])
+  })
+
+  it('leaves a festival that is a chosen vrat day to the vrat reminder', () => {
+    const ekadashi = { kind: 'ekadashi', date: '2026-11-08', nameEn: 'X Ekadashi', nameGu: 'x', reason: 'india-list' } as Observance
+    const plan = planNotifications({ ...base, settings: { ...DEFAULT_SETTINGS, morning: { ...DEFAULT_SETTINGS.morning, on: false }, kinds: ['ekadashi'] }, observances: [ekadashi], festivals: [diwali] })
+    expect(plan.map(n => n.id)).toEqual(['eve:ekadashi:2026-11-08'])
+  })
+
+  it('works with settings saved before festivals existed', () => {
+    const { festivals: _, ...old } = DEFAULT_SETTINGS
+    const plan = planNotifications({ ...base, settings: old as typeof DEFAULT_SETTINGS, observances: [], festivals: [diwali] })
+    expect(plan.some(n => n.id.startsWith('fest:'))).toBe(false)
+  })
+
+  it('puts the day\'s festival and the next one on the Today widget', () => {
+    const at = Date.parse('2026-10-22T03:30:00Z')
+    const e = todayEntries({ nowMs: at, today: '2026-10-22', timeZone: 'Asia/Kolkata', lang: 'en', days, observances: [], kinds: [], hours: 2,
+      festivals: [fest('x-2026', '2026-10-22', 'Today Fest'), diwali] })
+    expect(e[0].props).toMatchObject({ festToday: 'Today Fest', nextFest: 'Diwali', nextFestWhen: 'Sunday, 8 November', festLabel: 'Next festival' })
+    const far = todayEntries({ nowMs: at, today: '2026-10-22', timeZone: 'Asia/Kolkata', lang: 'en', days, observances: [], kinds: [], hours: 2,
+      festivals: [fest('z-2026', '2026-12-25', 'Far Fest')] })
+    expect(far[0].props).toMatchObject({ festToday: '', nextFest: '' }) // more than a month off
+    const e2 = todayEntries({ nowMs: at, today: '2026-10-22', timeZone: 'Asia/Kolkata', lang: 'en', days, observances: [], kinds: [], hours: 2,
+      festivals: [fest('y-2026', '2026-10-29', 'Soon Fest')] })
+    expect(e2[0].props).toMatchObject({ festToday: '', nextFest: 'Soon Fest', nextFestWhen: 'Thursday, 29 October' })
+  })
+
+  it('has Siri name the day\'s festival', () => {
+    const t = siriToday(days, 'Ahmedabad', '2026-10-22', 1, [fest('x-2026', '2026-10-22', 'Today Fest')])['2026-10-22']
+    expect(t).toContain('It is Today Fest')
   })
 })

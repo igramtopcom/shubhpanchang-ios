@@ -9,7 +9,7 @@ import { planNotifications } from '@/lib/notify-plan';
 import { shiftDate } from '@/lib/time';
 import { routeForWebPath } from '@/lib/links';
 import { useApp } from '@/state/app';
-import { useFamilyNext, useNow, useObservances, usePanchangWindow } from '@/state/data';
+import { useFamilyNext, useFestivals, useNow, useObservances, usePanchangWindow } from '@/state/data';
 
 export function NotificationSync() {
   const { prefs } = useApp();
@@ -18,12 +18,14 @@ export function NotificationSync() {
   const days = usePanchangWindow();
   const obs = useObservances(now.date, shiftDate(now.date, 62));
   const family = useFamilyNext(now.date);
+  const fest = useFestivals(now.date, shiftDate(now.date, 62));
 
   useEffect(() => addTapListener(url => router.navigate(routeForWebPath(url))), []);
 
+  // Festivals join when they arrive; the vrat and family plan does not wait for them.
   const ready = !!place && !!days.data && !!obs.data && !!family.data;
   const signature = ready
-    ? JSON.stringify([now.date, prefs.lang, prefs.notify, days.data!.length, obs.data!.map(o => o.date), family.data!.map(f => f.next?.date)])
+    ? JSON.stringify([now.date, prefs.lang, prefs.notify, days.data!.length, obs.data!.map(o => o.date), family.data!.map(f => f.next?.date), (fest.data ?? []).map(f => f.date + f.slug)])
     : '';
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export function NotificationSync() {
       lang: prefs.lang,
       observances: obs.data!,
       family: family.data!.filter(f => f.next).map(f => ({ person: f.person, date: f.next!.date })),
+      festivals: fest.data ?? [],
       days: days.data!.filter(d => d.date >= now.date),
     });
     applyPlan(plan, place!.timezone).catch(() => {});

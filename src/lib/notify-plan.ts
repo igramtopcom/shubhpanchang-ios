@@ -4,7 +4,7 @@
 // the rest. So the plan is built here, as data, and ranked:
 //
 //   1. vrat reminders: the evening before, Parana opening, Sankashti moonrise
-//   2. family dates: the evening before
+//   2. family dates and festivals: the evening before
 //   3. the morning panchang, one per day, filling what is left
 //
 // A reader who does not open the app for two weeks still gets every vrat and
@@ -15,7 +15,7 @@
 // Times are wall-clock at the chosen place; src/lib/notify.ts turns them into
 // instants with zonedTimeToUtc.
 
-import type { FamilyDate, Lang, Observance, PanchangDay } from './types'
+import type { FamilyDate, Festival, Lang, Observance, PanchangDay } from './types'
 import { lunarLabel, t, longDate } from './i18n'
 import { shiftDate, toMinutes } from './time'
 
@@ -28,6 +28,7 @@ export interface NotifySettings {
   vratEve: { on: boolean; minutes: number }
   parana: boolean
   family: { on: boolean; minutes: number }
+  festivals: { on: boolean; minutes: number }
   kinds: Observance['kind'][]
 }
 
@@ -36,6 +37,7 @@ export const DEFAULT_SETTINGS: NotifySettings = {
   vratEve: { on: true, minutes: 19 * 60 },
   parana: true,
   family: { on: true, minutes: 19 * 60 },
+  festivals: { on: true, minutes: 19 * 60 + 30 },
   kinds: ['ekadashi', 'purnima', 'amavasya', 'sankashti'],
 }
 
@@ -57,6 +59,7 @@ export interface PlanInput {
   lang: Lang
   observances: Observance[]
   family: { person: FamilyDate; date: string }[]
+  festivals?: Festival[]
   days: PanchangDay[]
   horizonDays?: number
   limit?: number
@@ -145,6 +148,25 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
           : (gu ? `શ્રાદ્ધ (${label})` : `Shraddh (${label})`),
         priority: 2,
         url: '/family',
+      })
+    }
+  }
+
+  // Festivals: the evening before. A festival that is also a chosen vrat day
+  // already has its reminder from the vrat list (one evening, one notification).
+  if (settings.festivals?.on) {
+    const vratDays = new Set(observances.filter(o => settings.kinds.includes(o.kind)).map(o => o.date))
+    for (const f of input.festivals ?? []) {
+      if (vratDays.has(f.date)) continue
+      const name = gu ? f.nameGu : f.nameEn
+      push({
+        id: `fest:${f.slug}`,
+        date: shiftDate(f.date, -1),
+        minutes: settings.festivals.minutes,
+        title: gu ? `આવતીકાલે ${name}` : `Tomorrow: ${name}`,
+        body: f.about ? (gu ? f.about.gu : f.about.en) : (gu ? 'તહેવાર આવતીકાલે.' : 'Festival tomorrow.'),
+        priority: 2,
+        url: '/vrat',
       })
     }
   }

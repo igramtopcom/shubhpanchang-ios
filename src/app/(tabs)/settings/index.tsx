@@ -89,6 +89,7 @@ export default function SettingsScreen() {
           {toggle(s.vratEve, prefs.notify.vratEve.on, v => setNotify({ vratEve: { ...prefs.notify.vratEve, on: v } }))}
           {toggle(s.paranaAlert, prefs.notify.parana, v => setNotify({ parana: v }))}
           {toggle(s.familyAlert, prefs.notify.family.on, v => setNotify({ family: { ...prefs.notify.family, on: v } }))}
+          {toggle(s.festivalAlert, prefs.notify.festivals.on, v => setNotify({ festivals: { ...prefs.notify.festivals, on: v } }))}
           {toggle(s.morningDigest, prefs.notify.morning.on, v => setNotify({ morning: { ...prefs.notify.morning, on: v } }))}
         </Card>
       </Section>

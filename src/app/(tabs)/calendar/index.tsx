@@ -7,7 +7,7 @@ import { longDate, t } from '@/lib/i18n';
 import { weekday } from '@/lib/time';
 import type { PanchangDay } from '@/lib/types';
 import { useApp } from '@/state/app';
-import { useMonth, useNow, useObservances } from '@/state/data';
+import { useFestivals, useMonth, useNow, useObservances } from '@/state/data';
 
 const MIN_MONTH = '2025-01';
 const MAX_MONTH = '2030-12';
@@ -38,6 +38,12 @@ export default function CalendarScreen() {
   const [y, m] = month.split('-').map(Number);
   const last = `${month}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, '0')}`;
   const obs = useObservances(month >= LIST_FROM_MONTH ? `${month}-01` : `${LIST_FROM_MONTH}-01`, month >= LIST_FROM_MONTH ? last : `${LIST_FROM_MONTH}-01`);
+  const fest = useFestivals(month >= LIST_FROM_MONTH ? `${month}-01` : `${LIST_FROM_MONTH}-01`, month >= LIST_FROM_MONTH ? last : `${LIST_FROM_MONTH}-01`);
+  const festByDate = new Map<string, string[]>();
+  for (const f of fest.data ?? []) {
+    if (f.date.slice(0, 7) !== month) continue;
+    festByDate.set(f.date, [...(festByDate.get(f.date) ?? []), lang === 'gu' ? f.nameGu : f.nameEn]);
+  }
   const vratByDate = new Map<string, string[]>();
   for (const o of obs.data ?? []) {
     if (o.date.slice(0, 7) !== month) continue;
@@ -81,6 +87,7 @@ export default function CalendarScreen() {
                     accessibilityLabel={[
                       longDate(d.date, lang),
                       lang === 'gu' ? d.tithi.nameGu : d.tithi.name,
+                      ...(festByDate.get(d.date) ?? []),
                       ...(vratByDate.get(d.date) ?? []),
                     ].join(', ')}
                     accessibilityState={{ selected: isSel }}
@@ -91,7 +98,11 @@ export default function CalendarScreen() {
                     }}>
                     <T style={{ fontWeight: '700', fontSize: 16 }} maxScale={1.3}>{Number(d.date.slice(8))}</T>
                     <T kind="small" shrink maxScale={1.3} style={{ fontSize: 11 }}>{lang === 'gu' ? d.tithi.nameGu : d.tithi.name}</T>
-                    {vrat ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.good, marginTop: 2 }} /> : null}
+                    {/* Marks by shape as well as colour: a dot for a vrat, a diamond for a festival. */}
+                    <View style={{ flexDirection: 'row', gap: 3, marginTop: 2, height: 7, alignItems: 'center' }}>
+                      {festByDate.has(d.date) ? <View style={{ width: 6, height: 6, backgroundColor: c.brand, transform: [{ rotate: '45deg' }] }} /> : null}
+                      {vrat ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.good }} /> : null}
+                    </View>
                   </Pressable>
                 );
               })}
@@ -108,6 +119,7 @@ export default function CalendarScreen() {
               ? `${sel.hinduMonth.gu} ${sel.tithi.paksha === 'shukla' ? 'સુદ' : 'વદ'} ${sel.tithi.nameGu}`
               : `${sel.hinduMonth.en} ${sel.tithi.paksha === 'shukla' ? 'Shukla' : 'Krishna'} ${sel.tithi.name}`}
           </T>
+          {(festByDate.get(sel.date) ?? []).map(v => <T key={`f${v}`} kind="value" color={c.brand}>{v}</T>)}
           {(vratByDate.get(sel.date) ?? []).map(v => <T key={v} kind="value" color={c.good}>{v}</T>)}
           <Row label={s.sunrise} value={sel.sunrise} />
           <Row label={s.sunset} value={sel.sunset} />

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { Fetched } from '@/lib/api';
 import { shiftDate, zonedNow } from '@/lib/time';
-import type { FamilyDate, Observance, PanchangDay, Place, TithiOccurrence } from '@/lib/types';
+import type { FamilyDate, Festival, Observance, PanchangDay, Place, TithiOccurrence } from '@/lib/types';
 
 import { useApp } from './app';
 
@@ -82,6 +82,13 @@ export function useObservances(from: string, to: string): Loaded<Observance[]> {
   const place = prefs.place;
   const key = place ? `obs:${placeKey(place)}:${from}:${to}` : null;
   return useLoad(key, () => api.observances(place!, from, to));
+}
+
+export function useFestivals(from: string, to: string): Loaded<Festival[]> {
+  const { api, prefs } = useApp();
+  const place = prefs.place;
+  const key = place ? `fest:${placeKey(place)}:${from}:${to}` : null;
+  return useLoad(key, () => api.festivals(place!, from, to));
 }
 
 /** The next day each family date falls on, from today. */

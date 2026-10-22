@@ -1,8 +1,13 @@
-// Vrat: the coming fasts at the place, each with when it may be broken.
+// Vrat & Festivals: the coming fasts at the place, each with when it may be
+// broken; and the coming festivals (/api/v1/festivals). ?seg=festivals opens the
+// festivals (links, the screenshot tour).
+import { useState } from 'react';
 import { View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
+import { FestivalCard } from '@/components/festival-card';
 import { LiveCountdownButton } from '@/components/live-countdown';
-import { Button, Card, Loading, Notice, Screen, Section, T, useColors } from '@/components/ui';
+import { Button, Card, Loading, Notice, Screen, Section, Segmented, T, useColors } from '@/components/ui';
 import { feedUrl } from '@/lib/api';
 import { addAllDayEvent, calendarSupported, subscribe } from '@/lib/calendar';
 import { longDate, t } from '@/lib/i18n';
@@ -10,7 +15,7 @@ import { shiftDate, zonedTimeToUtc } from '@/lib/time';
 import { vratCountdown } from '@/lib/widget-feed';
 import type { Observance } from '@/lib/types';
 import { useApp } from '@/state/app';
-import { useNow, useObservances } from '@/state/data';
+import { useFestivals, useNow, useObservances } from '@/state/data';
 
 /** The India lists end with 2030; the API refuses ranges past them. */
 const LIST_TO = '2030-12-31';
@@ -24,20 +29,46 @@ export default function VratScreen() {
   const to = shiftDate(now.date, 150) < LIST_TO ? shiftDate(now.date, 150) : LIST_TO;
   const obs = useObservances(now.date, to);
   const list = (obs.data ?? []).filter(o => prefs.notify.kinds.includes(o.kind));
+  // A year of festivals ahead (the API takes up to 400 days).
+  const festTo = shiftDate(now.date, 365) < LIST_TO ? shiftDate(now.date, 365) : LIST_TO;
+  const fest = useFestivals(now.date, festTo);
+  const params = useLocalSearchParams<{ seg?: string }>();
+  const [seg, setSeg] = useState(params.seg === 'festivals' ? 1 : 0);
+  // A link or Today's festival card opens the festivals even when this tab is
+  // already open: follow the parameter when it changes (React's "adjust state on
+  // a prop change" pattern, no effect).
+  const [seenSeg, setSeenSeg] = useState(params.seg);
+  if (params.seg !== seenSeg) {
+    setSeenSeg(params.seg);
+    if (params.seg === 'festivals') setSeg(1);
+  }
+  const current = seg === 0 ? obs : fest;
 
   return (
-    <Screen header onRefresh={obs.reload} refreshing={obs.loading && !!obs.data}>
+    <Screen header onRefresh={current.reload} refreshing={current.loading && !!current.data}>
+      <Segmented values={[s.segVrat, s.segFestivals]} index={seg} onChange={setSeg} />
       <Card>
         <T kind="small">{s.feedNote}</T>
         <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang))} />
       </Card>
-      {obs.stale ? <Notice text={s.offline} /> : null}
-      {obs.error && !obs.data ? <Notice text={s.loadError} onRetry={obs.reload} retryLabel={s.retry} /> : null}
-      {obs.loading && !obs.data ? <Loading /> : null}
-      {obs.data && !list.length ? <T kind="small">{s.noVratSoon}</T> : null}
-      <Section title={s.upcomingVrat}>
-        {list.map(o => <VratCard key={`${o.kind}${o.date}`} o={o} nowMs={zonedTimeToUtc(now.date, now.minutes, place.timezone).getTime()} />)}
-      </Section>
+      {current.stale ? <Notice text={s.offline} /> : null}
+      {current.error && !current.data ? <Notice text={s.loadError} onRetry={current.reload} retryLabel={s.retry} /> : null}
+      {current.loading && !current.data ? <Loading /> : null}
+      {seg === 0 ? (
+        <>
+          {obs.data && !list.length ? <T kind="small">{s.noVratSoon}</T> : null}
+          <Section title={s.upcomingVrat}>
+            {list.map(o => <VratCard key={`${o.kind}${o.date}`} o={o} nowMs={zonedTimeToUtc(now.date, now.minutes, place.timezone).getTime()} />)}
+          </Section>
+        </>
+      ) : (
+        <>
+          {fest.data && !fest.data.length ? <T kind="small">{s.noFestSoon}</T> : null}
+          <Section title={s.upcomingFestivals}>
+            {(fest.data ?? []).map(f => <FestivalCard key={f.slug} f={f} today={now.date} />)}
+          </Section>
+        </>
+      )}
     </Screen>
   );
 }

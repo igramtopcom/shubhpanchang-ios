@@ -53,7 +53,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     kv.getItem(PREFS_KEY)
       .then(saved => {
-        if (saved) setPrefs({ ...initialPrefs(), ...JSON.parse(saved) });
+        if (!saved) return;
+        const s = JSON.parse(saved);
+        // Settings added in later versions (notify.festivals...) take their defaults.
+        setPrefs({ ...initialPrefs(), ...s, notify: { ...DEFAULT_SETTINGS, ...s.notify } });
       })
       .catch(() => {})
       .finally(() => setReady(true));

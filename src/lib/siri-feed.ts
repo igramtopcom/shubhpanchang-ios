@@ -6,11 +6,11 @@
 import { longDate } from './i18n'
 import { goodWindows, timeline } from './shubh'
 import { hhmm, shiftDate, toMinutes } from './time'
-import type { Observance, ObservanceKind, PanchangDay } from './types'
+import type { Festival, Observance, ObservanceKind, PanchangDay } from './types'
 
 const say = (range: string) => range.replace('–', ' to ')
 
-export function siriToday (days: PanchangDay[], placeName: string, from: string, count = 14): Record<string, string> {
+export function siriToday (days: PanchangDay[], placeName: string, from: string, count = 14, festivals: Festival[] = []): Record<string, string> {
   const out: Record<string, string> = {}
   for (let i = 0; i < count; i++) {
     const date = shiftDate(from, i)
@@ -23,7 +23,11 @@ export function siriToday (days: PanchangDay[], placeName: string, from: string,
       .filter(w => w.start >= rise && w.end <= set)
       .map(w => `${w.name} ${hhmm(w.start)} to ${hhmm(w.end)}`)
     const tithi = `${day.hinduMonth.en}${day.isAdhikMaas ? ' Adhik' : ''} ${day.tithi.paksha === 'shukla' ? 'Shukla' : 'Krishna'} ${day.tithi.name}`
-    const vrat = day.vrat?.items?.length ? ` It is ${day.vrat.items.map(v => v.en).join(' and ')}.` : day.vrat ? ` It is ${day.vrat.en}.` : ''
+    const named = [
+      ...festivals.filter(f => f.date === date).map(f => f.nameEn),
+      ...(day.vrat?.items?.length ? day.vrat.items.map(v => v.en) : day.vrat ? [day.vrat.en] : []),
+    ].filter((x, i, a) => a.indexOf(x) === i)
+    const vrat = named.length ? ` It is ${named.join(' and ')}.` : ''
     out[date] = `${longDate(date, 'en')} in ${placeName}: ${tithi}.${vrat} Rahu Kaal is ${day.rahuKaal.start} to ${day.rahuKaal.end}.`
       + (good.length ? ` Good times: ${good.join(', ')}.` : '')
   }
