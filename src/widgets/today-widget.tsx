@@ -106,7 +106,7 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
 };
 
 export default createWidget<TodayProps>('TodayWidget', TodayWidget, {
-  state: 'wait', head: 'ShubhPanchang', name: '', at: '', untilMs: 0, date: '', tithi: '', tithiShort: '',
+  state: 'wait', head: 'Divo', name: '', at: '', untilMs: 0, date: '', tithi: '', tithiShort: '',
   tithiNum: 1, moon: 'moon.stars', rahuLabel: '', rahu: '', vratLabel: '', vrat: '', vratWhen: '',
   festToday: '', festLabel: '', nextFest: '', nextFestWhen: '', url: 'shubhpanchang://',
 });

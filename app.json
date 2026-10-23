@@ -18,7 +18,8 @@
       },
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
-        "CFBundleDevelopmentRegion": "en"
+        "CFBundleDevelopmentRegion": "en",
+        "CFBundleDisplayName": "Divo"
       },
       "appleTeamId": "2GX4UMPT5P",
       "icon": {
@@ -77,8 +78,8 @@
         "expo-calendar",
         {
           "writeOnlyAccess": true,
-          "writeOnlyCalendarPermission": "ShubhPanchang adds vrat days and family tithi dates to your calendar when you ask it to.",
-          "calendarPermission": "ShubhPanchang adds vrat days and family tithi dates to your calendar when you ask it to.",
+          "writeOnlyCalendarPermission": "Divo adds vrat days and family tithi dates to your calendar when you ask it to.",
+          "calendarPermission": "Divo adds vrat days and family tithi dates to your calendar when you ask it to.",
           "remindersPermission": false
         }
       ],

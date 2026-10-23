@@ -1,6 +1,6 @@
 {
-  "CFBundleDisplayName": "શુભ પંચાંગ",
+  "CFBundleDisplayName": "દીવો",
   "NSLocationWhenInUseUsageDescription": "તમે જ્યાં છો ત્યાંનો સૂર્યોદય, રાહુ કાળ અને પારણાનો સમય ગણવા માટે. સ્થાન આશરે 1 કિમી સુધી ગોળ કરાય છે અને અમારા સર્વર પર ક્યારેય સચવાતું નથી.",
-  "NSCalendarsWriteOnlyAccessUsageDescription": "તમે કહો ત્યારે ShubhPanchang વ્રતના દિવસો અને પરિવારની તિથિઓ તમારા કેલેન્ડરમાં ઉમેરે છે.",
-  "NSCalendarsUsageDescription": "તમે કહો ત્યારે ShubhPanchang વ્રતના દિવસો અને પરિવારની તિથિઓ તમારા કેલેન્ડરમાં ઉમેરે છે."
+  "NSCalendarsWriteOnlyAccessUsageDescription": "તમે કહો ત્યારે દીવો વ્રતના દિવસો અને પરિવારની તિથિઓ તમારા કેલેન્ડરમાં ઉમેરે છે.",
+  "NSCalendarsUsageDescription": "તમે કહો ત્યારે દીવો વ્રતના દિવસો અને પરિવારની તિથિઓ તમારા કેલેન્ડરમાં ઉમેરે છે."
 }

@@ -1,7 +1,7 @@
-# ShubhPanchang iOS app
+# Divo (દીવો) iOS app, by shubhpanchang.in
 
 Expo SDK 58 (React Native 0.88, Expo Router). Bundle ID `in.shubhpanchang.app`, App Store
-Connect record "ShubhPanchang: Vrat & Tithi" (Apple ID 6825234507). Plan: the "Kế hoạch app iOS
+Connect record "Divo: Gujarati Vrat & Panchang" (Apple ID 6825234507; was "ShubhPanchang: Vrat & Tithi" until 2026-10-23, see docs/RENAME-DIVO.md). Plan: the "Kế hoạch app iOS
 ShubhPanchang" artifact; API contract: `docs/api-v1.md` in igramtopcom/shubhpanchang (the website,
 where this app lived as `mobile/` until it moved here).
 

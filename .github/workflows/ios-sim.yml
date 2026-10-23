@@ -1,4 +1,4 @@
-name: iOS simulator build (ShubhPanchang)
+name: iOS simulator build (Divo)
 
 # Builds the app for the iPhone simulator WITHOUT signing, launches it and
 # keeps a screenshot. No Apple secrets, nothing published: artifacts only.

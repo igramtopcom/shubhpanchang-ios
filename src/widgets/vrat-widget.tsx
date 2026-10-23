@@ -42,5 +42,5 @@ const VratWidget = (p: VratProps, env: WidgetEnvironment) => {
 };
 
 export default createWidget<VratProps>('VratWidget', VratWidget, {
-  label: 'ShubhPanchang', name: '', when: '', detail: '', url: 'shubhpanchang://vrat',
+  label: 'Divo', name: '', when: '', detail: '', url: 'shubhpanchang://vrat',
 });

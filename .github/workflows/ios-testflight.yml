@@ -1,4 +1,4 @@
-name: iOS TestFlight upload (ShubhPanchang)
+name: iOS TestFlight upload (Divo)
 
 # Builds a SIGNED release and uploads it to App Store Connect (TestFlight).
 # Runs only on a push to main whose commit message has [testflight], or by

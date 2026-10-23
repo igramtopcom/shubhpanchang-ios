@@ -48,7 +48,7 @@ export function longDate (date: string, lang: Lang, withWeekday = true, withYear
 
 export const STRINGS = {
   gu: {
-    appName: 'શુભ પંચાંગ',
+    appName: 'દીવો',
     tabToday: 'આજે',
     tabVrat: 'વ્રત',
     tabFamily: 'પરિવાર',
@@ -166,7 +166,7 @@ export const STRINGS = {
     widgetTipTitle: 'શુભ સમય હવે સ્ક્રીન પર જ',
     widgetTipBody: 'ઍપ ખોલ્યા વગર જુઓ: અત્યારે શુભ સમય છે કે નહીં, અને આગામી ક્યારે.',
     // iPhone menu names stay as the phone shows them (most are set to English).
-    widgetTipHome: 'હોમ સ્ક્રીન: ખાલી જગ્યા પર દબાવી રાખો › Edit › Add Widget › ShubhPanchang.',
+    widgetTipHome: 'હોમ સ્ક્રીન: ખાલી જગ્યા પર દબાવી રાખો › Edit › Add Widget › Divo.',
     widgetTipLock: 'લૉક સ્ક્રીન: દબાવી રાખો › Customize › Lock Screen › Add Widgets.',
     widgetSample: 'ઉદાહરણ',
     done: 'થઈ ગયું',
@@ -197,7 +197,7 @@ export const STRINGS = {
     feedNote: 'એક વાર ઉમેરો, પછી નવા વ્રત-તહેવાર આપોઆપ આવશે. તારીખો આ સ્થળ પ્રમાણે છે.',
     notificationsWeb: 'સૂચનાઓ iPhone app માં જ ચાલે છે.',
     aboutTitle: 'ગણતરી વિશે',
-    aboutBody: 'બધી તિથિ, સૂર્યોદય અને પારણાના સમય shubhpanchang.in ના એ જ engine માંથી આવે છે. એકાદશી અને પારણા દૃક પંચાંગની રીતે, અને શ્રાદ્ધની તારીખો દૃક પંચાંગના 346 પાનાં સાથે સરખાવીને ચકાસેલી છે.',
+    aboutBody: 'દીવો shubhpanchang.in ની ઍપ છે: બધી તિથિ, સૂર્યોદય અને પારણાના સમય વેબસાઇટના એ જ engine માંથી આવે છે. એકાદશી અને પારણા દૃક પંચાંગની રીતે, અને શ્રાદ્ધની તારીખો દૃક પંચાંગના 346 પાનાં સાથે સરખાવીને ચકાસેલી છે.',
     today: 'આજે',
     tomorrow: 'આવતીકાલે',
     vratToday: 'આજનું વ્રત',
@@ -205,7 +205,7 @@ export const STRINGS = {
     aparahna: 'અપરાહ્ન',
   },
   en: {
-    appName: 'ShubhPanchang',
+    appName: 'Divo',
     tabToday: 'Today',
     tabVrat: 'Vrat',
     tabFamily: 'Family',
@@ -322,7 +322,7 @@ export const STRINGS = {
     festivalAlert: 'The evening before a festival',
     widgetTipTitle: 'The good time, right on your screen',
     widgetTipBody: 'See whether now is a good time, and when the next one starts, without opening the app.',
-    widgetTipHome: 'Home Screen: touch and hold an empty spot › Edit › Add Widget › ShubhPanchang.',
+    widgetTipHome: 'Home Screen: touch and hold an empty spot › Edit › Add Widget › Divo.',
     widgetTipLock: 'Lock Screen: touch and hold it › Customize › Lock Screen › Add Widgets.',
     widgetSample: 'Example',
     done: 'Done',
@@ -353,7 +353,7 @@ export const STRINGS = {
     feedNote: 'Add it once; new vrats and festivals arrive on their own. Dates are for this place.',
     notificationsWeb: 'Notifications work in the iPhone app only.',
     aboutTitle: 'About the calculations',
-    aboutBody: 'Every tithi, sunrise and Parana time comes from the same engine as shubhpanchang.in. Ekadashi and Parana follow Drik Panchang’s rules, and shraddh dates were checked against 346 Drik Panchang pages.',
+    aboutBody: 'Divo is the app of shubhpanchang.in: every tithi, sunrise and Parana time comes from the website’s own engine. Ekadashi and Parana follow Drik Panchang’s rules, and shraddh dates were checked against 346 Drik Panchang pages.',
     today: 'Today',
     // Only ever inside parentheses after a time: "05:17 (tomorrow)".
     tomorrow: 'tomorrow',

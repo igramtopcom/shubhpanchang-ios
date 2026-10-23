@@ -4,9 +4,9 @@
 
 ## English (en-US, ngôn ngữ chính)
 
-**Name** (30): `ShubhPanchang: Vrat & Tithi` (27)
+**Name** (30): `Divo: Gujarati Vrat & Panchang` (30). Đổi ngày 23/10/2026 vì đã có app "Shubh Panchang: Hindu Calendar" (xem `RENAME-DIVO.md`). Đã lưu trong App Store Connect.
 
-**Subtitle** (30): `Fasts, Parana & family tithis` (29)
+**Subtitle** (30): `Ekadashi, Parana, family tithi` (30, đã lưu)
 
 **Promotional text** (170, đổi lúc nào cũng được, không cần duyệt):
 > Dev Diwali and Kartik Purnima are on your Lock Screen. Parana times now count down live, and every vrat follows the sunrise where you live.
@@ -14,7 +14,7 @@
 **Description** (câu đầu quan trọng nhất):
 > Know which day to fast, and the minute you may break it, where you actually live.
 >
-> ShubhPanchang works out each vrat on your own sunrise: Ekadashi with its Parana window, Purnima, Amavasya, Sankashti Chaturthi with moonrise, Pradosh with Pradosh Kaal, and Masik Shivaratri. In New Jersey or London the right day is not always India's day; we show you both.
+> Divo works out each vrat on your own sunrise: Ekadashi with its Parana window, Purnima, Amavasya, Sankashti Chaturthi with moonrise, Pradosh with Pradosh Kaal, and Masik Shivaratri. In New Jersey or London the right day is not always India's day; we show you both.
 >
 > FAMILY TITHIS
 > Keep a parent's shraddh or a grandparent's birthday by its tithi. Enter the date (we find the tithi) or pick the tithi itself. Each year we find the day: shraddh by the aparahna rule, birthdays by sunrise.
@@ -32,17 +32,17 @@
 >
 > No ads, no account, no tracking. Your family dates stay on your phone.
 >
-> The calculations are the ones behind shubhpanchang.in, checked day by day against published panchangs.
+> Divo is the app of shubhpanchang.in: the same calculations, checked day by day against published panchangs.
 
-**Keywords** (100, phẩy không cách): `panchang,gujarati,ekadashi,parana,tithi,choghadiya,vrat,hindu calendar,shraddh,purnima,rahu kaal` (98)
+**Keywords** (100, phẩy không cách): `ekadashi,parana,tithi,choghadiya,hindu calendar,shraddh,purnima,rahu kaal,sankashti,navratri,diwali` (99). Không lặp chữ đã có trong tên (gujarati, vrat, panchang); không dùng "shubhpanchang" (tên app khác, 2.3.7).
 
 **Category**: Reference (phụ: Lifestyle)
 
 ## ગુજરાતી (gu)
 
-**Name**: `શુભ પંચાંગ: વ્રત અને તિથિ`
+**Name**: `દીવો: ગુજરાતી વ્રત અને પંચાંગ` (đã lưu, locale gu-IN)
 
-**Subtitle**: `વ્રત, પારણા, પરિવારની તિથિ`
+**Subtitle**: `અગિયારસ, પારણાં, પરિવારની તિથિ` (đã lưu)
 
 **Promotional text**:
 > દેવ દિવાળી અને કારતક પૂનમ હવે લૉક સ્ક્રીન પર. પારણાનો સમય ગણતરી સાથે, અને દરેક વ્રત તમે જ્યાં રહો છો ત્યાંના સૂર્યોદય પ્રમાણે.
@@ -50,7 +50,7 @@
 **Description**:
 > કયા દિવસે ઉપવાસ કરવો, અને કઈ મિનિટે પારણા કરી શકાય: તમે જ્યાં રહો છો ત્યાં પ્રમાણે.
 >
-> શુભ પંચાંગ દરેક વ્રત તમારા પોતાના સૂર્યોદય પ્રમાણે ગણે છે: પારણાના સમય સાથે અગિયારસ, પૂનમ, અમાસ, ચંદ્રોદય સાથે સંકષ્ટ ચતુર્થી, પ્રદોષ કાળ સાથે પ્રદોષ વ્રત અને માસિક શિવરાત્રી. ન્યૂ જર્સી કે લંડનમાં સાચો દિવસ ભારતનો જ દિવસ હોય એવું નથી; અમે બંને બતાવીએ છીએ.
+> દીવો દરેક વ્રત તમારા પોતાના સૂર્યોદય પ્રમાણે ગણે છે: પારણાના સમય સાથે અગિયારસ, પૂનમ, અમાસ, ચંદ્રોદય સાથે સંકષ્ટ ચતુર્થી, પ્રદોષ કાળ સાથે પ્રદોષ વ્રત અને માસિક શિવરાત્રી. ન્યૂ જર્સી કે લંડનમાં સાચો દિવસ ભારતનો જ દિવસ હોય એવું નથી; અમે બંને બતાવીએ છીએ.
 >
 > પરિવારની તિથિઓ
 > માતા-પિતાનું શ્રાદ્ધ કે દાદાનો જન્મદિવસ તિથિ પ્રમાણે યાદ રાખો. તારીખ લખો (તિથિ અમે શોધીએ) અથવા તિથિ સીધી પસંદ કરો. દર વર્ષે દિવસ અમે શોધીએ: શ્રાદ્ધ અપરાહ્ન કાળ પ્રમાણે, જન્મદિવસ સૂર્યોદય પ્રમાણે.
@@ -68,7 +68,7 @@
 >
 > કોઈ જાહેરાત નહીં, કોઈ ખાતું નહીં, કોઈ ટ્રેકિંગ નહીં. પરિવારની તારીખો તમારા ફોનમાં જ રહે છે.
 >
-> ગણતરી shubhpanchang.in ની જ છે, પ્રકાશિત પંચાંગો સાથે દિવસે દિવસ ચકાસેલી.
+> દીવો shubhpanchang.in ની ઍપ છે: એ જ ગણતરી, પ્રકાશિત પંચાંગો સાથે દિવસે દિવસ ચકાસેલી.
 
 **Keywords**: `પંચાંગ,ગુજરાતી,અગિયારસ,પારણા,તિથિ,ચોઘડિયા,વ્રત,શ્રાદ્ધ,પૂનમ,રાહુ કાળ,panchang`
 

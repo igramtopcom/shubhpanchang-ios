@@ -25,7 +25,7 @@ private func answer(_ key: String, fallback: String) -> String {
   return fallback
 }
 
-private let openFirst = "Open ShubhPanchang once to set your place, and ask again."
+private let openFirst = "Open Divo once to set your place, and ask again."
 
 struct TodayTithiIntent: AppIntent {
   static let title: LocalizedStringResource = "Today's Tithi"

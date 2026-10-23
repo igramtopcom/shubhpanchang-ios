@@ -1,7 +1,7 @@
 // The screenshot tour: screenshot builds only (EXPO_PUBLIC_SCREENSHOT_SEED=1,
 // set by .github/workflows/ios-screens.yml for a simulator build).
 //
-// iOS asks "Open in ShubhPanchang?" for every custom-scheme link opened from
+// iOS asks "Open in Divo?" for every custom-scheme link opened from
 // outside (xcrun simctl openurl), and the dialog stays over the screen, so CI
 // cannot drive the app by links. Instead CI launches the app once per step
 // with a launch argument, `-tourStep N`; iOS puts launch arguments into

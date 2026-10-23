@@ -17,7 +17,7 @@ Cổng qua giai đoạn (kế hoạch v2):
 | Privacy Policy URL | https://shubhpanchang.in/app-privacy?lang=en |
 
 **Beta App Description (EN):**
-> ShubhPanchang is a vrat and family-date planner for Gujarati families. It shows which day to keep each fast and when to break it (Ekadashi Parana, Sankashti moonrise, Pradosh Kaal) by the sunrise where you live, keeps a parent's shraddh or a birthday by its tithi every year, and puts it all on your Lock Screen and in the iPhone Calendar. Gujarati and English, no ads, no account.
+> Divo (the app of shubhpanchang.in) is a vrat and family-date planner for Gujarati families. It shows which day to keep each fast and when to break it (Ekadashi Parana, Sankashti moonrise, Pradosh Kaal) by the sunrise where you live, keeps a parent's shraddh or a birthday by its tithi every year, and puts it all on your Lock Screen and in the iPhone Calendar. Gujarati and English, no ads, no account.
 
 **What to Test (mỗi build):**
 > Thank you for testing! Please try:
@@ -27,7 +27,7 @@ Cổng qua giai đoạn (kế hoạch v2):
 > 4. Add the Today widget to your Home Screen or Lock Screen. Does it change at the right times?
 > 5. On an Ekadashi or Sankashti, tap "Count down on the Lock Screen".
 > 6. Turn on reminders: did the evening-before reminder arrive?
-> 7. Ask Siri: "Today's tithi in ShubhPanchang".
+> 7. Ask Siri: "Today's tithi in Divo".
 > Send a screenshot with TestFlight (take a screenshot in the app), or write to hello@shubhpanchang.in. Tell us your city.
 
 ## Nhóm External "Public beta"
