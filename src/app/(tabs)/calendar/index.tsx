@@ -2,9 +2,9 @@
 // a vrat or a family date. Tap the month's title to jump to any month of any
 // year (or of a Vikram Samvat year); tap a day for its sheet.
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
 import { Glass, headerButtons } from '@/components/glass';
@@ -39,6 +39,8 @@ export default function CalendarScreen() {
   const c = useColors();
   const now = useNow(prefs.place!.timezone);
   const [month, setMonth] = useState(now.date.slice(0, 7));
+  // ?scrolled=1: open scrolled down, for the screenshot of the folded title.
+  const { scrolled } = useLocalSearchParams<{ scrolled?: string }>();
   const [picker, setPicker] = useState(false);
   const days = useMonth(month);
   const [y, m] = month.split('-').map(Number);
@@ -70,14 +72,16 @@ export default function CalendarScreen() {
 
   const goMonth = (x: string) => { setMonth(x < CAL_FIRST ? CAL_FIRST : x > CAL_LAST ? CAL_LAST : x); setPicker(false); };
 
+  // The ScrollView (Screen) is the screen's own view: iOS folds the large title
+  // only for that one. A wrapper View around it left "Calendar" sitting over the
+  // month while it scrolled. The picker floats in its own Modal.
   return (
-    <View style={{ flex: 1, backgroundColor: c.background }}>
+    <Screen header gap={14} startAt={scrolled ? 320 : undefined}>
       <Stack.Screen options={headerButtons([
         { icon: 'calendar', label: s.backToToday, text: s.today, onPress: () => goMonth(now.date.slice(0, 7)) },
         { icon: 'magnifyingglass', label: s.search, onPress: () => router.push('/search') },
         { icon: 'gearshape', label: s.tabSettings, onPress: () => router.push('/settings') },
       ], c.text)} />
-      <Screen header gap={14}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Pressable accessibilityRole="button" accessibilityLabel={s.pickMonth} accessibilityState={{ expanded: picker }} onPress={() => { tick(); setPicker(!picker); }} hitSlop={8} style={{ flexShrink: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -123,9 +127,10 @@ export default function CalendarScreen() {
             ))}
           </List>
         ) : null}
-      </Screen>
-      {picker ? <MonthPicker month={month} lang={lang} onPick={goMonth} onToday={() => goMonth(now.date.slice(0, 7))} onClose={() => setPicker(false)} /> : null}
-    </View>
+      <Modal visible={picker} transparent animationType="fade" onRequestClose={() => setPicker(false)}>
+        <MonthPicker month={month} lang={lang} onPick={goMonth} onToday={() => goMonth(now.date.slice(0, 7))} onClose={() => setPicker(false)} />
+      </Modal>
+    </Screen>
   );
 }
 

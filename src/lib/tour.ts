@@ -30,6 +30,8 @@ export const TOUR: TourStep[] = [
   { route: '/festival?slug=diwali-2026', shot: '05-festival-diwali-gu' },
   { route: '/observance?kind=ekadashi&date=2026-11-05', shot: '06-ekadashi-gu' },
   { route: '/calendar', shot: '07-calendar-gu' },
+  // Scrolled down: the large title folds into the bar instead of sitting over the month.
+  { route: '/calendar?scrolled=1', shot: '07b-calendar-scrolled-gu' },
   { route: '/day?date=2026-11-08', shot: '08-day-sheet-gu' },
   { route: '/family', shot: '09-family-gu' },
   { route: '/person?id=tour-dada', shot: '10-person-gu' },

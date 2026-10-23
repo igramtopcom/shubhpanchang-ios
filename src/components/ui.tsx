@@ -31,8 +31,10 @@ export function toneColor(c: ReturnType<typeof useColors>, tone: Tone): string {
  * title. `bottom` leaves room for a floating action bar. onRefresh adds
  * pull-to-refresh.
  */
-export function Screen({ children, scroll = true, header = false, onRefresh, refreshing = false, bottom = 120, gap = Spacing.four }: {
+export function Screen({ children, scroll = true, header = false, onRefresh, refreshing = false, bottom = 120, gap = Spacing.four, startAt }: {
   children: ReactNode; scroll?: boolean; header?: boolean; onRefresh?: () => void; refreshing?: boolean; bottom?: number; gap?: number;
+  /** Open scrolled this far down (the screenshot tour checks the folded title). */
+  startAt?: number;
 }) {
   const c = useColors();
   const body = <View style={[styles.inner, { gap }, header && { paddingTop: Spacing.two }]}>{children}</View>;
@@ -40,6 +42,7 @@ export function Screen({ children, scroll = true, header = false, onRefresh, ref
   if (header) {
     return (
       <ScrollView
+        contentOffset={startAt ? { x: 0, y: startAt } : undefined}
         style={{ flex: 1, backgroundColor: c.background }}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: bottom }}

@@ -79,12 +79,12 @@ jobs:
           # through NSUserDefaults and it opens that step's screen with sample
           # data. A slow capture only delays the next launch, it cannot land on
           # the wrong screen. Keep SHOTS in step with TOUR.
-          SHOTS=(02-today-gu 03-choghadiya-gu 04-vrat-gu 05-festival-diwali-gu 06-ekadashi-gu 07-calendar-gu 08-day-sheet-gu 09-family-gu 10-person-gu 11-family-add-gu 12-settings-gu 13-search-gu 14-today-en-nj 15-festivals-en-nj 16-ekadashi-en-nj 17-today-dark-en 18-calendar-dark-en 19-festival-dark-en)
+          SHOTS=(02-today-gu 03-choghadiya-gu 04-vrat-gu 05-festival-diwali-gu 06-ekadashi-gu 07-calendar-gu 07b-calendar-scrolled-gu 08-day-sheet-gu 09-family-gu 10-person-gu 11-family-add-gu 12-settings-gu 13-search-gu 14-today-en-nj 15-festivals-en-nj 16-ekadashi-en-nj 17-today-dark-en 18-calendar-dark-en 19-festival-dark-en)
           xcrun simctl launch "$UDID" in.shubhpanchang.app
           sleep 12; shot 01-onboarding
           for i in "${!SHOTS[@]}"; do
-            # Steps 15 to 17 are in dark appearance, the rest light.
-            if [ "$i" = 15 ]; then xcrun simctl ui "$UDID" appearance dark; fi
+            # Steps 16 to 18 are in dark appearance, the rest light.
+            if [ "$i" = 16 ]; then xcrun simctl ui "$UDID" appearance dark; fi
             xcrun simctl launch --terminate-running-process "$UDID" in.shubhpanchang.app -tourStep "$i"
             sleep 14; shot "${SHOTS[$i]}"
           done
