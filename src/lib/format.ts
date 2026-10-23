@@ -22,6 +22,12 @@ function h12 (hhmm: string): { text: string; pm: boolean } {
   return { text: `${hh}:${String(min).padStart(2, '0')}`, pm: h >= 12 }
 }
 
+/** "24:00" (the engine's midnight at a day's end) as the next day's "00:00"; other times unchanged. */
+export function wallTime (hhmm: string): string {
+  const m = toMinutes(hhmm)
+  return m >= 24 * 60 ? `${String(Math.floor((m - 1440) / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` : hhmm
+}
+
 /** One time: "6:21 pm" / "6:21" (Gujarati, with `part` its part of the day) / "18:21". */
 export function clock (hhmm: string, lang: Lang, h24 = false, part = false): string {
   if (toMinutes(hhmm) < 0) return hhmm

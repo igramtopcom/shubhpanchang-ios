@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { clock, clockRange, dayPart, shortDate, shortWeekday } from '../src/lib/format'
+import { clock, clockRange, dayPart, shortDate, shortWeekday, wallTime } from '../src/lib/format'
 import { addMonths, civilMonthOfLunar, samvatOfMonth, tithiShort } from '../src/lib/calendar-nav'
 import { norm, searchItems } from '../src/lib/search'
 import { familyTitle, upcoming } from '../src/lib/upcoming'
@@ -23,6 +23,12 @@ describe('times read as people say them', () => {
     expect(clockRange('11:30', '13:05', 'en')).toBe('11:30 am – 1:05 pm')
     expect(clockRange('18:21', '20:12', 'gu', false, true)).toBe('સાંજે 6:21 – 8:12')
     expect(clockRange('18:21', '20:12', 'gu', true)).toBe('18:21 – 20:12')
+  })
+  it('the engine\'s "24:00" is the next midnight, not noon or 12:00 the same day', () => {
+    expect(wallTime('24:00')).toBe('00:00')
+    expect(wallTime('24:17')).toBe('00:17')
+    expect(wallTime('23:59')).toBe('23:59')
+    expect(clock(wallTime('24:00'), 'en')).toBe('12:00 am')
   })
   it('parts of the day follow the household words', () => {
     expect(dayPart('04:30')).toBe('સવારે')

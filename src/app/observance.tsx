@@ -12,7 +12,7 @@ import { ActionBar, headerButtons } from '@/components/glass';
 import { LiveCountdownButton } from '@/components/live-countdown';
 import { Card, Cell, Group, Loading, Notice, Screen, T, useColors } from '@/components/ui';
 import { addAllDayEvent, calendarSupported } from '@/lib/calendar';
-import { clock, clockRange, shortDate } from '@/lib/format';
+import { clock, clockRange, shortDate, wallTime } from '@/lib/format';
 import { tick } from '@/lib/haptics';
 import { longDate, placeName, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
@@ -159,7 +159,9 @@ export default function ObservanceScreen() {
 
 /** Where a tithi ends: the day it ends on, from the sunrise day that holds it. */
 function tithiEnd(day: PanchangDay): { date: string; time: string } {
-  return { date: shiftDate(day.date, day.tithi.endDayOffset), time: day.tithi.endTime };
+  // "24:00" is midnight: the start of the next day.
+  const over = toMinutes(day.tithi.endTime) >= DAY_MIN;
+  return { date: shiftDate(day.date, day.tithi.endDayOffset + (over ? 1 : 0)), time: over ? hhmm(toMinutes(day.tithi.endTime) - DAY_MIN) : day.tithi.endTime };
 }
 
 function ParanaTimeline({ o, days, lang, h24, city, countdown }: { o: Observance; days: PanchangDay[]; lang: Lang; h24: boolean; city: string; countdown: React.ReactNode }) {
@@ -227,7 +229,7 @@ function KeyTimes({ o, days, lang, h24, countdown }: { o: Observance; days: Panc
   if (day) rows.push([s.sunrise, clock(day.sunrise, lang, h24)]);
   if (o.moonrise) rows.push([s.moonrise, `${shortDate(o.moonrise.date, lang)} · ${clock(o.moonrise.time, lang, h24, true)}`]);
   if (o.window) rows.push([o.kind === 'pradosh' ? s.pradoshKaal : s.nishita, clockRange(o.window.start, o.window.end, lang, h24)]);
-  if (day) rows.push([s.tithiWord, `${lang === 'gu' ? day.tithi.nameGu : day.tithi.name} · ${s.until(clock(day.tithi.endTime, lang, h24, true))}`]);
+  if (day) rows.push([s.tithiWord, `${lang === 'gu' ? day.tithi.nameGu : day.tithi.name} · ${s.until(clock(wallTime(day.tithi.endTime), lang, h24, true))}`]);
   return (
     <Card style={{ gap: 0 }}>
       {rows.map(([a, b], i) => (

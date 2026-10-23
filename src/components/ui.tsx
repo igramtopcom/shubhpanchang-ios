@@ -320,7 +320,7 @@ export function ListRow({ lead, title, detail, trailing, onPress, first, a11y, b
           <T kind="heading" style={{ fontSize: 16 }}>{title}</T>
           {badge}
         </View>
-        {detail ? <T kind="small" style={{ fontVariant: ['tabular-nums'] }}>{detail}</T> : null}
+        {detail ? <T kind="small" numberOfLines={2} style={{ fontVariant: ['tabular-nums'] }}>{detail}</T> : null}
       </View>
       {trailing === 'chevron' ? <SymbolView name="chevron.right" size={13} weight="semibold" tintColor={c.textMuted} /> : trailing}
     </View>

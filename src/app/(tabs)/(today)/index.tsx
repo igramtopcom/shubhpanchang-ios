@@ -11,7 +11,7 @@ import { LiveCountdownButton } from '@/components/live-countdown';
 import { Moon, Ribbon, RibbonKey, SunArc } from '@/components/sky';
 import { DayStep, dayTithi } from '@/components/day-step';
 import { Card, DateTile, Fact, Kind, List, ListRow, Loading, Notice, Screen, Section, T, useColors } from '@/components/ui';
-import { clock, clockRange, shortDate, shortWeekday } from '@/lib/format';
+import { clock, clockRange, shortDate, shortWeekday, wallTime } from '@/lib/format';
 import { tick } from '@/lib/haptics';
 import { chogName, longDate, placeName, t, tithiName } from '@/lib/i18n';
 import { shareMessage } from '@/lib/share';
@@ -90,14 +90,14 @@ export default function Today() {
             <Moon tithi={day.tithi.index} />
             <View style={{ flex: 1 }}>
               <T kind="serif">{dayTithi(day, lang)}</T>
-              <T kind="small">{s.tithiThen(clock(day.tithi.endTime, lang, prefs.clock24, true), tithiName((day.tithi.index + 1) % 30, lang), !!day.tithi.endDayOffset)}</T>
+              <T kind="small">{s.tithiThen(clock(wallTime(day.tithi.endTime), lang, prefs.clock24, true), tithiName((day.tithi.index + 1) % 30, lang), !!day.tithi.endDayOffset || toMinutes(day.tithi.endTime) >= DAY_MIN)}</T>
             </View>
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
             <Fact label={s.nakshatra} value={lang === 'gu' ? day.nakshatra.nameGu : day.nakshatra.name} />
             <Fact label={s.yoga} value={lang === 'gu' ? day.yoga.nameGu : day.yoga.name} />
             {(day.vrat?.items ?? []).map(v => (
-              <Fact key={v.en} tone="good" value={`${lang === 'gu' ? v.gu : v.en}${v.time ? ` ${lang === 'gu' ? v.time.value.replace(/\s?[AP]M/gi, '') : v.time.value.replace(/AM/g, 'am').replace(/PM/g, 'pm')}` : ''}`} />
+              <Fact key={v.en} tone="good" value={`${lang === 'gu' ? v.gu : v.en}${v.time ? ` ${lang === 'gu' ? v.time.value.replace(/[\s\u00a0\u202f]*[AP]M/gi, '') : v.time.value.replace(/AM/g, 'am').replace(/PM/g, 'pm')}` : ''}`} />
             ))}
           </View>
         </View>

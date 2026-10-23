@@ -6,7 +6,7 @@ import { SymbolView } from 'expo-symbols';
 
 import { dayTithi } from '@/components/day-step';
 import { Button, DateTile, Fact, List, ListRow, Loading, Notice, T, useColors } from '@/components/ui';
-import { clock, clockRange } from '@/lib/format';
+import { clock, clockRange, wallTime } from '@/lib/format';
 import { tick } from '@/lib/haptics';
 import { longDate, t, tithiName } from '@/lib/i18n';
 import { useApp } from '@/state/app';
@@ -33,7 +33,7 @@ export default function DaySheet() {
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <View style={{ flex: 1 }}>
           <T kind="title">{longDate(date, lang)}</T>
-          {day ? <T kind="small">{dayTithi(day, lang)}; {s.tithiThen(clock(day.tithi.endTime, lang, prefs.clock24, true), tithiName((day.tithi.index + 1) % 30, lang), !!day.tithi.endDayOffset)}</T> : null}
+          {day ? <T kind="small">{dayTithi(day, lang)}; {s.tithiThen(clock(wallTime(day.tithi.endTime), lang, prefs.clock24, true), tithiName((day.tithi.index + 1) % 30, lang), !!day.tithi.endDayOffset || day.tithi.endTime >= '24:00')}</T> : null}
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={s.close} onPress={() => router.back()} hitSlop={8}
           style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c.backgroundElement, alignItems: 'center', justifyContent: 'center' }}>

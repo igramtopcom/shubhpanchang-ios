@@ -156,7 +156,7 @@ function MuhuratCard({ m, lang, city }: { m: NonNullable<FestivalDetail['muhurat
   return (
     <Card tone="brand" style={{ gap: 4 }}>
       <T kind="eyebrow" style={{ fontSize: 13 }}>{m.label[lang]} · {city}</T>
-      <T style={{ fontSize: 26, fontWeight: '600', fontVariant: ['tabular-nums'], color: c.text }}>{clockRange(m.start, m.end, lang, prefs.clock24, true)}</T>
+      <T style={{ fontSize: 26, lineHeight: 36, fontWeight: '600', fontVariant: ['tabular-nums'], color: c.text }}>{clockRange(m.start, m.end, lang, prefs.clock24, true)}</T>
       <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: c.line }}>
         <MRow label={s.pradoshKaal} value={clockRange(m.pradoshKaal.start, m.pradoshKaal.end, lang, prefs.clock24)} />
         {m.vrishabha ? <MRow label={s.vrishabhaLagna} value={clockRange(m.vrishabha.start, m.vrishabha.end, lang, prefs.clock24)} /> : null}
@@ -170,9 +170,9 @@ function MuhuratCard({ m, lang, city }: { m: NonNullable<FestivalDetail['muhurat
 function MRow({ label, value }: { label: string; value: string }) {
   const c = useColors();
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 9, borderBottomWidth: 0.5, borderBottomColor: c.line }}>
-      <T kind="small">{label}</T>
-      <T kind="value" style={{ fontSize: 14 }}>{value}</T>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingVertical: 9, borderBottomWidth: 0.5, borderBottomColor: c.line }}>
+      <T kind="small" style={{ flex: 1 }}>{label}</T>
+      <T kind="value" style={{ fontSize: 14, flexShrink: 1, textAlign: 'right' }}>{value}</T>
     </View>
   );
 }

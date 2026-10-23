@@ -61,9 +61,10 @@ function Gate() {
           <Stack.Screen name="person" options={detail} />
           <Stack.Screen name="search" options={{ ...detail, headerTransparent: false, headerStyle: { backgroundColor: c.background } }} />
           <Stack.Screen name="day" options={{ ...sheet, sheetAllowedDetents: [0.62, 1] }} />
-          <Stack.Screen name="settings" options={{ ...sheet, sheetAllowedDetents: [1] }} />
-          <Stack.Screen name="family-add" options={{ ...sheet, sheetAllowedDetents: [1] }} />
-          <Stack.Screen name="place" options={{ ...sheet, sheetAllowedDetents: [1] }} />
+          {/* Full-height sheets with their own header over a scroll view: the page sheet (a full formSheet hid the header). */}
+          <Stack.Screen name="settings" options={{ presentation: 'modal', contentStyle: { backgroundColor: c.background } }} />
+          <Stack.Screen name="family-add" options={{ presentation: 'modal', contentStyle: { backgroundColor: c.background } }} />
+          <Stack.Screen name="place" options={{ presentation: 'modal', contentStyle: { backgroundColor: c.background } }} />
         </Stack.Protected>
         <Stack.Protected guard={!prefs.onboarded}>
           <Stack.Screen name="onboarding" />
