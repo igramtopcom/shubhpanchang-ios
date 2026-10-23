@@ -289,7 +289,8 @@ describe('screenshot tour', () => {
     expect(TOUR[0].seed && TOUR[0].route).toBe('/')
     // A step carries the sample data of the last seed before it.
     expect(seedFor(3)).toEqual(TOUR[0].seed)
-    expect(seedFor(8)?.lang).toBe('en')
+    expect(seedFor(11)?.lang).toBe('gu')
+    expect(seedFor(12)?.lang).toBe('en')
     expect([stepIndex('4'), stepIndex(4), stepIndex(undefined), stepIndex('99'), stepIndex('x')]).toEqual([4, 4, null, null, null])
   })
 })

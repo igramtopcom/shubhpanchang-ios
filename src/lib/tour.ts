@@ -17,27 +17,32 @@ export const SCREENSHOT_BUILD = process.env.EXPO_PUBLIC_SCREENSHOT_SEED === '1'
 export interface TourStep {
   /** Fill in a language, a place and sample family dates first. */
   seed?: { lang: Lang; city: string }
-  route: '/' | '/vrat' | '/vrat?seg=festivals' | '/family' | '/calendar' | '/settings' | '/family-add' | '/place'
+  route: string
   /** File name of the capture CI takes at this step. */
   shot: string
 }
 
+// Every screen of the redesign (docs/design). Keep .github/workflows/ios-screens.yml's SHOTS in step.
 export const TOUR: TourStep[] = [
   { seed: { lang: 'gu', city: 'ahmedabad' }, route: '/', shot: '02-today-gu' },
-  { route: '/vrat', shot: '03-vrat-gu' },
-  { route: '/family', shot: '04-family-gu' },
-  { route: '/calendar', shot: '05-calendar-gu' },
-  { route: '/settings', shot: '06-settings-gu' },
-  { route: '/family-add', shot: '07-family-add-gu' },
-  { route: '/place', shot: '08-place-gu' },
-  { seed: { lang: 'en', city: 'newjersey-us' }, route: '/', shot: '09-today-en-nj' },
-  { route: '/vrat', shot: '10-vrat-en-nj' },
-  // CI switches the simulator to dark appearance before these two.
-  { route: '/', shot: '11-today-dark-en' },
-  { route: '/calendar', shot: '12-calendar-dark-en' },
-  // CI switches back to light appearance for the festival lists.
-  { seed: { lang: 'gu', city: 'ahmedabad' }, route: '/vrat?seg=festivals', shot: '13-festivals-gu' },
-  { seed: { lang: 'en', city: 'newjersey-us' }, route: '/vrat?seg=festivals', shot: '14-festivals-en-nj' },
+  { route: '/choghadiya', shot: '03-choghadiya-gu' },
+  { route: '/vrat', shot: '04-vrat-gu' },
+  { route: '/festival?slug=diwali-2026', shot: '05-festival-diwali-gu' },
+  { route: '/observance?kind=ekadashi&date=2026-11-05', shot: '06-ekadashi-gu' },
+  { route: '/calendar', shot: '07-calendar-gu' },
+  { route: '/day?date=2026-11-08', shot: '08-day-sheet-gu' },
+  { route: '/family', shot: '09-family-gu' },
+  { route: '/person?id=tour-dada', shot: '10-person-gu' },
+  { route: '/family-add', shot: '11-family-add-gu' },
+  { route: '/settings', shot: '12-settings-gu' },
+  { route: '/search', shot: '13-search-gu' },
+  { seed: { lang: 'en', city: 'newjersey-us' }, route: '/', shot: '14-today-en-nj' },
+  { route: '/vrat?seg=festivals', shot: '15-festivals-en-nj' },
+  { route: '/observance?kind=ekadashi&date=2026-11-05', shot: '16-ekadashi-en-nj' },
+  // CI switches the simulator to dark appearance before these three.
+  { route: '/', shot: '17-today-dark-en' },
+  { route: '/calendar', shot: '18-calendar-dark-en' },
+  { route: '/festival?slug=diwali-2026', shot: '19-festival-dark-en' },
 ]
 
 /** A `-tourStep` launch argument as a step index, or null (first launch: onboarding). */

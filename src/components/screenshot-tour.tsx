@@ -29,10 +29,11 @@ export function ScreenshotTour() {
         family: [
           { id: 'tour-ba', name: s.lang === 'gu' ? 'બા' : 'Ba', kind: 'shraddh', lunar: { month: 5, adhik: false, tithi: 19 } },
           { id: 'tour-dada', name: s.lang === 'gu' ? 'દાદા' : 'Dada', kind: 'birthday', lunar: { month: 6, adhik: false, tithi: 9 }, origin: { date: '1946-10-05' } },
+          { id: 'tour-mom', name: s.lang === 'gu' ? 'મમ્મી' : 'Mom', kind: 'birthday', lunar: { month: 7, adhik: false, tithi: 4 }, origin: { date: '1972-11-13' } },
         ],
       });
       // The protected stack needs a beat to swap onboarding for the tabs.
-      setTimeout(() => { if (live) router.navigate(TOUR[step].route); }, 800);
+      setTimeout(() => { if (live) router.navigate(TOUR[step].route as never); }, 800);
     })().catch(() => { /* a missed step only costs its screenshot */ });
     return () => { live = false; };
   }, [api, update]);
