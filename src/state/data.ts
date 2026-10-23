@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { Fetched } from '@/lib/api';
 import { shiftDate, zonedNow } from '@/lib/time';
-import type { FamilyDate, Festival, Observance, PanchangDay, Place, TithiOccurrence } from '@/lib/types';
+import type { FamilyDate, Festival, FestivalDetail, Observance, PanchangDay, Place, Sampradaya, TithiOccurrence } from '@/lib/types';
 
 import { useApp } from './app';
 
@@ -68,6 +68,25 @@ export function usePanchangWindow(): Loaded<PanchangDay[]> & { today: string } {
   return { ...res, today };
 }
 
+/** `days` days from `from` (a day the Today window does not cover: a date picked in the calendar). */
+export function useDays(from: string | null, days: number): Loaded<PanchangDay[]> {
+  const { api, prefs } = useApp();
+  const place = prefs.place;
+  const sampradaya = prefs.sampradaya;
+  const key = place && from ? `days:${placeKey(place)}:${sampradaya}:${from}:${days}` : null;
+  return useLoad(key, () => api.panchang(place!, from!, days, sampradaya));
+}
+
+/** The panchang of `date` and the day after it (whose early hours finish the night's choghadiya). */
+export function useDay(date: string): { day: PanchangDay | null; next: PanchangDay | null; prev: PanchangDay | null; loading: boolean; error: string | null; stale: boolean; reload: () => void } {
+  const win = usePanchangWindow();
+  const inWin = !!win.data?.some(d => d.date === date) && !!win.data?.some(d => d.date === shiftDate(date, 1));
+  const own = useDays(inWin ? null : shiftDate(date, -1), 3);
+  const src = inWin ? win : own;
+  const pick = (d: string) => src.data?.find(x => x.date === d) ?? null;
+  return { day: pick(date), next: pick(shiftDate(date, 1)), prev: pick(shiftDate(date, -1)), loading: src.loading, error: src.error, stale: src.stale, reload: src.reload };
+}
+
 export function useMonth(month: string): Loaded<PanchangDay[]> {
   const { api, prefs } = useApp();
   const place = prefs.place;
@@ -85,6 +104,22 @@ export function useObservances(from: string, to: string): Loaded<Observance[]> {
   const sampradaya = prefs.sampradaya;
   const key = place ? `obs:${placeKey(place)}:${sampradaya}:${from}:${to}` : null;
   return useLoad(key, () => api.observances(place!, from, to, sampradaya));
+}
+
+/** The observances as one given sampradaya keeps them (to set the traditions side by side). */
+export function useObservancesAs(from: string, to: string, sampradaya: Sampradaya | null): Loaded<Observance[]> {
+  const { api, prefs } = useApp();
+  const place = prefs.place;
+  const key = place && sampradaya ? `obs:${placeKey(place)}:${sampradaya}:${from}:${to}` : null;
+  return useLoad(key, () => api.observances(place!, from, to, sampradaya!));
+}
+
+/** One festival with its write-up and muhurat at the place. */
+export function useFestivalDetail(slug: string | null): Loaded<FestivalDetail> {
+  const { api, prefs } = useApp();
+  const place = prefs.place;
+  const key = place && slug ? `festdetail:${placeKey(place)}:${prefs.sampradaya}:${slug}` : null;
+  return useLoad(key, () => api.festival(place!, slug!, prefs.sampradaya));
 }
 
 export function useFestivals(from: string, to: string): Loaded<Festival[]> {

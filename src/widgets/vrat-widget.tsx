@@ -11,10 +11,10 @@ const VratWidget = (p: VratProps, env: WidgetEnvironment) => {
   'widget';
   const dark = env.colorScheme === 'dark';
   const plain = env.widgetRenderingMode === 'accented' || env.widgetRenderingMode === 'vibrant';
-  const ink = dark ? '#F5E9E0' : '#3E2723';
-  const soft = dark ? '#D7C2B4' : '#6D4C41';
-  const good = plain ? ink : dark ? '#81C784' : '#1B5E20';
-  const brand = plain ? ink : dark ? '#FF8A65' : '#C0390E';
+  const ink = dark ? '#F3EADF' : '#2A201A';
+  const soft = dark ? '#BDAE9F' : '#6A5D54';
+  const good = plain ? ink : dark ? '#7DB592' : '#44735A';
+  const brand = plain ? ink : dark ? '#E6894A' : '#AC5118';
 
   if (env.widgetFamily === 'accessoryRectangular') {
     return (
@@ -27,7 +27,7 @@ const VratWidget = (p: VratProps, env: WidgetEnvironment) => {
   }
 
   return (
-    <VStack alignment="leading" spacing={3} modifiers={[containerBackground(dark ? '#1B1411' : '#FFF8F0', 'widget'), widgetURL(p.url)]}>
+    <VStack alignment="leading" spacing={3} modifiers={[containerBackground(dark ? '#201913' : '#FFFFFF', 'widget'), widgetURL(p.url)]}>
       <HStack spacing={5}>
         <Image systemName="moon.stars.fill" size={13} color={brand} />
         <Text modifiers={[font({ textStyle: 'caption2', weight: 'semibold' }), foregroundStyle(brand), lineLimit(1)]}>{p.label}</Text>

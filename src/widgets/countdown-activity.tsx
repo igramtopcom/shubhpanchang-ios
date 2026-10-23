@@ -14,8 +14,8 @@ const CountdownActivity = (p: CountdownProps, env: LiveActivityEnvironment) => {
   'widget';
   const dark = env.colorScheme === 'dark';
   const accent = env.isLuminanceReduced ? '#FFFFFF'
-    : p.tone === 'bad' ? (dark ? '#EF9A9A' : '#C62828') : (dark ? '#81C784' : '#1B5E20');
-  const soft = dark ? '#D7C2B4' : '#6D4C41';
+    : p.tone === 'bad' ? (dark ? '#E0877C' : '#A9473E') : (dark ? '#7DB592' : '#44735A');
+  const soft = dark ? '#BDAE9F' : '#6A5D54';
   const range = { lower: new Date(Math.min(Date.now(), p.targetMs)), upper: new Date(p.targetMs) };
   const timer = (size: number) => (
     <Text timerInterval={range} countsDown modifiers={[font({ size, weight: 'bold' }), monospacedDigit(), foregroundStyle(accent), lineLimit(1)]} />

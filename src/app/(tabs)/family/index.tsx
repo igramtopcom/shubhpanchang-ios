@@ -1,76 +1,89 @@
-// Family dates kept by tithi: each person's next day, worked out at the place.
-import { Alert, Pressable, View } from 'react-native';
+// Family dates kept by tithi: the next one on top, then birthdays and
+// anniversaries, then punyatithis, each with the day it falls on this time.
+import { View } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
-import { Button, Card, Loading, Notice, Screen, T, Tag, useColors } from '@/components/ui';
-import { addAllDayEvent, calendarSupported } from '@/lib/calendar';
+import { Avatar } from '@/components/avatar';
+import { headerButtons } from '@/components/glass';
+import { Card, Empty, List, ListRow, Loading, Notice, Screen, T, useColors } from '@/components/ui';
+import { shortDate, shortWeekday } from '@/lib/format';
 import { longDate, lunarLabel, t } from '@/lib/i18n';
+import { daysBetween } from '@/lib/time';
+import { familyTitle } from '@/lib/upcoming';
+import type { FamilyDate, Lang, TithiOccurrence } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useFamilyNext, useNow } from '@/state/data';
 
 export default function FamilyScreen() {
-  const { prefs, update } = useApp();
+  const { prefs } = useApp();
   const lang = prefs.lang;
   const s = t(lang);
   const c = useColors();
   const now = useNow(prefs.place!.timezone);
   const next = useFamilyNext(now.date);
-
-  const remove = (id: string, name: string) => Alert.alert(s.removeQ(name), s.removeBody, [
-    { text: s.cancel, style: 'cancel' },
-    { text: s.remove, style: 'destructive', onPress: () => update({ family: prefs.family.filter(f => f.id !== id) }) },
-  ]);
+  const rows = next.data ?? prefs.family.map(person => ({ person, next: null as TithiOccurrence | null }));
+  const soonest = [...rows].filter(r => r.next).sort((a, b) => (a.next!.date < b.next!.date ? -1 : 1))[0];
+  const living = rows.filter(r => r.person.kind !== 'shraddh');
+  const remembered = rows.filter(r => r.person.kind === 'shraddh');
 
   return (
-    <Screen header onRefresh={next.reload} refreshing={next.loading && !!next.data}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable accessibilityRole="button" accessibilityLabel={s.addPerson} hitSlop={10} onPress={() => router.push('/family-add')}>
-              <SymbolView name="plus" size={22} weight="semibold" tintColor={c.brand} />
-            </Pressable>
-          ),
-        }}
-      />
+    <Screen header onRefresh={next.reload} refreshing={next.loading && !!next.data} gap={18}>
+      <Stack.Screen options={headerButtons([
+        ...(prefs.family.length ? [{ icon: 'plus' as const, label: s.addPerson, onPress: () => router.push('/family-add') }] : []),
+        { icon: 'gearshape', label: s.tabSettings, onPress: () => router.push('/settings') },
+      ], c.text)} />
+
       {!prefs.family.length ? (
-        <Card style={{ alignItems: 'center', paddingVertical: 28, gap: 12 }}>
-          <SymbolView name="person.2.fill" size={36} tintColor={c.brand} />
-          <T kind="small" style={{ textAlign: 'center' }}>{s.familyEmpty}</T>
-          <Button icon="plus" label={s.addPerson} onPress={() => router.push('/family-add')} />
-        </Card>
+        <Empty icon="person.2.fill" title={s.familyEmptyTitle} body={s.familyEmpty} action={s.addFirst} onAction={() => router.push('/family-add')} note={s.staysOnPhone} />
       ) : null}
       {next.stale ? <Notice text={s.offline} /> : null}
       {next.loading && !next.data && prefs.family.length ? <Loading /> : null}
-      {(next.data ?? []).map(({ person, next: occ }) => {
-        const label = lunarLabel(person.lunar, lang);
-        const kind = person.kind === 'birthday' ? s.birthday : s.shraddh;
-        return (
-          <Card key={person.id}>
-            <Tag label={kind} tone="brand" />
-            <T kind="heading">{person.name}</T>
-            <T kind="small">{label} · {person.kind === 'birthday' ? s.birthdayRule : s.shraddhRule}</T>
-            {occ ? (
-              <>
-                <T kind="value">{occ.date === now.date ? s.today : s.nextOn}: {longDate(occ.date, lang, true, occ.date.slice(0, 4) !== now.date.slice(0, 4))}</T>
-                {occ.aparahna ? <T kind="small" color={c.good}>{s.aparahna} {occ.aparahna.start}–{occ.aparahna.end}</T> : null}
-              </>
-            ) : null}
-            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-              {occ && calendarSupported ? (
-                <Button
-                  kind="quiet"
-                  compact
-                  icon="calendar.badge.plus"
-                  label={s.addToCalendar}
-                  onPress={() => addAllDayEvent({ date: occ.date, title: `${person.name} · ${kind}`, notes: label })}
-                />
-              ) : null}
-              <Button kind="destructive" compact icon="trash" label={s.remove} onPress={() => remove(person.id, person.name)} />
-            </View>
-          </Card>
-        );
-      })}
+
+      {soonest ? (
+        <Card tone="brand" style={{ gap: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <SymbolView name={soonest.person.kind === 'shraddh' ? 'flame' : 'heart'} size={13} tintColor={c.brand} />
+            <T kind="eyebrow" style={{ fontSize: 13 }}>{s.nextUp} · {soonest.next!.date === now.date ? s.today : s.relDays(daysBetween(now.date, soonest.next!.date))}</T>
+          </View>
+          <T style={{ fontSize: 20, fontWeight: '600' }}>{familyTitle(soonest.person, lang)}</T>
+          <T kind="small">{lunarLabel(soonest.person.lunar, lang)} · {longDate(soonest.next!.date, lang)}</T>
+        </Card>
+      ) : null}
+
+      {living.length ? <Block title={s.livingDates} rows={living} today={now.date} lang={lang} /> : null}
+      {remembered.length ? <Block title={s.punyatithiShraddh} rows={remembered} today={now.date} lang={lang} /> : null}
     </Screen>
+  );
+}
+
+function Block({ title, rows, today, lang }: { title: string; rows: { person: FamilyDate; next: TithiOccurrence | null }[]; today: string; lang: Lang }) {
+  return (
+    <View style={{ gap: 7 }}>
+      <T kind="label" style={{ marginLeft: 6 }}>{title}</T>
+      <List>
+        {rows.map((r, i) => <PersonRow key={r.person.id} person={r.person} next={r.next} first={i === 0} today={today} lang={lang} />)}
+      </List>
+    </View>
+  );
+}
+
+function PersonRow({ person, next, first, today, lang }: { person: FamilyDate; next: TithiOccurrence | null; first: boolean; today: string; lang: Lang }) {
+  const c = useColors();
+  return (
+    <ListRow
+      first={first}
+      lead={<Avatar name={person.name} kind={person.kind} />}
+      title={person.name}
+      detail={lunarLabel(person.lunar, lang)}
+      trailing={next ? (
+        <View style={{ alignItems: 'flex-end' }}>
+          <T kind="value" style={{ fontSize: 14.5 }}>{shortDate(next.date, lang)}</T>
+          <T kind="caption" color={c.textSecondary}>{next.date.slice(0, 4) !== today.slice(0, 4) ? next.date.slice(0, 4) : shortWeekday(next.date, lang)}</T>
+        </View>
+      ) : 'chevron'}
+      onPress={() => router.push(`/person?id=${person.id}`)}
+      a11y={`${person.name}, ${lunarLabel(person.lunar, lang)}${next ? `, ${longDate(next.date, lang)}` : ''}`}
+    />
   );
 }

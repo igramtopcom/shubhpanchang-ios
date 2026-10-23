@@ -30,6 +30,8 @@ export interface NotifySettings {
   family: { on: boolean; minutes: number }
   festivals: { on: boolean; minutes: number }
   kinds: Observance['kind'][]
+  /** Reminders turned off one by one on a vrat's screen: 'eve:<kind>:<date>', 'parana:<date>'. */
+  muted?: string[]
 }
 
 export const DEFAULT_SETTINGS: NotifySettings = {
@@ -75,8 +77,9 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
   const horizonEnd = shiftDate(now.date, input.horizonDays ?? 60)
   const limit = input.limit ?? PLAN_LIMIT
   const out: PlannedNotification[] = []
+  const muted = new Set(settings.muted ?? [])
   const push = (n: PlannedNotification) => {
-    if (later(n, now) && n.date <= horizonEnd) out.push(n)
+    if (later(n, now) && n.date <= horizonEnd && !muted.has(n.id)) out.push(n)
   }
 
   for (const o of observances) {
@@ -103,7 +106,7 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
             : (gu ? 'ઉપવાસ આવતીકાલે.' : 'Fast tomorrow.'),
         // A Jain reader's parva tithis come a dozen a month: below the fasts.
         priority: o.kind === 'parva' ? 2 : 1,
-        url: '/vrat',
+        url: `/observance?kind=${o.kind}&date=${o.date}`,
       })
     }
     if (settings.parana && o.parana) {
@@ -118,7 +121,7 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
             ? (gu ? `${name}: હવે પારણા કરી શકાય, ${o.parana.end} સુધી.` : `${name}: you may break the fast now, until ${o.parana.end}.`)
             : (gu ? `${name}: હવે પારણા કરી શકાય.` : `${name}: you may break the fast now.`),
           priority: 1,
-          url: '/vrat',
+          url: `/observance?kind=${o.kind}&date=${o.date}`,
         })
       }
     }
@@ -140,6 +143,7 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
 
   if (settings.family.on) {
     for (const f of family) {
+      if (f.person.remind === false) continue
       const label = lunarLabel(f.person.lunar, lang)
       push({
         id: `family:${f.person.id}:${f.date}`,
@@ -148,9 +152,11 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
         title: gu ? `આવતીકાલે: ${f.person.name}` : `Tomorrow: ${f.person.name}`,
         body: f.person.kind === 'birthday'
           ? (gu ? `તિથિ પ્રમાણે જન્મદિવસ (${label})` : `Birthday by tithi (${label})`)
-          : (gu ? `શ્રાદ્ધ (${label})` : `Shraddh (${label})`),
+          : f.person.kind === 'anniversary'
+            ? (gu ? `તિથિ પ્રમાણે લગ્નતિથિ (${label})` : `Wedding anniversary by tithi (${label})`)
+            : (gu ? `પુણ્યતિથિ (${label})` : `Punyatithi (${label})`),
         priority: 2,
-        url: '/family',
+        url: `/person?id=${f.person.id}`,
       })
     }
   }
@@ -169,7 +175,7 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
         title: gu ? `આવતીકાલે ${name}` : `Tomorrow: ${name}`,
         body: f.about ? (gu ? f.about.gu : f.about.en) : (gu ? 'તહેવાર આવતીકાલે.' : 'Festival tomorrow.'),
         priority: 2,
-        url: '/vrat',
+        url: `/festival?slug=${encodeURIComponent(f.slug)}`,
       })
     }
   }

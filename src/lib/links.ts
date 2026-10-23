@@ -7,7 +7,7 @@
 // The app's own scheme (shubhpanchang://vrat) and notification taps use the
 // app's routes directly. Anything unknown opens Today rather than failing.
 
-export type AppRoute = '/' | '/vrat' | '/vrat?seg=festivals' | '/family' | '/calendar' | '/settings' | '/family-add' | '/place'
+export type AppRoute = string
 
 /** The path of a link: https://shubhpanchang.in/vrat and shubhpanchang://vrat both give "/vrat". */
 function pathOf (u: URL): string {
@@ -21,11 +21,16 @@ export function routeForWebPath (path: string): AppRoute {
   try { u = new URL(path, 'https://shubhpanchang.in') } catch { return '/' }
   const p = pathOf(u)
   if (p === '/' || p === '') return '/'
-  if (/^\/(panchang|choghadiya|hora)(\/|$)/.test(p)) return '/'
+  if (/^\/choghadiya(\/|$)/.test(p)) return '/choghadiya'
+  if (/^\/(panchang|hora)(\/|$)/.test(p)) return '/'
   if (/^\/(ekadashi|purnima|amavasya|sankashti-chaturthi)-\d{4}\/?$/.test(p)) return '/vrat'
-  if (/^\/festivals(\/|$)/.test(p)) return '/vrat?seg=festivals'
+  // A festival's page opens that festival in the app; the list page opens the list.
+  const fest = /^\/festivals\/([a-z0-9-]+)\/?$/.exec(p)
+  if (fest) return `/festival?slug=${fest[1]}`
+  if (/^\/festivals\/?$/.test(p)) return '/vrat?seg=festivals'
   if (/^\/calendar(\/|$)/.test(p)) return '/calendar'
   // The app's own routes, when a notification, a widget or the app's scheme opens one.
-  if (/^\/(vrat|family|calendar|settings|family-add|place)$/.test(p)) return p as AppRoute
+  if (/^\/(vrat|family|calendar|settings|family-add|place|choghadiya|search)$/.test(p)) return `${p}${u.search}`
+  if (/^\/(festival|observance|person|day)$/.test(p) && u.search) return `${p}${u.search}`
   return '/'
 }

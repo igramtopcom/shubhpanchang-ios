@@ -1,20 +1,21 @@
 // Choosing the place: GPS (rounded, nearest listed city when close) or a city
 // from /api/v1/cities, searchable in English or Gujarati.
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { TextInput, View } from 'react-native';
 import * as Location from 'expo-location';
 import { SymbolView } from 'expo-symbols';
 
-import { countryName, placeName, t } from '@/lib/i18n';
+import { countryName, t } from '@/lib/i18n';
 import { placeFromFix, searchCities } from '@/lib/places';
 import type { City, Place } from '@/lib/types';
 import { deviceTimeZone, useApp } from '@/state/app';
 
-import { Button, Card, Loading, Notice, T, useColors } from './ui';
+import { Cell, Group, List, Loading, Notice, T, useColors } from './ui';
 
 export function PlacePicker({ value, onChange }: { value: Place | null; onChange: (p: Place) => void }) {
   const { api, prefs } = useApp();
-  const s = t(prefs.lang);
+  const lang = prefs.lang;
+  const s = t(lang);
   const c = useColors();
   const [cities, setCities] = useState<City[] | null>(null);
   const [query, setQuery] = useState('');
@@ -24,7 +25,13 @@ export function PlacePicker({ value, onChange }: { value: Place | null; onChange
     api.cities().then(r => setCities(r.data)).catch(() => setStatus('error'));
   }, [api]);
 
-  const shown = useMemo(() => (cities ? searchCities(cities, query).slice(0, 30) : []), [cities, query]);
+  const shown = useMemo(() => (cities ? searchCities(cities, query).slice(0, 40) : []), [cities, query]);
+  // Without a query: the cities abroad first for a phone set to a zone outside India, Gujarat's first otherwise.
+  const abroad = !deviceTimeZone().startsWith('Asia/Kolkata') && !deviceTimeZone().startsWith('Asia/Calcutta');
+  const groups = query ? [{ title: '', rows: shown }] : [
+    { title: abroad ? s.citiesAbroad : s.citiesGujarat, rows: shown.filter(x => (abroad ? x.region === 'diaspora' : x.region === 'gujarati')) },
+    { title: abroad ? s.citiesGujarat : s.citiesAbroad, rows: shown.filter(x => (abroad ? x.region === 'gujarati' : x.region === 'diaspora')) },
+  ];
 
   async function locate() {
     setStatus('locating');
@@ -40,51 +47,30 @@ export function PlacePicker({ value, onChange }: { value: Place | null; onChange
   }
 
   return (
-    <View style={{ gap: 12 }}>
-      {value ? (
-        <Card>
-          <T kind="label">{s.placeChosen}</T>
-          <T kind="heading">{placeName(value, prefs.lang)}</T>
-          {value.timezone !== 'Asia/Kolkata' ? <T kind="small">{value.timezone.replace(/_/g, ' ')}</T> : null}
-        </Card>
-      ) : null}
-      <Button icon="location.fill" label={status === 'locating' ? s.locating : s.useMyLocation} onPress={locate} disabled={status === 'locating' || !cities} />
+    <View style={{ gap: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.backgroundElement, borderRadius: 999, paddingHorizontal: 14, minHeight: 44 }}>
+        <SymbolView name="magnifyingglass" size={15} tintColor={c.textSecondary} />
+        <TextInput value={query} onChangeText={setQuery} placeholder={s.searchCity} placeholderTextColor={c.textMuted} autoCorrect={false} clearButtonMode="while-editing"
+          style={{ flex: 1, fontSize: 16, color: c.text, paddingVertical: 10 }} accessibilityLabel={s.searchCity} />
+      </View>
+      <List>
+        <Cell first icon="location.fill" tint={c.brand} label={status === 'locating' ? s.locating : s.useMyLocation} sub={s.locationRounded} onPress={cities ? locate : undefined} />
+      </List>
       {status === 'denied' ? <Notice text={s.locationDenied} /> : null}
       {status === 'error' ? <Notice text={s.loadError} /> : null}
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder={s.searchCity}
-        placeholderTextColor={c.textMuted}
-        autoCorrect={false}
-        style={{ borderWidth: 1, borderColor: c.cardBorder, borderRadius: 12, padding: 12, fontSize: 16, color: c.text, backgroundColor: c.card }}
-      />
       {!cities && status !== 'error' ? <Loading /> : null}
-      <View style={{ gap: 2 }}>
-        {shown.map(city => {
-          const selected = value?.city === city.city;
-          return (
-            <Pressable
-              key={city.city}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => onChange({ city: city.city, name: city.name, lat: city.lat, lon: city.lon, timezone: city.timezone })}
-              style={({ pressed }) => ({
-                flexDirection: 'row', alignItems: 'center', gap: 10,
-                paddingVertical: 12, paddingHorizontal: 12, borderRadius: 10,
-                backgroundColor: selected ? c.brandSoft : pressed ? c.backgroundElement : 'transparent',
-              })}>
-              <View style={{ flex: 1 }}>
-                <T color={selected ? c.brand : undefined} style={selected ? { fontWeight: '600' } : null}>
-                  {city.name[prefs.lang]}{prefs.lang === 'gu' ? `  ·  ${city.name.en}` : ''}
-                </T>
-                {city.region === 'diaspora' ? <T kind="small">{countryName(city.country, prefs.lang)}</T> : null}
-              </View>
-              {selected ? <SymbolView name="checkmark" size={15} weight="bold" tintColor={c.brand} /> : null}
-            </Pressable>
-          );
-        })}
-      </View>
+      {groups.filter(g => g.rows.length).map(g => (
+        <Group key={g.title || 'all'} title={g.title || undefined}>
+          {g.rows.map((city, i) => (
+            <Cell key={city.city} first={i === 0}
+              label={`${city.name[lang]}${lang === 'gu' && city.name.en !== city.name.gu ? `  ·  ${city.name.en}` : ''}`}
+              sub={city.region === 'diaspora' ? countryName(city.country, lang) : undefined}
+              radio={value?.city === city.city}
+              onPress={() => onChange({ city: city.city, name: city.name, lat: city.lat, lon: city.lon, timezone: city.timezone })} />
+          ))}
+        </Group>
+      ))}
+      {value && !value.city ? <T kind="caption" style={{ marginLeft: 6 }}>{s.placeChosen}: {value.lat.toFixed(2)}, {value.lon.toFixed(2)}</T> : null}
     </View>
   );
 }

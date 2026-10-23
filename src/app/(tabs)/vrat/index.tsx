@@ -1,119 +1,175 @@
-// Vrat & Festivals: the coming fasts at the place, each with when it may be
-// broken; and the coming festivals (/api/v1/festivals). ?seg=festivals opens the
-// festivals (links, the screenshot tour).
-import { useState } from 'react';
-import { View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+// Vrat & Festivals: the coming fasts and festivals at the place, by month,
+// each row opening its own screen in the app (no website). ?seg=festivals
+// opens the festivals (links, the screenshot tour).
+import { useMemo, useState } from 'react';
+import { ScrollView, View } from 'react-native';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 
-import { FestivalCard } from '@/components/festival-card';
-import { LiveCountdownButton } from '@/components/live-countdown';
-import { Button, Card, Loading, Notice, Screen, Section, Segmented, T, useColors } from '@/components/ui';
-import { feedUrl } from '@/lib/api';
-import { addAllDayEvent, calendarSupported, subscribe } from '@/lib/calendar';
+import { headerButtons } from '@/components/glass';
+import { Chip, DateTile, List, ListRow, Loading, MonthHead, Notice, Screen, Segmented, T, Tag, useColors } from '@/components/ui';
+import { clock, clockRange, shortDate, shortWeekday } from '@/lib/format';
 import { longDate, t } from '@/lib/i18n';
-import { shiftDate, zonedTimeToUtc } from '@/lib/time';
-import { vratCountdown } from '@/lib/widget-feed';
-import { isVaishnava, type Observance } from '@/lib/types';
+import { shiftDate } from '@/lib/time';
+import { isVaishnava, type Festival, type Lang, type Observance, type ObservanceKind } from '@/lib/types';
 import { useApp } from '@/state/app';
-import { useFestivals, useNow, useObservances } from '@/state/data';
+import { useFestivals, useNow, useObservances, usePanchangWindow } from '@/state/data';
 
 /** The India lists end with 2030; the API refuses ranges past them. */
 const LIST_TO = '2030-12-31';
+const MONTHS = {
+  gu: ['જાન્યુઆરી', 'ફેબ્રુઆરી', 'માર્ચ', 'એપ્રિલ', 'મે', 'જૂન', 'જુલાઈ', 'ઑગસ્ટ', 'સપ્ટેમ્બર', 'ઑક્ટોબર', 'નવેમ્બર', 'ડિસેમ્બર'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+};
+type VratFilter = 'all' | ObservanceKind;
+type FestFilter = 'all' | 'major' | 'sampradaya' | 'regional';
 
 export default function VratScreen() {
   const { prefs } = useApp();
   const lang = prefs.lang;
   const s = t(lang);
+  const c = useColors();
   const place = prefs.place!;
   const now = useNow(place.timezone);
   const to = shiftDate(now.date, 150) < LIST_TO ? shiftDate(now.date, 150) : LIST_TO;
-  const obs = useObservances(now.date, to);
-  const list = (obs.data ?? []).filter(o => prefs.notify.kinds.includes(o.kind));
-  // A year of festivals ahead (the API takes up to 400 days).
+  // From a few days back: an Ekadashi whose Parana is today still belongs on top.
+  const obs = useObservances(shiftDate(now.date, -2), to);
   const festTo = shiftDate(now.date, 365) < LIST_TO ? shiftDate(now.date, 365) : LIST_TO;
   const fest = useFestivals(now.date, festTo);
+  const win = usePanchangWindow();
   const params = useLocalSearchParams<{ seg?: string }>();
   const [seg, setSeg] = useState(params.seg === 'festivals' ? 1 : 0);
-  // A link or Today's festival card opens the festivals even when this tab is
-  // already open: follow the parameter when it changes (React's "adjust state on
-  // a prop change" pattern, no effect).
   const [seenSeg, setSeenSeg] = useState(params.seg);
   if (params.seg !== seenSeg) {
     setSeenSeg(params.seg);
     if (params.seg === 'festivals') setSeg(1);
   }
+  const [vf, setVf] = useState<VratFilter>('all');
+  const [ff, setFf] = useState<FestFilter>('all');
   const current = seg === 0 ? obs : fest;
 
+  // Lunar months of a civil month, where the panchang window knows them ("આસો · કારતક").
+  const lunarOf = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const d of win.data ?? []) {
+      const key = d.date.slice(0, 7);
+      const name = lang === 'gu' ? d.hinduMonth.gu : d.hinduMonth.en;
+      const list = m.get(key) ?? [];
+      if (!list.includes(name)) list.push(name);
+      m.set(key, list);
+    }
+    return m;
+  }, [win.data, lang]);
+
+  const kinds = prefs.notify.kinds;
+  const vrats = (obs.data ?? []).filter(o => kinds.includes(o.kind) && (vf === 'all' || o.kind === vf))
+    .filter(o => o.date >= now.date || o.parana?.date === now.date);
+  const fests = (fest.data ?? []).filter(f => ff === 'all' || (ff === 'major' ? f.type === 'major' : ff === 'sampradaya' ? f.reason === 'sampradaya' : f.type === 'regional'));
+
+  const vratChips: VratFilter[] = ['all', ...(['ekadashi', 'purnima', 'amavasya', 'sankashti', 'pradosh', 'shivaratri', 'parva'] as ObservanceKind[]).filter(k => kinds.includes(k))];
+  const festChips: FestFilter[] = ['all', 'major', ...(prefs.sampradaya !== 'smarta' ? ['sampradaya' as const] : []), 'regional'];
+
   return (
-    <Screen header onRefresh={current.reload} refreshing={current.loading && !!current.data}>
+    <Screen header onRefresh={current.reload} refreshing={current.loading && !!current.data} gap={14}>
+      <Stack.Screen options={headerButtons([
+        { icon: 'magnifyingglass', label: s.search, onPress: () => router.push('/search') },
+        { icon: 'gearshape', label: s.tabSettings, onPress: () => router.push('/settings') },
+      ], c.text)} />
       <Segmented values={[s.segVrat, s.segFestivals]} index={seg} onChange={setSeg} />
-      <Card>
-        <T kind="small">{s.feedNote}</T>
-        <Button kind="quiet" icon="calendar.badge.plus" label={s.subscribeFeed} onPress={() => subscribe(feedUrl(place, lang, 'webcal', prefs.sampradaya))} />
-      </Card>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }} style={{ marginHorizontal: -18 }} contentInset={{ left: 18, right: 18 }} contentOffset={{ x: -18, y: 0 }}>
+        {seg === 0
+          ? vratChips.map(k => <Chip key={k} label={k === 'all' ? s.all : s[`chip_${k}` as 'chip_ekadashi']} selected={vf === k} onPress={() => setVf(k)} />)
+          : festChips.map(k => <Chip key={k} label={k === 'all' ? s.all : k === 'major' ? s.festMain : k === 'regional' ? s.festGujarat : s[`sampradayaShort_${prefs.sampradaya}` as 'sampradayaShort_baps']} selected={ff === k} onPress={() => setFf(k)} />)}
+      </ScrollView>
+
       {current.stale ? <Notice text={s.offline} /> : null}
       {current.error && !current.data ? <Notice text={s.loadError} onRetry={current.reload} retryLabel={s.retry} /> : null}
       {current.loading && !current.data ? <Loading /> : null}
+
       {seg === 0 ? (
         <>
-          {obs.data && !list.length ? <T kind="small">{s.noVratSoon}</T> : null}
-          <Section title={s.upcomingVrat}>
-            {list.map(o => <VratCard key={`${o.kind}${o.date}`} o={o} nowMs={zonedTimeToUtc(now.date, now.minutes, place.timezone).getTime()} />)}
-          </Section>
+          {obs.data && !vrats.length ? <T kind="small">{s.noVratSoon}</T> : null}
+          {byMonth(vrats.map(o => ({ date: o.parana?.date === now.date && o.date < now.date ? now.date : o.date, item: o }))).map(([month, rows]) => (
+            <View key={month} style={{ gap: 8 }}>
+              <MonthHead title={monthTitle(month, lang)} sub={(lunarOf.get(month) ?? []).join(' · ')} />
+              <List>
+                {rows.map((r, i) => <VratRow key={`${r.item.kind}${r.item.date}`} o={r.item} first={i === 0} today={now.date} lang={lang} />)}
+              </List>
+            </View>
+          ))}
         </>
       ) : (
         <>
-          {fest.data && !fest.data.length ? <T kind="small">{s.noFestSoon}</T> : null}
-          <Section title={s.upcomingFestivals}>
-            {(fest.data ?? []).map(f => <FestivalCard key={f.slug} f={f} today={now.date} />)}
-          </Section>
+          {fest.data && !fests.length ? <T kind="small">{s.noFestSoon}</T> : null}
+          {byMonth(fests.map(f => ({ date: f.date, item: f }))).map(([month, rows]) => (
+            <View key={month} style={{ gap: 8 }}>
+              <MonthHead title={monthTitle(month, lang)} sub={(lunarOf.get(month) ?? []).join(' · ')} />
+              <List>
+                {rows.map((r, i) => <FestRow key={r.item.slug} f={r.item} first={i === 0} today={now.date} lang={lang} />)}
+              </List>
+            </View>
+          ))}
         </>
       )}
     </Screen>
   );
 }
 
-function VratCard({ o, nowMs }: { o: Observance; nowMs: number }) {
+function byMonth<T>(rows: { date: string; item: T }[]): [string, { date: string; item: T }[]][] {
+  const m = new Map<string, { date: string; item: T }[]>();
+  for (const r of rows) m.set(r.date.slice(0, 7), [...(m.get(r.date.slice(0, 7)) ?? []), r]);
+  return [...m.entries()].sort(([a], [b]) => (a < b ? -1 : 1));
+}
+
+const monthTitle = (month: string, lang: Lang) => `${MONTHS[lang][Number(month.slice(5)) - 1]} ${month.slice(0, 4)}`;
+
+function VratRow({ o, first, today, lang }: { o: Observance; first: boolean; today: string; lang: Lang }) {
   const { prefs } = useApp();
-  const lang = prefs.lang;
   const s = t(lang);
-  const c = useColors();
+  const h24 = prefs.clock24;
   const name = lang === 'gu' ? o.nameGu : o.nameEn;
-  const moved = o.indiaDate && o.indiaDate !== o.date;
-  // A sampradaya's Ekadashi: its own day, and the Parana its mandir prints.
-  const sect = o.kind === 'ekadashi' && isVaishnava(prefs.sampradaya) ? s[`sampradaya_${prefs.sampradaya}` as const] : null;
-  const paranaText = o.parana
-    ? `${longDate(o.parana.date, lang, false)} ${o.parana.end ? `${o.parana.start}–${o.parana.end}` : s.paranaAfter(o.parana.start)}`
-    : null;
+  const paranaToday = o.parana?.date === today && o.date < today;
+  const paranaText = o.parana ? (o.parana.end ? clockRange(o.parana.start, o.parana.end, lang, h24) : s.paranaAfter(clock(o.parana.start, lang, h24))) : null;
+  const detail = paranaToday
+    ? `${name} · ${paranaText}`
+    : [
+        o.popular ? o.popular[lang] : null,
+        paranaText ? `${s.parana} ${shortDate(o.parana!.date, lang)}, ${paranaText}` : null,
+        o.moonrise ? `${s.moonrise} ${clock(o.moonrise.time, lang, h24, true)}` : null,
+        o.window ? `${o.kind === 'pradosh' ? s.pradoshKaal : s.nishita} ${clockRange(o.window.start, o.window.end, lang, h24)}` : null,
+        o.kind === 'ekadashi' && !o.parana && isVaishnava(prefs.sampradaya) ? s.paranaMandir : null,
+      ].filter(Boolean).join(' · ');
+  const day = paranaToday ? today : o.date;
   return (
-    <Card>
-      <T kind="label">{longDate(o.date, lang)}</T>
-      <T kind="heading">{name}</T>
-      {o.popular ? <T kind="small">{o.popular[lang]}</T> : null}
-      {moved ? <T kind="small">{sect ? s.keptBySampradaya(sect, longDate(o.indiaDate!, lang, false)) : s.keptHere(longDate(o.indiaDate!, lang, false))}</T> : null}
-      {/* Abroad only: festival dates are not localised yet (the website says the same beside the row). */}
-      {o.reason === 'festival-bound' ? <T kind="small">{s.festivalIndiaDate}</T> : null}
-      {paranaText ? <T kind="value" color={c.good}>{s.parana}: {paranaText}</T> : null}
-      {sect && !o.parana ? <T kind="small">{s.paranaMandir}</T> : null}
-      {o.moonrise ? <T kind="value" color={c.good}>{s.moonrise}: {o.moonrise.time}</T> : null}
-      {o.window ? <T kind="value" color={c.good}>{o.kind === 'pradosh' ? s.pradoshKaal : s.nishita}: {o.window.start}–{o.window.end}</T> : null}
-      {/* Parana or moonrise within eight hours: the Lock Screen countdown. */}
-      <LiveCountdownButton countdown={vratCountdown(o, lang, prefs.place!.timezone)} nowMs={nowMs} />
-      {calendarSupported ? (
-        <View style={{ alignSelf: 'flex-start' }}>
-          <Button
-            kind="quiet"
-            compact
-            icon="calendar.badge.plus"
-            label={s.addToCalendar}
-            onPress={() => addAllDayEvent({
-              date: o.date,
-              title: paranaText ? `${name} · ${s.parana} ${paranaText}` : name,
-              notes: paranaText ? `${s.parana}: ${paranaText}` : undefined,
-            })}
-          />
-        </View>
-      ) : null}
-    </Card>
+    <ListRow
+      first={first}
+      lead={<DateTile day={String(Number(day.slice(8)))} sub={day === today ? s.today : shortWeekday(day, lang)} highlight={day === today} />}
+      title={paranaToday ? s.parana : name}
+      detail={detail}
+      trailing="chevron"
+      onPress={() => router.push(`/observance?kind=${o.kind}&date=${o.date}`)}
+      a11y={`${paranaToday ? s.parana : name}, ${longDate(day, lang)}, ${detail}`}
+    />
+  );
+}
+
+function FestRow({ f, first, today, lang }: { f: Festival; first: boolean; today: string; lang: Lang }) {
+  const s = t(lang);
+  const name = lang === 'gu' ? f.nameGu : f.nameEn;
+  const detail = [
+    f.about ? f.about[lang] : null,
+    f.reason === 'india-date' ? s.festIndiaShort(shortDate(f.indiaDate, lang)) : null,
+    f.reason === 'local-day' ? s.festLocalShort(shortDate(f.indiaDate, lang)) : null,
+  ].filter(Boolean).join(' · ');
+  return (
+    <ListRow
+      first={first}
+      lead={<DateTile day={String(Number(f.date.slice(8)))} sub={f.date === today ? s.today : shortWeekday(f.date, lang)} highlight={f.date === today} />}
+      title={name}
+      badge={f.reason === 'sampradaya' && f.sampradaya ? <Tag label={s[`sampradayaShort_${f.sampradaya}` as 'sampradayaShort_baps']} /> : undefined}
+      detail={detail}
+      trailing="chevron"
+      onPress={() => router.push(`/festival?slug=${encodeURIComponent(f.slug)}`)}
+      a11y={`${name}, ${longDate(f.date, lang)}`}
+    />
   );
 }

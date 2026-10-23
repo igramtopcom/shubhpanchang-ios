@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vrat & Tahevar, và chi tiết lễ hội ngay trong app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600&family=Noto+Serif+Gujarati:wght@500;600&family=Noto+Serif+Devanagari:wght@500&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ds-base.css">
+<link rel="stylesheet" href="ds-more.css">
+<link rel="stylesheet" href="ds-glass.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol><symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/></symbol><symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-calplus" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol><symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-7.6-7-12a7 7 0 0 1 14 0c0 4.4-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol><symbol id="i-chevr" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-chevl" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol><symbol id="i-chevd" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol><symbol id="i-lotus" viewBox="0 0 24 24"><path d="M12 19c-4 0-7-2-8-5 3 0 6 1 8 5 2-4 5-5 8-5-1 3-4 5-8 5z"/><path d="M12 19c-2-3-2-8 0-12 2 4 2 9 0 12z"/></symbol><symbol id="i-diya" viewBox="0 0 24 24"><path d="M4 14h16a8 5 0 0 1-16 0z"/><path d="M12 11c-1.5-1.5-1.5-3.5 0-6 1.5 2.5 1.5 4.5 0 6z"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21a6 6 0 0 0 6-6c0-4-3-6-4-10-2 2-3 3.5-3 6-1-1-1.5-2-1.5-3C7 10 6 12.5 6 15a6 6 0 0 0 6 6z"/></symbol><symbol id="i-lang" viewBox="0 0 24 24"><path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6 8M11 6c0 3-2 6-6 8"/><path d="M13 20l4-9 4 9M14.3 17h5.4"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol><symbol id="i-wa" viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1 1 9 18.6z"/></symbol><symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4M9.5 12.5h5M9.5 16h5"/></symbol><symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 4v4M9 6.5l3-2.5 3 2.5M3.5 13.5l1.5.8M20.5 13.5l-1.5.8"/></symbol></svg>
+<header class="page"><h1>Vrat & Tahevar, và chi tiết lễ hội ngay trong app</h1><p>Trái: danh sách vrat (Gujarati). Giữa: chi tiết Diwali, mọi nội dung của website nằm trong app. Phải: danh sách lễ hội (tiếng Anh, nền tối, BAPS). Dữ liệu minh họa.</p></header>
+<div class="row">
+
+<div class="phone">
+  <div class="island"></div>
+  <div class="title-bar"><h1 class="title">વ્રત અને તહેવાર</h1><span class="actions"><span class="round"><svg class="ico s"><use href="#i-search"/></svg></span><span class="round"><svg class="ico s"><use href="#i-gear"/></svg></span></span></div>
+  <div class="seg"><span class="on">વ્રત</span><span>તહેવાર</span></div>
+  <div class="chips"><span class="chip2 on">બધાં</span><span class="chip2">અગિયારસ</span><span class="chip2">પૂનમ</span><span class="chip2">અમાસ</span><span class="chip2">સંકષ્ટી</span></div>
+  <div class="month"><h3>ઑક્ટોબર 2026</h3><span>આસો</span></div>
+  <div class="card list" style="margin-bottom:18px">
+    <div class="item today"><div class="dt"><b>23</b><span>આજે</span></div><div class="it"><b>પારણાં</b><span>પાપાંકુશા અગિયારસ · 6:40 – 8:58</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>26</b><span>સોમ</span></div><div class="it"><b>શરદ પૂનમ</b><span>પૂનમનું વ્રત · ચંદ્રોદય સાંજે 5:41</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>29</b><span>ગુરુ</span></div><div class="it"><b>કરવા ચોથ</b><span>સંકષ્ટી · ચંદ્રોદય રાત્રે 8:47</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+  </div>
+  <div class="month"><h3>નવેમ્બર 2026</h3><span>આસો · કારતક</span></div>
+  <div class="card list">
+    <div class="item"><div class="dt"><b>5</b><span>ગુરુ</span></div><div class="it"><b>રમા અગિયારસ</b><span>પારણાં 6 નવે, 6:47 – 8:59</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>9</b><span>સોમ</span></div><div class="it"><b>આસો અમાસ</b><span>સ્નાન-દાન</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>21</b><span>શનિ</span></div><div class="it"><b>દેવઊઠી અગિયારસ</b><span>પારણાં 22 નવે, 7:01 – 9:10</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+  </div>
+  <nav class="tabs"><div class="tab"><span class="pip"><svg class="ico "><use href="#i-sun"/></svg></span>આજે</div><div class="tab on"><span class="pip"><svg class="ico "><use href="#i-moon"/></svg></span>વ્રત</div><div class="tab"><span class="pip"><svg class="ico "><use href="#i-people"/></svg></span>પરિવાર</div><div class="tab"><span class="pip"><svg class="ico "><use href="#i-cal"/></svg></span>કેલેન્ડર</div></nav>
+</div>
+<div class="phone">
+  <div class="island"></div>
+  <div class="title-bar"><span class="gbtn"><svg class="ico "><use href="#i-chevl"/></svg></span><span class="actions"><span class="round"><svg class="ico s"><use href="#i-share"/></svg></span></span></div>
+  <div class="d-hero">
+    <div class="kicker"><svg class="ico s"><use href="#i-diya"/></svg>તહેવાર · રવિવાર, 8 નવેમ્બર</div>
+    <h1>દિવાળી</h1>
+    <p>આસો વદ અમાસ · દીપોત્સવની રાત: લક્ષ્મી પૂજન અને ચોપડા પૂજન.</p>
+    <div class="meta"><span class="hot"><svg class="ico xs"><use href="#i-clock"/></svg>16 દિવસમાં</span><span>વિ.સં. 2082</span><span>અમાસ 11:27 થી</span></div>
+  </div>
+  <div class="card muhurat">
+    <div class="kicker" style="color:var(--accent);font-size:13px;font-weight:600">લક્ષ્મી પૂજન મુહૂર્ત · અમદાવાદ</div>
+    <div class="t">સાંજે 6:21 – 8:12</div>
+    <div class="muted" style="font-size:13.5px">પ્રદોષ કાળમાં, સ્થિર વૃષભ લગ્ન દરમિયાન</div>
+    <div class="rows"><div>પ્રદોષ કાળ<b>5:58 – 8:31</b></div><div>વૃષભ લગ્ન<b>6:21 – 8:12</b></div><div>અમાસ<b>8 નવે 11:27 – 9 નવે 12:31</b></div></div>
+  </div>
+  <div class="card block">
+    <h4>દિવાળીની કથા</h4>
+    <div class="fade"><p>ભગવાન રામ ચૌદ વર્ષના વનવાસ પછી અયોધ્યા પાછા ફર્યા ત્યારે નગરજનોએ ઘીના દીવા પ્રગટાવી તેમનું સ્વાગત કર્યું. ગુજરાતમાં આ રાત લક્ષ્મી પૂજન અને ચોપડા પૂજનની છે: વેપારીઓ જૂના વર્ષના ચોપડા બંધ કરી નવા ચોપડાની પૂજા કરે છે.</p></div>
+    <span class="readmore">આખી કથા <svg class="ico xs"><use href="#i-chevd"/></svg></span>
+  </div>
+  <div class="actionbar three"><span class="btn primary"><svg class="ico s"><use href="#i-calplus"/></svg>કેલેન્ડરમાં ઉમેરો</span><span class="btn quiet icon"><svg class="ico s"><use href="#i-bell"/></svg></span><span class="btn quiet icon"><svg class="ico s"><use href="#i-share"/></svg></span></div>
+</div>
+<div class="phone">
+  <div class="island"></div>
+  <div class="title-bar"><span class="gbtn"><svg class="ico "><use href="#i-chevl"/></svg></span><span class="actions"><span class="round"><svg class="ico s"><use href="#i-share"/></svg></span></span></div>
+  <div class="card block"><h4>પૂજા વિધિ</h4>
+    <ol class="steps"><li>સાંજે ઘર સાફ કરી રંગોળી પૂરો, ઉંબરે દીવો મૂકો.</li><li>બાજોઠ પર લાલ કપડું પાથરી લક્ષ્મીજી અને ગણેશજીની સ્થાપના કરો.</li><li>મુહૂર્તમાં ષોડશોપચાર પૂજા કરો, ચોપડા પર સ્વસ્તિક અને શુભ-લાભ લખો.</li><li>આરતી પછી આખા ઘરમાં દીવા કરો.</li></ol>
+  </div>
+  <div class="card mantra">
+    <div class="muted" style="font-size:13px">મંત્ર</div>
+    <div class="dev">ॐ श्रीं ह्रीं श्रीं कमले कमलालये प्रसीद प्रसीद<br>श्रीं ह्रीं श्रीं ॐ महालक्ष्म्यै नमः</div>
+    <div class="tr">ૐ શ્રીં હ્રીં શ્રીં કમલે કમલાલયે પ્રસીદ પ્રસીદ શ્રીં હ્રીં શ્રીં ૐ મહાલક્ષ્મ્યૈ નમઃ</div>
+    <div class="mean">હે કમળ પર બિરાજમાન લક્ષ્મીજી, પ્રસન્ન થાઓ. મહાલક્ષ્મીને નમસ્કાર.</div>
+  </div>
+  <div class="dd">
+    <div class="card"><h5 style="color:var(--good)"><svg class="ico xs"><use href="#i-check"/></svg>કરો</h5><ul><li>મુહૂર્તમાં જ પૂજા</li><li>આખું ઘર ઝળહળતું</li><li>દાન-પુણ્ય</li></ul></div>
+    <div class="card"><h5 style="color:var(--bad)"><svg class="ico xs"><use href="#i-x"/></svg>ન કરો</h5><ul><li>રાહુકાળમાં પૂજા</li><li>ઝઘડો, કઠોર વાણી</li><li>ઘરમાં અંધારું</li></ul></div>
+  </div>
+  <div class="card faq">
+    <div class="q">દિવાળી 2026 ક્યારે છે? <svg class="ico s"><use href="#i-chevd"/></svg></div>
+    <div class="a">રવિવાર, 8 નવેમ્બર. અમાસ પ્રદોષ કાળમાં હોય તે દિવસે લક્ષ્મી પૂજન થાય છે.</div>
+    <div class="q">ચોપડા પૂજન ક્યારે કરવું? <svg class="ico s"><use href="#i-chevr"/></svg></div>
+    <div class="q">બેસતું વર્ષ ક્યારે છે? <svg class="ico s"><use href="#i-chevr"/></svg></div>
+  </div>
+  <div class="actionbar three"><span class="btn primary"><svg class="ico s"><use href="#i-calplus"/></svg>કેલેન્ડરમાં ઉમેરો</span><span class="btn quiet icon"><svg class="ico s"><use href="#i-bell"/></svg></span><span class="btn quiet icon"><svg class="ico s"><use href="#i-share"/></svg></span></div>
+</div>
+<div class="phone en dark">
+  <div class="island"></div>
+  <div class="title-bar"><h1 class="title">Vrat &amp; Festivals</h1><span class="actions"><span class="round"><svg class="ico s"><use href="#i-search"/></svg></span><span class="round"><svg class="ico s"><use href="#i-gear"/></svg></span></span></div>
+  <div class="seg"><span>Vrat</span><span class="on">Festivals</span></div>
+  <div class="chips"><span class="chip2 on">All</span><span class="chip2">Main</span><span class="chip2">BAPS</span><span class="chip2">Gujarat</span></div>
+  <div class="month"><h3>November 2026</h3><span>Ashwin · Kartik</span></div>
+  <div class="card list" style="margin-bottom:18px">
+    <div class="item"><div class="dt"><b>6</b><span>Fri</span></div><div class="it"><b>Dhanteras</b><span>Puja 6:02 – 7:58 pm</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>8</b><span>Sun</span></div><div class="it"><b>Diwali</b><span>Lakshmi &amp; Chopda Puja 6:09 – 8:01 pm</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>10</b><span>Tue</span></div><div class="it"><b>Bestu Varas</b><span>Gujarati New Year · Samvat 2083</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>10</b><span>Tue</span></div><div class="it"><b>Annakut</b><span>Food offered to Thakorji on New Year&#39;s Day</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+  </div>
+  <div class="month"><h3>December 2026</h3><span>Kartik · Margashirsha</span></div>
+  <div class="card list">
+    <div class="item"><div class="dt"><b>17</b><span>Thu</span></div><div class="it"><b>Pramukh Swami Maharaj Jayanti<span class="badge sage">BAPS</span></b><span>Margashirsha Shukla Ashtami</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+    <div class="item"><div class="dt"><b>20</b><span>Sun</span></div><div class="it"><b>Gita Jayanti</b><span>Mokshada Ekadashi</span></div><span class="chev"><svg class="ico s"><use href="#i-chevr"/></svg></span></div>
+  </div>
+  <nav class="tabs"><div class="tab"><span class="pip"><svg class="ico "><use href="#i-sun"/></svg></span>Today</div><div class="tab on"><span class="pip"><svg class="ico "><use href="#i-moon"/></svg></span>Vrat</div><div class="tab"><span class="pip"><svg class="ico "><use href="#i-people"/></svg></span>Family</div><div class="tab"><span class="pip"><svg class="ico "><use href="#i-cal"/></svg></span>Calendar</div></nav>
+</div>
+<aside class="notes">
+  <h3>Điểm chính</h3>
+  <p><b>Không còn nút "Read more" ra website.</b> Chạm vào bất kỳ dòng nào là mở màn chi tiết ngay trong app: câu chuyện, giờ puja tính cho đúng thành phố, vidhi, mantra (Devanagari và Gujarati), nên/không nên, câu hỏi thường gặp.</p>
+  <p><b>Danh sách theo tháng</b>, tiêu đề tháng có cả tháng âm lịch (આસો · કારતક). Dòng "hôm nay" có ô ngày màu saffron. Chip lọc nhanh theo loại vrat. Mỗi dòng kết thúc bằng mũi tên: chạm là mở chi tiết.</p>
+  <p><b>Màn chi tiết ẩn thanh tab</b> và thay bằng thanh hành động, giống cách iOS đẩy một trang con. Đếm ngược và thông tin phụ thành các viên nhỏ dưới tiêu đề, không còn ba ô vuông.</p>
+  <p><b>Utsav của sampradaya nằm chung danh sách</b>, có nhãn loại riêng (BAPS, Pushtimarg, Jain) để phân biệt mà không ồn ào.</p>
+  <p><b>Thanh hành động ở đáy màn chi tiết:</b> thêm vào Lịch, đặt lời nhắc, chia sẻ. Đọc truyện dài thì bấm "Aakhi katha" để mở ngay tại chỗ.</p>
+  <p><b>Góc trên: tìm kiếm và Cài đặt.</b> Gõ "Janmashtami" là ra ngày, kể cả năm sau. Đăng ký Lịch iPhone chỉ còn một chỗ, trong Cài đặt.</p>
+</aside>
+</div>
+</body>
+</html>

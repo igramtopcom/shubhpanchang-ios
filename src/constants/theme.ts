@@ -1,6 +1,8 @@
-// The website's warm system (src/layouts/Base.astro tokens): parchment ground,
-// saffron brand, navy for panchang values, green for shubh, red for Rahu /
-// ashubh. No cool greys. Dark mode keeps the same hues on a warm near-black.
+// One warm system (docs/design/ds-base.css, the approved mocks): warm paper,
+// one saffron accent, sage for a good time, sand for in-between, brick for
+// what to avoid. Every text colour reads 4.5:1 or more on the surface it sits
+// on (measured in docs/design, "Pass 3"). Dark mode keeps the hues on a warm
+// near-black; there, filled accent buttons carry dark text (white reads 2.6:1).
 
 import '@/global.css';
 
@@ -8,56 +10,66 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#3E2723',
-    textSecondary: '#6D4C41',
-    // #8D6E63 read 4.39:1 on the parchment ground; this one passes 4.5:1 on every light surface.
-    textMuted: '#795548',
-    background: '#FFF8F0',
+    text: '#2A201A',
+    textSecondary: '#6A5D54',
+    textMuted: '#75675E',
+    background: '#FAF6F0',
     card: '#FFFFFF',
-    cardBorder: '#FFE0B2',
-    backgroundElement: '#FBEEE2',
-    backgroundSelected: '#FFCCBC',
-    brand: '#C0390E',
-    brandStrong: '#8D1F00',
-    // Tinted buttons and selected chips: brand text on it reads 4.84:1.
-    brandSoft: '#FDEEE6',
+    cardBorder: '#ECE3D8',
+    line: '#ECE3D8',
+    backgroundElement: '#F4EEE6',
+    backgroundSelected: '#F9EEE4',
+    brand: '#AC5118',
+    brandStrong: '#8A3F10',
+    brandSoft: '#F9EEE4',
     onBrand: '#FFFFFF',
-    value: '#1A237E',
-    good: '#1B5E20',
-    goodBg: '#E8F5E9',
-    bad: '#C62828',
-    badBg: '#FFEBEE',
-    neutral: '#8D5A00',
-    neutralBg: '#FFF3E0',
-    // Card outlines in a state's hue, lighter than its text (decoration, not meaning).
-    goodBorder: '#A5D6A7',
-    badBorder: '#EF9A9A',
-    neutralBorder: '#FFCC80',
+    value: '#2A201A',
+    good: '#44735A',
+    goodBg: '#EAF1EB',
+    bad: '#A9473E',
+    badBg: '#F6E6E2',
+    neutral: '#80694A',
+    neutralBg: '#F3EBDD',
+    fair: '#D7C6A8',
+    goodBorder: '#C9DCCD',
+    badBorder: '#E9C9C3',
+    neutralBorder: '#E5D7BF',
+    moonLit: '#FBF1DC',
+    moonDark: '#D6C8B2',
+    moonRim: '#CBBBA2',
+    shadow: 'rgba(60,35,15,0.10)',
+    scrim: 'rgba(30,18,10,0.28)',
   },
   dark: {
-    text: '#F5E9E0',
-    textSecondary: '#D7C2B4',
-    textMuted: '#A8968A',
-    background: '#1B1411',
-    card: '#251C18',
-    cardBorder: '#3A2C25',
-    backgroundElement: '#2E231E',
-    backgroundSelected: '#4A2A1C',
-    brand: '#FF8A65',
-    brandStrong: '#FFAB91',
-    // Brand text on it reads 6.66:1.
-    brandSoft: '#33201A',
-    onBrand: '#1B1411',
-    value: '#9FA8DA',
-    good: '#81C784',
-    goodBg: '#1E2E20',
-    bad: '#EF9A9A',
-    badBg: '#3A1F1F',
-    neutral: '#FFCC80',
-    neutralBg: '#3A2A14',
-    goodBorder: '#2E4A31',
-    badBorder: '#5A2A2A',
-    neutralBorder: '#5A4320',
+    text: '#F3EADF',
+    textSecondary: '#BDAE9F',
+    textMuted: '#9A8B7E',
+    background: '#15100C',
+    card: '#201913',
+    cardBorder: '#30261E',
+    line: '#30261E',
+    backgroundElement: '#2A211A',
+    backgroundSelected: '#3A2618',
+    brand: '#E6894A',
+    brandStrong: '#F0A877',
+    brandSoft: '#3A2618',
+    onBrand: '#15100C',
+    value: '#F3EADF',
+    good: '#7DB592',
+    goodBg: '#1E2E23',
+    bad: '#E0877C',
+    badBg: '#3A211D',
+    neutral: '#CDB58A',
+    neutralBg: '#33291E',
+    fair: '#6A5A43',
+    goodBorder: '#2E4A37',
+    badBorder: '#5A2E28',
+    neutralBorder: '#4A3D2A',
+    moonLit: '#EFE1C4',
+    moonDark: '#3A2F27',
+    moonRim: '#4A3D33',
+    shadow: 'rgba(0,0,0,0.45)',
+    scrim: 'rgba(0,0,0,0.45)',
   },
 } as const;
 
@@ -69,6 +81,9 @@ export const Fonts = Platform.select({
   web: { sans: 'var(--font-display)', serif: 'var(--font-serif)', rounded: 'var(--font-rounded)', mono: 'var(--font-mono)' },
 });
 
+/** Titles: a Gujarati serif, and Source Serif for English (loaded in app/_layout.tsx). */
+export const TitleFont = { gu: 'NotoSerifGujarati_600SemiBold', en: 'SourceSerif4_600SemiBold' } as const;
+
 export const Spacing = {
   half: 2,
   one: 4,
@@ -79,7 +94,7 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const Radius = { card: 14, chip: 999, button: 12 } as const;
+export const Radius = { card: 22, tile: 12, chip: 999, button: 25 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 640;

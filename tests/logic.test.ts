@@ -132,7 +132,7 @@ describe('notification plan (notify-plan.ts)', () => {
     })
     const f = plan.find(p => p.id.startsWith('family:ba'))!
     expect(f.date).toBe('2026-10-27')
-    expect(f.body).toBe('શ્રાદ્ધ (ભાદરવો વદ પાંચમ)')
+    expect(f.body).toBe('પુણ્યતિથિ (ભાદરવો વદ પાંચમ)')
   })
 })
 
@@ -215,11 +215,12 @@ describe('Universal Links land on the right screen', () => {
   it('maps every path the website claims', () => {
     expect(routeForWebPath('/')).toBe('/')
     expect(routeForWebPath('/panchang/ahmedabad/2026-10-22')).toBe('/')
-    expect(routeForWebPath('/choghadiya/surat?lang=en&ref=wa')).toBe('/')
+    expect(routeForWebPath('/choghadiya/surat?lang=en&ref=wa')).toBe('/choghadiya')
     expect(routeForWebPath('/hora')).toBe('/')
     expect(routeForWebPath('/ekadashi-2027')).toBe('/vrat')
     expect(routeForWebPath('/sankashti-chaturthi-2026?city=london-uk')).toBe('/vrat')
-    expect(routeForWebPath('/festivals/diwali-2026')).toBe('/vrat?seg=festivals') // the festival list
+    expect(routeForWebPath('/festivals/diwali-2026')).toBe('/festival?slug=diwali-2026') // the festival, in the app
+    expect(routeForWebPath('/festivals')).toBe('/vrat?seg=festivals') // the list
     expect(routeForWebPath('/calendar/2027/3')).toBe('/calendar')
     expect(routeForWebPath('https://shubhpanchang.in/purnima-2028')).toBe('/vrat')
   })
@@ -227,6 +228,8 @@ describe('Universal Links land on the right screen', () => {
     expect(routeForWebPath('/kundali')).toBe('/')
     expect(routeForWebPath('::not a url::')).toBe('/')
     expect(routeForWebPath('/family')).toBe('/family')
+    expect(routeForWebPath('/observance?kind=ekadashi&date=2026-11-05')).toBe('/observance?kind=ekadashi&date=2026-11-05')
+    expect(routeForWebPath('/person')).toBe('/')
   })
 })
 

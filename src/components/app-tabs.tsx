@@ -15,6 +15,7 @@ export default function AppTabs() {
     // ("Fam…", "Sett…" after Gujarati -> English), so the bar is rebuilt.
     <NativeTabs
       key={lang}
+      minimizeBehavior="onScrollDown"
       tintColor={c.brand}
       indicatorColor={c.backgroundSelected}
       labelStyle={{ selected: { color: c.brand } }}>
@@ -33,10 +34,6 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="calendar">
         <NativeTabs.Trigger.Label>{s.tabCalendar}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Label>{s.tabSettings}</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="gearshape" md="settings" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

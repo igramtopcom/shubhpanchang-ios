@@ -20,13 +20,13 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
   // Tinted and clear Home Screens and the Lock Screen colour widgets themselves:
   // meaning then rests on the words ("Rahu Kaal now"), never on hue.
   const plain = env.widgetRenderingMode === 'accented' || env.widgetRenderingMode === 'vibrant';
-  const ink = dark ? '#F5E9E0' : '#3E2723';
-  const soft = dark ? '#D7C2B4' : '#6D4C41';
+  const ink = dark ? '#F3EADF' : '#2A201A';
+  const soft = dark ? '#BDAE9F' : '#6A5D54';
   const tone = plain ? ink
-    : p.state === 'good' ? (dark ? '#81C784' : '#1B5E20')
-      : p.state === 'rahu' ? (dark ? '#EF9A9A' : '#C62828')
-        : (dark ? '#FFCC80' : '#8D5A00');
-  const ground = dark ? '#1B1411' : '#FFF8F0';
+    : p.state === 'good' ? (dark ? '#7DB592' : '#44735A')
+      : p.state === 'rahu' ? (dark ? '#E0877C' : '#A9473E')
+        : (dark ? '#CDB58A' : '#80694A');
+  const ground = dark ? '#201913' : '#FFFFFF';
   const counting = p.untilMs > 0 && p.state !== 'good';
   const headline = p.state === 'good' ? `${p.name} · ${p.at}` : p.state === 'rahu' ? p.at : `${p.name} · ${p.at}`;
 
@@ -65,7 +65,7 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
     <VStack alignment="leading" spacing={3}>
       <HStack spacing={5}>
         <Image systemName={p.moon as never} size={13} color={soft} />
-        <Text modifiers={[font({ textStyle: 'caption2', weight: p.festToday ? 'bold' : 'regular' }), foregroundStyle(p.festToday && !plain ? (dark ? '#FF8A65' : '#C0390E') : soft), lineLimit(1), minimumScaleFactor(0.7)]}>{p.festToday || p.date}</Text>
+        <Text modifiers={[font({ textStyle: 'caption2', weight: p.festToday ? 'bold' : 'regular' }), foregroundStyle(p.festToday && !plain ? (dark ? '#E6894A' : '#AC5118') : soft), lineLimit(1), minimumScaleFactor(0.7)]}>{p.festToday || p.date}</Text>
       </HStack>
       <Spacer />
       <Text modifiers={[font({ textStyle: 'caption', weight: 'semibold' }), foregroundStyle(tone), lineLimit(2)]}>{p.head}</Text>
@@ -84,14 +84,14 @@ const TodayWidget = (p: TodayProps, env: WidgetEnvironment) => {
         {now}
         <VStack alignment="leading" spacing={3} modifiers={[frame({ maxWidth: 10000, alignment: 'leading' })]}>
           <Text modifiers={[font({ textStyle: 'caption2' }), foregroundStyle(soft)]}>{p.rahuLabel}</Text>
-          <Text modifiers={[font({ textStyle: 'headline' }), foregroundStyle(plain ? ink : (dark ? '#EF9A9A' : '#C62828')), lineLimit(1)]}>{p.rahu}</Text>
+          <Text modifiers={[font({ textStyle: 'headline' }), foregroundStyle(plain ? ink : (dark ? '#E0877C' : '#A9473E')), lineLimit(1)]}>{p.rahu}</Text>
           <Spacer />
           <Text modifiers={[font({ textStyle: 'caption2' }), foregroundStyle(soft)]}>{p.vratLabel}</Text>
           <Text modifiers={[font({ textStyle: 'subheadline', weight: 'semibold' }), foregroundStyle(ink), lineLimit(1), minimumScaleFactor(0.75)]}>{p.vratWhen ? `${p.vrat} · ${p.vratWhen}` : p.vrat}</Text>
           {p.nextFest ? <Spacer /> : null}
           {p.nextFest ? <Text modifiers={[font({ textStyle: 'caption2' }), foregroundStyle(soft)]}>{p.festLabel}</Text> : null}
           {p.nextFest ? (
-            <Text modifiers={[font({ textStyle: 'subheadline', weight: 'semibold' }), foregroundStyle(plain ? ink : (dark ? '#FF8A65' : '#C0390E')), lineLimit(1), minimumScaleFactor(0.75)]}>{`${p.nextFest} · ${p.nextFestWhen}`}</Text>
+            <Text modifiers={[font({ textStyle: 'subheadline', weight: 'semibold' }), foregroundStyle(plain ? ink : (dark ? '#E6894A' : '#AC5118')), lineLimit(1), minimumScaleFactor(0.75)]}>{`${p.nextFest} · ${p.nextFestWhen}`}</Text>
           ) : null}
         </VStack>
       </HStack>

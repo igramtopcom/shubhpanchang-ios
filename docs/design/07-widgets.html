@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widget, màn hình khóa, Live Activity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600&family=Noto+Serif+Gujarati:wght@500;600&family=Noto+Serif+Devanagari:wght@500&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ds-base.css">
+<link rel="stylesheet" href="ds-more.css">
+<link rel="stylesheet" href="ds-glass.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol><symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/></symbol><symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol><symbol id="i-calplus" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol><symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-7.6-7-12a7 7 0 0 1 14 0c0 4.4-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol><symbol id="i-chevr" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol><symbol id="i-chevl" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol><symbol id="i-chevd" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol><symbol id="i-lotus" viewBox="0 0 24 24"><path d="M12 19c-4 0-7-2-8-5 3 0 6 1 8 5 2-4 5-5 8-5-1 3-4 5-8 5z"/><path d="M12 19c-2-3-2-8 0-12 2 4 2 9 0 12z"/></symbol><symbol id="i-diya" viewBox="0 0 24 24"><path d="M4 14h16a8 5 0 0 1-16 0z"/><path d="M12 11c-1.5-1.5-1.5-3.5 0-6 1.5 2.5 1.5 4.5 0 6z"/></symbol><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21a6 6 0 0 0 6-6c0-4-3-6-4-10-2 2-3 3.5-3 6-1-1-1.5-2-1.5-3C7 10 6 12.5 6 15a6 6 0 0 0 6 6z"/></symbol><symbol id="i-lang" viewBox="0 0 24 24"><path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6 8M11 6c0 3-2 6-6 8"/><path d="M13 20l4-9 4 9M14.3 17h5.4"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol><symbol id="i-wa" viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1 1 9 18.6z"/></symbol><symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4M9.5 12.5h5M9.5 16h5"/></symbol><symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 4v4M9 6.5l3-2.5 3 2.5M3.5 13.5l1.5.8M20.5 13.5l-1.5.8"/></symbol></svg>
+<header class="page"><h1>Widget, màn hình khóa, Live Activity</h1><p>Trái: widget màn hình chính (Gujarati). Giữa: màn hình khóa với Live Activity đếm ngược Parana. Phải: tiếng Anh, Live Activity báo Rahu Kaal. Dữ liệu minh họa.</p></header>
+<div class="row">
+
+<div class="home">
+  <div class="wgrid">
+    <div class="w sq">
+      <div class="lab" style="display:flex;justify-content:space-between">આજે · અમદાવાદ<span class="wmoon"></span></div>
+      <div class="big2">આસો સુદ<br>બારસ</div>
+      <div class="sm">પારણાં 6:40 – 8:58</div>
+    </div>
+    <div class="w sq">
+      <div class="lab"><span class="dotg"></span>અત્યારે સારો સમય</div>
+      <div class="big2">લાભ</div>
+      <div class="sm">9:34 સુધી, પછી અમૃત</div>
+      <div class="wrib"><span style="background:var(--good)"></span><span style="background:var(--good)"></span><span style="background:var(--fair)"></span><span style="background:var(--bad)"></span><span style="background:var(--good)"></span><span style="background:var(--fair)"></span><span style="background:var(--good)"></span><span style="background:var(--fair)"></span><em style="left:22%"></em></div>
+    </div>
+    <div class="w wide">
+      <div class="wl"><div class="lab">આવનારા દિવસો</div>
+        <div class="wrow"><b>26</b><span>શરદ પૂનમ</span></div>
+        <div class="wrow"><b>29</b><span>કરવા ચોથ</span></div>
+        <div class="wrow"><b>5</b><span>રમા અગિયારસ</span></div></div>
+      <div class="wr"><div class="lab">આજે</div>
+        <div class="kv"><span>સૂર્યોદય</span><b>6:43</b></div>
+        <div class="kv"><span>સૂર્યાસ્ત</span><b>6:07</b></div>
+        <div class="kv rk"><span>રાહુકાળ</span><b>10:59 થી</b></div></div>
+    </div>
+  </div>
+  <div class="apps"><div><span></span><i></i></div><div><span></span><i></i></div><div><span></span><i></i></div><div><span></span><i></i></div></div><div class="apps"><div><span></span><i></i></div><div><span></span><i></i></div><div><span></span><i></i></div><div><span></span><i></i></div></div>
+</div>
+<div class="lock">
+  <div class="ld">શુક્રવાર, 23 ઑક્ટોબર</div>
+  <div class="clock">7:12</div>
+  <div class="lw">
+    <div><b>સુદ 12</b>આસો</div>
+    <div><b>8:58 સુધી</b>પારણાં</div>
+    <div><b>10:59</b>રાહુકાળ</div>
+  </div>
+  <div class="la">
+    <div class="ring"></div>
+    <div><b>પારણાંનો સમય ચાલુ</b><span>પાપાંકુશા અગિયારસ · 8:58 સુધી</span></div>
+    <div class="tm">1:46</div>
+  </div>
+</div>
+<div class="lock en-lock">
+  <div class="ld">Friday 23 October</div>
+  <div class="clock">10:52</div>
+  <div class="lw">
+    <div><b>Shukla 12</b>Ashwin</div>
+    <div><b>6:07 pm</b>Sunset</div>
+  </div>
+  <div class="la bad">
+    <div class="ring"></div>
+    <div><b>Rahu Kaal now</b><span>Ends 12:10 pm · then Amrit until 12:17 pm</span></div>
+    <div class="tm">1:18</div>
+  </div>
+</div>
+<aside class="notes">
+  <h3>Điểm chính</h3>
+  <p><b>Widget nhỏ 1:</b> tithi hôm nay (chữ to), hình trăng, dòng phụ là việc quan trọng nhất trong ngày (Parana, hay giờ trăng mọc ngày Sankashti).</p>
+  <p><b>Widget nhỏ 2:</b> "bây giờ tốt hay xấu", đến mấy giờ, và dải choghadiya mini có vạch "bây giờ". Cùng ngôn ngữ màu với tab Hôm nay.</p>
+  <p><b>Widget rộng:</b> 3 ngày vrat/lễ sắp tới bên trái, mặt trời và Rahu Kaal bên phải.</p>
+  <p><b>Màn hình khóa:</b> 3 widget nhỏ (tithi, Parana, Rahu Kaal). <b>Live Activity</b> đếm ngược cửa sổ Parana (vòng xanh) hoặc Rahu Kaal (vòng đỏ), tự tắt khi hết giờ. Hiện trên Dynamic Island nữa.</p>
+  <p>Chạm vào bất kỳ widget nào là mở đúng màn trong app (Hôm nay, chi tiết Ekadashi...).</p>
+</aside>
+</div>
+</body>
+</html>

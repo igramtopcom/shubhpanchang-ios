@@ -20,7 +20,7 @@ export function NotificationSync() {
   const family = useFamilyNext(now.date);
   const fest = useFestivals(now.date, shiftDate(now.date, 62));
 
-  useEffect(() => addTapListener(url => router.navigate(routeForWebPath(url))), []);
+  useEffect(() => addTapListener(url => router.navigate(routeForWebPath(url) as never)), []);
 
   // Festivals join when they arrive; the vrat and family plan does not wait for them.
   const ready = !!place && !!days.data && !!obs.data && !!family.data;

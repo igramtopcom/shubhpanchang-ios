@@ -15,6 +15,8 @@ export interface Prefs {
   sampradaya: Sampradaya;
   notify: NotifySettings;
   family: FamilyDate[];
+  /** Times as 18:21 rather than 6:21 pm / સાંજે 6:21. */
+  clock24: boolean;
 }
 
 const PREFS_KEY = 'prefs:v1';
@@ -36,6 +38,7 @@ const initialPrefs = (): Prefs => ({
   sampradaya: 'smarta',
   notify: DEFAULT_SETTINGS,
   family: [],
+  clock24: false,
 });
 
 interface AppState {

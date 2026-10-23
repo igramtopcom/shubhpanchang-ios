@@ -98,6 +98,37 @@ export interface Festival {
   /** The festival's page on the site; null for a sampradaya utsav, which has none. */
   url: string | null
   sampradaya?: Sampradaya
+  /** The festival has a full write-up (/api/v1/festival): story, vidhi, mantra, FAQ. */
+  hasContent?: boolean
+}
+
+export interface Bi { en: string; gu: string }
+
+/** /api/v1/festival: one festival at the place with its write-up and, for Diwali and Dhanteras, the puja muhurat. */
+export interface FestivalDetail {
+  festival: Festival & { tithi?: Bi }
+  content: {
+    calendarContext: Bi
+    story: { heading: Bi; paragraphs: Bi[]; subsections: { heading: Bi; en: string; gu: string }[] }
+    fasting: { heading: Bi | null; rules: Bi[] } | null
+    vidhi: { heading: Bi | null; steps: Bi[] } | null
+    mantra: { devanagari: string; gujarati: string; roman: string; meaning: Bi; note: Bi | null } | null
+    dosDontsHeading: Bi | null
+    dos: Bi[]
+    donts: Bi[]
+    faqHeading: Bi
+    faqs: { q: Bi; a: Bi }[]
+  } | null
+  muhurat: {
+    label: Bi
+    start: string
+    end: string
+    pradoshKaal: TimeRange
+    vrishabha: TimeRange
+    tithi: { name: Bi; start: { date: string; time: string }; end: { date: string; time: string } }
+    /** Chopda Pujan (Diwali): the Amrit / Shubh / Labh runs while Amavasya holds. */
+    chopda: { names: Bi; start: { date: string; time: string }; end: { date: string; time: string } }[]
+  } | null
 }
 
 export interface LunarDate {
@@ -124,8 +155,11 @@ export interface TithiOccurrence extends LunarDate {
 export interface FamilyDate {
   id: string
   name: string
-  kind: 'birthday' | 'shraddh'
+  /** A wedding anniversary counts by the sunrise tithi, like a birthday. */
+  kind: 'birthday' | 'shraddh' | 'anniversary'
   lunar: Pick<LunarDate, 'month' | 'adhik' | 'tithi'>
   /** The Gregorian date the user entered, if any (for display). */
   origin?: { date: string; time?: string }
+  /** false: no reminder for this person (on by default). */
+  remind?: boolean
 }

@@ -4,23 +4,25 @@
 // content in <Screen header>, whose ScrollView adjusts its insets for the bar.
 import { Stack } from 'expo-router';
 
+import { TitleFont } from '@/constants/theme';
 import { t, type Strings } from '@/lib/i18n';
 import { useApp } from '@/state/app';
 
 import { useColors } from './ui';
 
-export function TabStack({ title }: { title: (s: Strings) => string }) {
+export function TabStack({ title, large = true }: { title: (s: Strings) => string; large?: boolean }) {
   const c = useColors();
-  const s = t(useApp().prefs.lang);
+  const lang = useApp().prefs.lang;
+  const s = t(lang);
   return (
     <Stack
       screenOptions={{
-        headerLargeTitleEnabled: true,
+        headerLargeTitleEnabled: large,
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
         headerTintColor: c.brand,
-        headerTitleStyle: { color: c.text },
-        headerLargeTitleStyle: { color: c.text },
+        headerTitleStyle: { color: c.text, fontFamily: TitleFont[lang] },
+        headerLargeTitleStyle: { color: c.text, fontFamily: TitleFont[lang] },
         contentStyle: { backgroundColor: c.background },
       }}>
       <Stack.Screen name="index" options={{ title: title(s) }} />

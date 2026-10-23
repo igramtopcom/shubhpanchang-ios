@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today redesign mock v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600&family=Noto+Serif+Gujarati:wght@500;600&family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+  /* Mock v2 (polish). Data is illustrative. Palette: one saffron accent, sage for good,
+     brick for avoid, sand for in-between, all at the same lightness so none shouts. */
+  :root {
+    --paper: #FAF6F0; --card: #FFFFFF; --sunk: #F4EEE6;
+    --ink: #2A201A; --ink2: #6E6158; --ink3: #A0928A; --line: #ECE3D8;
+    --accent: #C0601F; --accent-soft: #F7E9DC;
+    --good: #4F7F60; --good-soft: #EAF1EB;
+    --fair: #D7C6A8; --fair-ink: #8C7550;
+    --bad: #A9473E; --bad-soft: #F6E6E2;
+    --moon-lit: #FBF1DC; --moon-dark: #D6C8B2; --moon-rim: #CBBBA2;
+    --shadow: 0 1px 1px rgba(60,35,15,.04), 0 6px 20px rgba(60,35,15,.06);
+    --gu: 'Noto Sans Gujarati', 'Inter', system-ui, sans-serif;
+    --gu-serif: 'Noto Serif Gujarati', 'Source Serif 4', Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #EAE3D9; font-family: Inter, system-ui, sans-serif; color: #2A201A; padding: 36px 16px 56px; }
+  header.page { text-align: center; margin-bottom: 30px; }
+  header.page h1 { font: 600 21px/1.3 Inter, sans-serif; margin: 0 0 4px; }
+  header.page p { margin: 0; color: #6E6158; font-size: 14px; }
+  .row { display: flex; gap: 44px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+
+  .phone { width: 390px; min-height: 844px; background: var(--paper); color: var(--ink); border-radius: 50px; padding: 58px 20px 118px;
+    position: relative; overflow: hidden; box-shadow: 0 0 0 10px #1C1410, 0 28px 60px rgba(40,20,10,.22); font-family: var(--gu); }
+  .phone.en { font-family: Inter, system-ui, sans-serif; }
+  .dark {
+    --paper: #15100C; --card: #201913; --sunk: #2A211A; --ink: #F3EADF; --ink2: #BDAE9F; --ink3: #85766A; --line: #30261E;
+    --accent: #E6894A; --accent-soft: #3A2618; --good: #7DB592; --good-soft: #1E2E23; --fair: #6A5A43; --fair-ink: #CDB58A;
+    --bad: #E0877C; --bad-soft: #3A211D; --moon-lit: #EFE1C4; --moon-dark: #3A2F27; --moon-rim: #4A3D33;
+    --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 8px 24px rgba(0,0,0,.35);
+  }
+  .island { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; border-radius: 20px; background: #000; }
+
+  /* Top bar */
+  .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+  .place { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px 0 12px; border-radius: 18px;
+    background: var(--card); box-shadow: var(--shadow); color: var(--ink); font-weight: 600; font-size: 15px; }
+  .place svg { color: var(--accent); }
+  .actions { display: flex; gap: 8px; }
+  .round { width: 36px; height: 36px; border-radius: 18px; background: var(--card); box-shadow: var(--shadow); display: grid; place-items: center; color: var(--ink2); }
+
+  /* Hero */
+  .hero { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; }
+  .moon { width: 58px; height: 58px; flex: none; }
+  .eyebrow { color: var(--ink2); font-size: 14px; letter-spacing: .1px; margin-bottom: 3px; }
+  .tithi { font: 600 29px/1.15 var(--gu-serif); letter-spacing: -.2px; margin: 0; }
+  .en .tithi { font-family: 'Source Serif 4', Georgia, serif; font-size: 28px; }
+  .tithi-sub { color: var(--ink2); font-size: 14px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .facts { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 22px; }
+  .fact { font-size: 13px; color: var(--ink2); padding: 5px 10px; border-radius: 999px; background: var(--sunk); }
+  .fact b { color: var(--ink); font-weight: 600; }
+  .fact.parana { background: var(--good-soft); color: var(--good); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* Now */
+  .card { background: var(--card); border-radius: 22px; box-shadow: var(--shadow); }
+  .now { padding: 16px 16px 14px; margin-bottom: 26px; }
+  .now-top { display: flex; justify-content: space-between; align-items: center; }
+  .state { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; }
+  .state i { width: 8px; height: 8px; border-radius: 4px; display: inline-block; }
+  .state.good { color: var(--good); } .state.good i { background: var(--good); box-shadow: 0 0 0 4px var(--good-soft); }
+  .state.bad { color: var(--bad); } .state.bad i { width: 12px; height: 3px; border-radius: 2px; background: var(--bad); }
+  .until { color: var(--ink2); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .headline { margin: 10px 0 0; font-size: 15px; color: var(--ink2); }
+  .headline b { display: block; color: var(--ink); font-size: 25px; font-weight: 600; letter-spacing: -.2px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .ribbon { position: relative; display: flex; gap: 3px; height: 14px; margin: 18px 0 8px; }
+  .ribbon span { flex: 1; border-radius: 3px; }
+  .ribbon span:first-child { border-radius: 7px 3px 3px 7px; } .ribbon span:last-child { border-radius: 3px 7px 7px 3px; }
+  .g { background: var(--good); } .f { background: var(--fair); } .b { background: var(--bad); opacity: .75; }
+  .r { background: repeating-linear-gradient(135deg, var(--bad) 0 2.5px, transparent 2.5px 5.5px); box-shadow: inset 0 0 0 1.5px var(--bad); }
+  .nowmark { position: absolute; top: -6px; width: 2px; height: 26px; background: var(--ink); border-radius: 1px; }
+  .nowmark::before { content: ''; position: absolute; top: -3px; left: -3px; width: 8px; height: 8px; border-radius: 4px; background: var(--ink); }
+  .scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink3); font-variant-numeric: tabular-nums; }
+  .key { display: flex; gap: 14px; font-size: 12px; color: var(--ink2); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .key em { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; font-style: normal; }
+  .more { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: var(--accent); font-weight: 600; font-size: 14px; }
+
+  /* Sections */
+  .sec { display: flex; justify-content: space-between; align-items: baseline; margin: 0 4px 8px; }
+  .sec h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink); }
+  .sec a { font-size: 13.5px; color: var(--accent); font-weight: 600; text-decoration: none; }
+  .list { margin-bottom: 26px; overflow: hidden; }
+  .item { display: flex; gap: 12px; align-items: center; padding: 11px 14px; }
+  .item + .item { border-top: 1px solid var(--line); margin-left: 70px; padding-left: 0; }
+  .item + .item .dt { margin-left: -56px; }
+  .dt { width: 44px; height: 46px; flex: none; border-radius: 12px; background: var(--sunk); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .dt b { font: 600 18px/1 Inter, sans-serif; color: var(--ink); } .dt span { font-size: 11px; color: var(--ink2); margin-top: 3px; }
+  .it { flex: 1; min-width: 0; } .it b { display: block; font-size: 15.5px; font-weight: 600; } .it span { font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .kind { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink3); white-space: nowrap; }
+  .kind i { width: 7px; height: 7px; border-radius: 4px; }
+  .kind.fest i { background: var(--accent); } .kind.vrat i { background: var(--good); } .kind.fam i { background: var(--fair-ink); }
+
+  /* Sky */
+  .sky { padding: 14px 16px 14px; margin-bottom: 26px; }
+  .arc { width: 100%; height: 92px; display: block; }
+  .times { display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 12.5px; color: var(--ink2); margin-top: 2px; }
+  .times b { display: block; color: var(--ink); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .times div:nth-child(2) { text-align: center; } .times div:nth-child(3) { text-align: right; }
+  .kaal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .kaal div { border-radius: 14px; padding: 9px 11px 9px 13px; background: var(--sunk); font-size: 12.5px; color: var(--ink2); position: relative; }
+  .kaal div::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 2px; }
+  .kaal .rk::before { background: var(--bad); } .kaal .ab::before { background: var(--good); }
+  .kaal b { display: block; color: var(--ink); font-size: 15.5px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 1px; }
+
+  /* Tab bar */
+  .tabs { position: absolute; left: 16px; right: 16px; bottom: 24px; height: 62px; border-radius: 31px; display: flex; justify-content: space-around; align-items: center;
+    background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(14px); box-shadow: 0 8px 28px rgba(40,20,10,.14), 0 0 0 1px var(--line); }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--ink3); width: 76px; }
+  .tab.on { color: var(--accent); font-weight: 600; }
+  .tab.on .pip { background: var(--accent-soft); }
+  .pip { width: 52px; height: 30px; border-radius: 14px; display: grid; place-items: center; }
+
+  /* Notes */
+  .notes { width: 360px; font: 14.5px/1.6 Inter, sans-serif; color: #3A2C23; }
+  .notes h3 { font-size: 16px; margin: 6px 0 12px; }
+  .notes p { margin: 0 0 12px; }
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 4px 0 16px; }
+  .sw div { height: 38px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+  .sw span { display: block; font-size: 10.5px; color: #6E6158; text-align: center; margin-top: 3px; }
+</style>
+</head>
+<body>
+<header class="page">
+  <h1>ShubhPanchang · màn Hôm nay, bản chỉnh lần 2</h1>
+  <p>Trái: tiếng Gujarati, Ahmedabad, nền sáng, giờ tốt. Giữa: tiếng Anh, New Jersey, nền tối, đang Rahu Kaal. Dữ liệu minh họa.</p>
+</header>
+<div class="row">
+
+<!-- ================= Gujarati, light ================= -->
+<div class="phone">
+  <div class="island"></div>
+  <div class="bar">
+    <span class="place">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+      અમદાવાદ
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ink3)"><path d="M6 9l6 6 6-6"/></svg>
+    </span>
+    <span class="actions"><span class="round"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span><span class="round" aria-label="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span></span>
+  </div>
+
+  <div class="hero">
+    <svg class="moon" viewBox="0 0 64 64" aria-label="ચંદ્ર: સુદ બારસ">
+      <defs><radialGradient id="lit1" cx="62%" cy="40%" r="70%"><stop offset="0" stop-color="#FFF9EC"/><stop offset="1" stop-color="var(--moon-lit)"/></radialGradient></defs>
+      <circle cx="32" cy="32" r="28" fill="var(--moon-dark)"/>
+      <path d="M32 4 A28 28 0 0 1 32 60 A17 28 0 0 1 32 4 Z" fill="url(#lit1)"/>
+      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--moon-rim)" stroke-width="1"/>
+    </svg>
+    <div>
+      <div class="eyebrow">શુક્રવાર, 23 ઑક્ટોબર · વિ.સં. 2082</div>
+      <h1 class="tithi">આસો સુદ બારસ</h1>
+      <div class="tithi-sub">બપોરે 1:05 સુધી, પછી તેરસ</div>
+    </div>
+  </div>
+  <div class="facts">
+    <span class="fact">નક્ષત્ર <b>પૂર્વ ભાદ્રપદ</b></span>
+    <span class="fact">યોગ <b>ધ્રુવ</b></span>
+    <span class="fact parana">પારણાં 6:40–8:58</span>
+  </div>
+
+  <div class="card now">
+    <div class="now-top">
+      <span class="state good"><i></i>અત્યારે શુભ · લાભ</span>
+      <span class="until">10:51 સુધી</span>
+    </div>
+    <div class="headline">પછી
+      <b>અમૃત 10:51 – 12:17</b>
+    </div>
+    <div class="ribbon" aria-label="આજનાં દિવસનાં ચોઘડિયાં">
+      <span class="f"></span><span class="g"></span><span class="g"></span><span class="r"></span><span class="b"></span><span class="f"></span><span class="g"></span><span class="b"></span>
+      <div class="nowmark" style="left:23%"></div>
+    </div>
+    <div class="scale"><span>6:43</span><span>બપોર</span><span>6:07</span></div>
+    <div class="key">
+      <span><em class="g"></em>શુભ</span><span><em class="f"></em>ઠીક</span><span><em class="b"></em>ટાળો</span><span><em class="r"></em>રાહુકાળ</span>
+    </div>
+    <div class="more"><span>બધાં ચોઘડિયાં · દિવસ / રાત</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+  </div>
+
+  <div class="sec"><h2>આવનારા દિવસો</h2><a>બધા</a></div>
+  <div class="card list">
+    <div class="item"><div class="dt"><b>26</b><span>સોમ</span></div><div class="it"><b>શરદ પૂનમ</b><span>3 દિવસમાં · ચંદ્રોદય 5:41</span></div><span class="kind fest"><i></i>તહેવાર</span></div>
+    <div class="item"><div class="dt"><b>29</b><span>ગુરુ</span></div><div class="it"><b>કરવા ચોથ</b><span>ચંદ્રોદય રાત્રે 8:47</span></div><span class="kind vrat"><i></i>વ્રત</span></div>
+    <div class="item"><div class="dt"><b>5</b><span>નવે</span></div><div class="it"><b>રમા અગિયારસ</b><span>વાઘ બારસ પણ · 13 દિવસમાં</span></div><span class="kind vrat"><i></i>વ્રત</span></div>
+    <div class="item"><div class="dt"><b>8</b><span>નવે</span></div><div class="it"><b>બા નું શ્રાદ્ધ</b><span>આસો વદ તેરસ</span></div><span class="kind fam"><i></i>પરિવાર</span></div>
+  </div>
+
+  <div class="sec"><h2>સૂર્ય અને ચંદ્ર</h2></div>
+  <div class="card sky">
+    <svg class="arc" viewBox="0 0 320 92">
+      <defs><linearGradient id="day1" x1="0" x2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".9"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".55"/></linearGradient></defs>
+      <path d="M14 80 Q160 -12 306 80" fill="none" stroke="var(--line)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 7"/>
+      <path d="M14 80 Q72 36 112 27" fill="none" stroke="url(#day1)" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="112" cy="27" r="9" fill="var(--accent)" opacity=".18"/>
+      <circle cx="112" cy="27" r="5.5" fill="var(--accent)"/>
+      <circle cx="200" cy="30" r="4" fill="var(--card)" stroke="var(--ink3)" stroke-width="1.5"/>
+      <line x1="0" y1="80" x2="320" y2="80" stroke="var(--line)" stroke-width="1"/>
+    </svg>
+    <div class="times">
+      <div><b>6:43</b>સૂર્યોદય</div><div><b>3:12</b>ચંદ્રોદય</div><div><b>6:07</b>સૂર્યાસ્ત</div>
+    </div>
+    <div class="kaal">
+      <div class="rk">રાહુકાળ<b>10:44 – 12:10</b></div>
+      <div class="ab">અભિજિત<b>12:03 – 12:48</b></div>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <div class="tab on"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>આજે</div>
+    <div class="tab"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>વ્રત</div>
+    <div class="tab"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/></svg></span>પરિવાર</div>
+    <div class="tab"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>કેલેન્ડર</div>
+  </nav>
+</div>
+
+<!-- ================= English, dark, Rahu now ================= -->
+<div class="phone en dark">
+  <div class="island"></div>
+  <div class="bar">
+    <span class="place">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+      New Jersey
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ink3)"><path d="M6 9l6 6 6-6"/></svg>
+    </span>
+    <span class="actions"><span class="round"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span><span class="round" aria-label="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span></span>
+  </div>
+  <div class="hero">
+    <svg class="moon" viewBox="0 0 64 64" aria-label="Moon: Shukla Dwadashi">
+      <defs><radialGradient id="lit2" cx="62%" cy="40%" r="70%"><stop offset="0" stop-color="#FFF4DD"/><stop offset="1" stop-color="var(--moon-lit)"/></radialGradient></defs>
+      <circle cx="32" cy="32" r="28" fill="var(--moon-dark)"/>
+      <path d="M32 4 A28 28 0 0 1 32 60 A17 28 0 0 1 32 4 Z" fill="url(#lit2)"/>
+      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--moon-rim)" stroke-width="1"/>
+    </svg>
+    <div>
+      <div class="eyebrow">Friday, 23 October · VS 2082</div>
+      <h1 class="tithi">Ashwin Shukla Dwadashi</h1>
+      <div class="tithi-sub">until 3:35 am, then Trayodashi</div>
+    </div>
+  </div>
+  <div class="facts">
+    <span class="fact">Nakshatra <b>Purva Bhadrapada</b></span>
+    <span class="fact parana">Parana 7:21–9:40</span>
+  </div>
+  <div class="card now">
+    <div class="now-top">
+      <span class="state bad"><i></i>Rahu Kaal now</span>
+      <span class="until">until 12:09</span>
+    </div>
+    <div class="headline">Next good time, in 2 h 08 min
+      <b>Labh 1:35 – 3:02</b>
+    </div>
+    <div class="ribbon">
+      <span class="g"></span><span class="f"></span><span class="b"></span><span class="r"></span><span class="f"></span><span class="g"></span><span class="g"></span><span class="b"></span>
+      <div class="nowmark" style="left:42%"></div>
+    </div>
+    <div class="scale"><span>7:15</span><span>noon</span><span>5:59</span></div>
+    <div class="more"><span>All choghadiya · day / night</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
+  </div>
+  <div class="sec"><h2>Coming up</h2><a>All</a></div>
+  <div class="card list">
+    <div class="item"><div class="dt"><b>25</b><span>Sun</span></div><div class="it"><b>Sharad Purnima</b><span>in 2 days · India: 26 Oct</span></div><span class="kind fest"><i></i>Festival</span></div>
+    <div class="item"><div class="dt"><b>28</b><span>Wed</span></div><div class="it"><b>Karva Chauth</b><span>Moonrise 8:12 pm</span></div><span class="kind vrat"><i></i>Vrat</span></div>
+    <div class="item"><div class="dt"><b>4</b><span>Nov</span></div><div class="it"><b>Rama Ekadashi</b><span>Parana 5 Nov, after 7:30</span></div><span class="kind vrat"><i></i>Vrat</span></div>
+  </div>
+  <nav class="tabs">
+    <div class="tab on"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>Today</div>
+    <div class="tab"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>Vrat</div>
+    <div class="tab"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/></svg></span>Family</div>
+    <div class="tab"><span class="pip"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>Calendar</div>
+  </nav>
+</div>
+
+<aside class="notes">
+  <h3>Đã chỉnh trong lượt này</h3>
+  <div class="sw">
+    <div style="background:#FAF6F0"></div><div style="background:#C0601F"></div><div style="background:#4F7F60"></div><div style="background:#D7C6A8"></div><div style="background:#A9473E"></div><div style="background:#2A201A"></div>
+  </div>
+  <p><b>Bảng màu cân lại.</b> Saffron đất (một màu nhấn duy nhất), xanh sage cho "tốt", cát cho "trung bình", gạch nung cho "nên tránh". Bốn màu cùng độ đậm nhạt, không màu nào chói. Rahu Kaal là gạch chéo màu gạch nung, khác hẳn saffron để không lẫn với màu nhấn.</p>
+  <p><b>Mặt trăng nhẹ hơn.</b> Phần tối ở nền sáng là màu kem đậm thay cho nâu, có viền mảnh và ánh sáng chuyển nhẹ, nên trông như vẽ tay thay vì một cục tròn.</p>
+  <p><b>Bớt khung, bớt viền.</b> Card dùng bóng rất mềm thay cho viền cam. Chip thông tin là nền chìm, không viền. Nhãn loại trong "Sắp tới" chỉ là chấm màu nhỏ và chữ xám, thay cho pill màu.</p>
+  <p><b>Chữ có nhịp.</b> Ngày dương lịch thành dòng nhỏ phía trên tithi. Khối "Bây giờ" để câu dẫn nhỏ và giờ lớn. Giờ dùng dạng quen của người đọc ("બપોરે 1:05", "3:35 am") thay cho 24 giờ khô cứng (sẽ là một lựa chọn trong Cài đặt).</p>
+  <p><b>4 tab thay cho 5.</b> Cài đặt chuyển lên góc trên bên phải, cạnh nút chia sẻ. Đó là mục ít mở nhất; thanh đáy giờ chỉ còn những gì dùng hằng ngày, mỗi tab rộng và dễ bấm hơn.</p>
+  <p><b>Biểu tượng thật</b> thay cho ký tự tạm: ghim địa điểm, nút chia sẻ, 4 biểu tượng tab nét mảnh. Tab đang chọn có nền viên thuốc saffron nhạt.</p>
+  <p><b>Rahu Kaal và Abhijit</b> thành hai ô nền chìm với một vạch màu bên trái, thay cho hai khối hồng và xanh.</p>
+</aside>
+</div>
+</body>
+</html>

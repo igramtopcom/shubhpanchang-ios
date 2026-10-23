@@ -20,7 +20,6 @@ export default function AppTabs() {
           <TabTrigger name="vrat" href="/vrat" asChild><TabButton>{s.tabVrat}</TabButton></TabTrigger>
           <TabTrigger name="family" href="/family" asChild><TabButton>{s.tabFamily}</TabButton></TabTrigger>
           <TabTrigger name="calendar" href="/calendar" asChild><TabButton>{s.tabCalendar}</TabButton></TabTrigger>
-          <TabTrigger name="settings" href="/settings" asChild><TabButton>{s.tabSettings}</TabButton></TabTrigger>
         </View>
       </TabList>
     </Tabs>
