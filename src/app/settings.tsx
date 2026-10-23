@@ -19,6 +19,7 @@ import { SAMPRADAYAS, type Lang, type ObservanceKind, type Sampradaya } from '@/
 import { useApp } from '@/state/app';
 
 const KINDS: ObservanceKind[] = ['ekadashi', 'purnima', 'amavasya', 'sankashti', 'pradosh', 'shivaratri'];
+const THEMES = ['auto', 'light', 'dark'] as const;
 /** The vrats offered: a Jain reader also gets the parva tithis. */
 const kindsFor = (s: Sampradaya): ObservanceKind[] => (s === 'jain' ? ['parva', ...KINDS] : KINDS);
 /** Choosing Jain turns the parva tithis on; leaving it turns them off. */
@@ -58,6 +59,12 @@ export default function SettingsScreen() {
         <View style={{ gap: 7 }}>
           <T kind="label" style={{ marginLeft: 6 }}>{s.settingsLanguage}</T>
           <Segmented values={['ગુજરાતી', 'English']} index={lang === 'gu' ? 0 : 1} onChange={i => update({ lang: (i ? 'en' : 'gu') as Lang })} />
+        </View>
+
+        <View style={{ gap: 7 }}>
+          <T kind="label" style={{ marginLeft: 6 }}>{s.appearance}</T>
+          <Segmented values={[s.themeAuto, s.themeLight, s.themeDark]} index={THEMES.indexOf(prefs.theme ?? 'auto')} onChange={i => update({ theme: THEMES[i] })} />
+          <T kind="caption" style={{ marginHorizontal: 6, fontSize: 12.5 }}>{s.themeNote}</T>
         </View>
 
         <Group title={s.yourTradition} note={s.sampradayaHint}>

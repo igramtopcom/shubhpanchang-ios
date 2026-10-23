@@ -338,6 +338,11 @@ export const STRINGS = {
     sampradayaSub_baps: 'BAPS સ્વામિનારાયણ સંસ્થા',
     sampradayaSub_pushtimarg: 'વલ્લભ સંપ્રદાય',
     sampradayaSub_jain: 'પર્વ તિથિ, પર્યુષણ, સંવત્સરી',
+    appearance: 'દેખાવ',
+    themeAuto: 'આપોઆપ',
+    themeLight: 'લાઇટ',
+    themeDark: 'ડાર્ક',
+    themeNote: 'આપોઆપ: iPhone ના લાઇટ કે ડાર્ક સેટિંગ પ્રમાણે.',
   },
   en: {
     appName: 'Divo',
@@ -630,6 +635,11 @@ export const STRINGS = {
     sampradayaSub_baps: 'BAPS Swaminarayan Sanstha',
     sampradayaSub_pushtimarg: 'Vallabh sampradaya',
     sampradayaSub_jain: 'Parva tithis, Paryushan, Samvatsari',
+    appearance: 'Appearance',
+    themeAuto: 'Automatic',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+    themeNote: 'Automatic follows the iPhone’s Light or Dark setting.',
   },
 } as const
 

@@ -1,6 +1,7 @@
 // App-wide state: the reader's choices, kept on the phone only (no account,
 // nothing sent anywhere but the place, rounded, to the API).
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Appearance } from 'react-native';
 import { getCalendars, getLocales } from 'expo-localization';
 
 import { Api } from '@/lib/api';
@@ -17,6 +18,8 @@ export interface Prefs {
   family: FamilyDate[];
   /** Times as 18:21 rather than 6:21 pm / સાંજે 6:21. */
   clock24: boolean;
+  /** Light or dark: the iPhone's own setting ('auto'), or always one. */
+  theme: 'auto' | 'light' | 'dark';
 }
 
 const PREFS_KEY = 'prefs:v1';
@@ -39,6 +42,7 @@ const initialPrefs = (): Prefs => ({
   notify: DEFAULT_SETTINGS,
   family: [],
   clock24: false,
+  theme: 'auto',
 });
 
 interface AppState {
@@ -74,6 +78,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
+
+  // The app's own light or dark: an override on the whole app, so the tab bar,
+  // the glass buttons and the sheets follow it as well as the screens.
+  useEffect(() => {
+    try { Appearance.setColorScheme?.(prefs.theme === 'auto' ? 'auto' : prefs.theme); } catch { /* web preview */ }
+  }, [prefs.theme]);
 
   const value = useMemo(() => ({ ready, prefs, update, api }), [ready, prefs, update, api]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
