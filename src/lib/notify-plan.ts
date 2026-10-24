@@ -60,7 +60,8 @@ export interface PlanInput {
   settings: NotifySettings
   lang: Lang
   observances: Observance[]
-  family: { person: FamilyDate; date: string }[]
+  /** Each day a family date falls on; `by` says how it was reached (the tithi by default). */
+  family: { person: FamilyDate; date: string; by?: 'tithi' | 'date' | 'once' }[]
   festivals?: Festival[]
   days: PanchangDay[]
   horizonDays?: number
@@ -150,11 +151,7 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
         date: shiftDate(f.date, -1),
         minutes: settings.family.minutes,
         title: gu ? `આવતીકાલે: ${f.person.name}` : `Tomorrow: ${f.person.name}`,
-        body: f.person.kind === 'birthday'
-          ? (gu ? `તિથિ પ્રમાણે જન્મદિવસ (${label})` : `Birthday by tithi (${label})`)
-          : f.person.kind === 'anniversary'
-            ? (gu ? `તિથિ પ્રમાણે લગ્નતિથિ (${label})` : `Wedding anniversary by tithi (${label})`)
-            : (gu ? `પુણ્યતિથિ (${label})` : `Punyatithi (${label})`),
+        body: familyBody(f.person.kind, f.by ?? 'tithi', label, gu),
         priority: 2,
         url: `/person?id=${f.person.id}`,
       })
@@ -201,4 +198,23 @@ export function planNotifications (input: PlanInput): PlannedNotification[] {
     a.priority - b.priority || (a.date < b.date ? -1 : a.date > b.date ? 1 : a.minutes - b.minutes))
   const kept = ranked.slice(0, limit)
   return kept.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.minutes - b.minutes))
+}
+
+/** The line under a family reminder: by the tithi (named), on the calendar date, or the one day. */
+function familyBody (kind: FamilyDate['kind'], by: 'tithi' | 'date' | 'once', label: string, gu: boolean): string {
+  if (by === 'tithi') {
+    return kind === 'birthday'
+      ? (gu ? `તિથિ પ્રમાણે જન્મદિવસ (${label})` : `Birthday by tithi (${label})`)
+      : kind === 'anniversary'
+        ? (gu ? `તિથિ પ્રમાણે લગ્નતિથિ (${label})` : `Wedding anniversary by tithi (${label})`)
+        : (gu ? `પુણ્યતિથિ (${label})` : `Punyatithi (${label})`)
+  }
+  if (by === 'date') {
+    return kind === 'birthday'
+      ? (gu ? 'તારીખ પ્રમાણે જન્મદિવસ' : 'Birthday by date')
+      : kind === 'anniversary'
+        ? (gu ? 'તારીખ પ્રમાણે લગ્નતિથિ' : 'Wedding anniversary by date')
+        : (gu ? 'તારીખ પ્રમાણે પુણ્યતિથિ' : 'Death anniversary by date')
+  }
+  return kind === 'birthday' ? (gu ? 'જન્મદિવસ' : 'Birthday') : kind === 'anniversary' ? (gu ? 'લગ્ન' : 'Wedding') : (gu ? 'પુણ્યતિથિ' : 'Punyatithi')
 }

@@ -25,7 +25,7 @@ export function NotificationSync() {
   // Festivals join when they arrive; the vrat and family plan does not wait for them.
   const ready = !!place && !!days.data && !!obs.data && !!family.data;
   const signature = ready
-    ? JSON.stringify([now.date, prefs.lang, prefs.notify, days.data!.length, obs.data!.map(o => o.date), family.data!.map(f => f.next?.date), (fest.data ?? []).map(f => f.date + f.slug)])
+    ? JSON.stringify([now.date, prefs.lang, prefs.notify, days.data!.length, obs.data!.map(o => o.date), family.data!.map(f => f.all.map(o => o.date + o.by)), (fest.data ?? []).map(f => f.date + f.slug)])
     : '';
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export function NotificationSync() {
       settings: prefs.notify,
       lang: prefs.lang,
       observances: obs.data!,
-      family: family.data!.filter(f => f.next).map(f => ({ person: f.person, date: f.next!.date })),
+      family: family.data!.flatMap(f => f.all.map(o => ({ person: f.person, date: o.date, by: o.by }))),
       festivals: fest.data ?? [],
       days: days.data!.filter(d => d.date >= now.date),
     });

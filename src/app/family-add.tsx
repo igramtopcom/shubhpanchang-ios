@@ -14,6 +14,7 @@ import { success, tick } from '@/lib/haptics';
 import { lunarLabel, MONTH_EN, MONTH_GU, t, tithiName } from '@/lib/i18n';
 import { askAfterSuccess } from '@/lib/review';
 import type { FamilyDate, TithiOccurrence } from '@/lib/types';
+import { familyOccurrences, isPast, REPEATS, type Repeat } from '@/lib/upcoming';
 import { useApp } from '@/state/app';
 import { useNow } from '@/state/data';
 
@@ -38,6 +39,8 @@ export default function FamilyAdd() {
   const [nextFor, setNextFor] = useState<{ key: string; occ: TithiOccurrence | null } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remind, setRemind] = useState(true);
+  // How it comes round; with only a tithi known, it can only go by the tithi.
+  const [repeat, setRepeat] = useState<Repeat>('tithi');
 
   // A date picked: find its tithi at the place (the server's rule: the tithi at sunrise, or at the time given).
   useEffect(() => {
@@ -68,10 +71,13 @@ export default function FamilyAdd() {
   const krishna = !!lunar && lunar.tithi >= 15;
   const next = lunar && nextFor?.key === lunarKey(lunar, kind) ? nextFor.occ : null;
   const ok = !!lunar && !!name.trim();
+  const draft = { origin: mode === 0 ? { date } : undefined, repeat: mode === 0 ? repeat : 'tithi' as Repeat };
+  const occ = familyOccurrences(draft, now.date, next);
+  const when = (d: string) => `${shortWeekday(d, lang)}, ${shortDate(d, lang)}${d.slice(0, 4) !== now.date.slice(0, 4) ? ` ${d.slice(0, 4)}` : ''}`;
 
   function save() {
     if (!ok) return;
-    const person: FamilyDate = { id: Date.now().toString(36), name: name.trim(), kind, lunar: lunar!, origin: found, ...(remind ? {} : { remind: false }) };
+    const person: FamilyDate = { id: Date.now().toString(36), name: name.trim(), kind, lunar: lunar!, origin: found, ...(remind ? {} : { remind: false }), ...(mode === 0 && repeat !== 'tithi' ? { repeat } : {}) };
     update({ family: [...prefs.family, person] });
     success();
     router.back();
@@ -127,6 +133,14 @@ export default function FamilyAdd() {
           </Card>
         )}
 
+        {mode === 0 ? (
+          <View style={{ gap: 7 }}>
+            <T kind="label" style={{ marginLeft: 6 }}>{s.repeat}</T>
+            <Segmented values={[s.repeatTithi, s.repeatDate, s.repeatBoth, s.repeatOnce]} index={REPEATS.indexOf(repeat)} onChange={i => setRepeat(REPEATS[i])} />
+            <T kind="caption" style={{ marginHorizontal: 6, fontSize: 12.5 }}>{s[`repeatNote_${repeat}`]}</T>
+          </View>
+        ) : null}
+
         {error ? <Notice text={error} /> : null}
 
         {lunar ? (
@@ -137,7 +151,8 @@ export default function FamilyAdd() {
             <View style={{ flex: 1 }}>
               <T kind="caption">{kind === 'shraddh' ? s.tithiOfDeath : s.tithiIs}</T>
               <T style={{ fontSize: 17, fontWeight: '600' }}>{lunarLabel(lunar, lang)}</T>
-              {next ? <T kind="small">{s.thisTime}: {shortWeekday(next.date, lang)}, {shortDate(next.date, lang)}{next.date.slice(0, 4) !== now.date.slice(0, 4) ? ` ${next.date.slice(0, 4)}` : ''}</T> : null}
+              {occ.map(o => <T key={o.by} kind="small">{occ.length > 1 ? (o.by === 'tithi' ? s.byTithi : s.byDate) : s.thisTime}: {when(o.date)}</T>)}
+              {isPast(draft, now.date) ? <T kind="small">{s.dayPassed}</T> : null}
             </View>
           </Card>
         ) : null}

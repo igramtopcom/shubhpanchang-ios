@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { clock, clockRange, dayPart, shortDate, shortWeekday, wallTime } from '../src/lib/format'
 import { addMonths, civilMonthOfLunar, samvatOfMonth, tithiShort } from '../src/lib/calendar-nav'
 import { norm, searchItems } from '../src/lib/search'
-import { familyTitle, firstFrom, upcoming } from '../src/lib/upcoming'
+import { civilYears, familyOccurrences, familyTitle, firstFrom, isPast, nextCivil, upcoming } from '../src/lib/upcoming'
 import { planNotifications, DEFAULT_SETTINGS } from '../src/lib/notify-plan'
 import { STRINGS } from '../src/lib/i18n'
 import type { Festival, Observance } from '../src/lib/types'
@@ -118,6 +118,41 @@ describe('coming up on Today', () => {
   it('family titles by kind', () => {
     expect(familyTitle({ name: 'Mom', kind: 'birthday' }, 'en')).toBe("Mom's birthday")
     expect(familyTitle({ name: 'મમ્મી-પપ્પા', kind: 'anniversary' }, 'gu')).toBe('મમ્મી-પપ્પાની લગ્નતિથિ')
+  })
+})
+
+describe('a family date repeats by tithi, by date, both, or once', () => {
+  const tithi = { date: '2027-11-02', aparahna: { start: '13:10', end: '15:25' } } as never
+  it('the calendar date comes round every year; 29 February on the 28th in a common year', () => {
+    expect(nextCivil('1972-11-13', '2026-10-24')).toBe('2026-11-13')
+    expect(nextCivil('1972-03-01', '2026-10-24')).toBe('2027-03-01')
+    expect(nextCivil('2026-12-10', '2026-10-24')).toBe('2026-12-10')
+    expect(nextCivil('1988-02-29', '2026-10-24')).toBe('2027-02-28')
+    expect(civilYears('1988-02-29', '2026-10-24', 3)).toEqual(['2027-02-28', '2028-02-29', '2029-02-28'])
+  })
+  it('the tithi by default, and always without a calendar date', () => {
+    expect(familyOccurrences({ origin: { date: '1972-11-13' } }, '2026-10-24', tithi)).toEqual([{ date: '2027-11-02', by: 'tithi', aparahna: { start: '13:10', end: '15:25' } }])
+    expect(familyOccurrences({ repeat: 'date' }, '2026-10-24', tithi).map(o => o.by)).toEqual(['tithi'])
+  })
+  it('by date, both (soonest first), and once', () => {
+    const origin = { date: '1972-11-13' }
+    expect(familyOccurrences({ origin, repeat: 'date' }, '2026-10-24', null)).toEqual([{ date: '2026-11-13', by: 'date' }])
+    expect(familyOccurrences({ origin, repeat: 'both' }, '2026-10-24', tithi).map(o => `${o.by}:${o.date}`)).toEqual(['date:2026-11-13', 'tithi:2027-11-02'])
+    expect(familyOccurrences({ origin: { date: '2026-12-10' }, repeat: 'once' }, '2026-10-24', null)).toEqual([{ date: '2026-12-10', by: 'once' }])
+    expect(familyOccurrences({ origin: { date: '2026-10-01' }, repeat: 'once' }, '2026-10-24', null)).toEqual([])
+    expect(isPast({ origin: { date: '2026-10-01' }, repeat: 'once' }, '2026-10-24')).toBe(true)
+    expect(isPast({ origin: { date: '2026-10-01' }, repeat: 'date' }, '2026-10-24')).toBe(false)
+  })
+  it('kept both ways on one day, it is one day', () => {
+    expect(familyOccurrences({ origin: { date: '1972-11-02' }, repeat: 'both' }, '2026-10-24', { date: '2026-11-02' } as never)).toHaveLength(1)
+  })
+  it('both days show on Today and get a reminder each', () => {
+    const person = { id: 'm', name: 'Mom', kind: 'birthday' as const, lunar: { month: 7, adhik: false, tithi: 4 }, origin: { date: '1972-11-13' }, repeat: 'both' as const }
+    const all = [{ date: '2026-11-13', by: 'date' as const }, { date: '2026-11-15', by: 'tithi' as const }]
+    const list = upcoming([], [], [{ person, next: all[0], all }], [], '2026-10-24', 'en')
+    expect(list.map(x => x.detail)).toEqual(['By date · in 20 days', 'Kartik Shukla Panchami · in 22 days'])
+    const plan = planNotifications({ now: { date: '2026-10-24', minutes: 600 }, lang: 'en', observances: [], days: [], family: all.map(o => ({ person, date: o.date, by: o.by })), settings: { ...DEFAULT_SETTINGS, morning: { ...DEFAULT_SETTINGS.morning, on: false } } })
+    expect(plan.map(n => `${n.id} ${n.body}`)).toEqual(['family:m:2026-11-13 Birthday by date', 'family:m:2026-11-15 Birthday by tithi (Kartik Shukla Panchami)'])
   })
 })
 

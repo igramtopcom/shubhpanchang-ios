@@ -165,4 +165,10 @@ export interface FamilyDate {
   origin?: { date: string; time?: string }
   /** false: no reminder for this person (on by default). */
   remind?: boolean
+  /**
+   * How it comes round: on the tithi every year (the default), on the same
+   * calendar date, on both days, or just once (a wedding still to come).
+   * Anything but 'tithi' needs `origin`.
+   */
+  repeat?: 'tithi' | 'date' | 'both' | 'once'
 }

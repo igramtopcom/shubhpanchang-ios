@@ -55,7 +55,7 @@ export default function CalendarScreen() {
   const mark = (d: string, k: 'f' | 'v' | 'p') => { if (d.slice(0, 7) === month) marks.set(d, new Set([...(marks.get(d) ?? []), k])); };
   for (const f of fest.data ?? []) mark(f.date, 'f');
   for (const o of obs.data ?? []) if (prefs.notify.kinds.includes(o.kind)) mark(o.date, 'v');
-  for (const r of fam.data ?? []) if (r.next) mark(r.next.date, 'p');
+  for (const r of fam.data ?? []) for (const o of r.all) mark(o.date, 'p');
 
   const lead = weekday(first);
   const cells: (PanchangDay | null)[] = [...Array(lead).fill(null), ...(days.data ?? [])];
@@ -64,9 +64,9 @@ export default function CalendarScreen() {
   const samvat = samvatOfMonth(days.data ?? []);
 
   // The month's festivals and family dates under the grid.
-  const famRows = (fam.data ?? []).filter(r => r.next && r.next.date.slice(0, 7) === month);
+  const famRows = (fam.data ?? []).flatMap(r => r.all.filter(o => o.date.slice(0, 7) === month).map(o => ({ person: r.person, date: o.date })));
   const rows = [
-    ...famRows.map(r => ({ date: r.next!.date, title: familyTitle(r.person, lang), detail: '', href: `/person?id=${r.person.id}` })),
+    ...famRows.map(r => ({ date: r.date, title: familyTitle(r.person, lang), detail: '', href: `/person?id=${r.person.id}` })),
     ...(fest.data ?? []).filter(f => f.date.slice(0, 7) === month).map(f => ({ date: f.date, title: lang === 'gu' ? f.nameGu : f.nameEn, detail: f.about ? f.about[lang] : '', href: `/festival?slug=${encodeURIComponent(f.slug)}` })),
   ].sort((a, b) => (a.date < b.date ? -1 : 1));
 

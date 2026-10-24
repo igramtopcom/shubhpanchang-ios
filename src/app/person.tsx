@@ -1,18 +1,20 @@
 // One family date: when it falls this time and in the years after, by the
-// tithi; its reminder; adding it to the iPhone Calendar; removing it.
+// tithi, the calendar date or both (or the one day, for an event that happens
+// once); how it repeats; its reminder; adding it to the iPhone Calendar;
+// removing it.
 import { useEffect, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
 import { Avatar } from '@/components/avatar';
-import { Button, Card, Cell, Group, Loading, Screen, T, useColors } from '@/components/ui';
+import { Button, Card, Cell, Group, Loading, Screen, Segmented, T, useColors } from '@/components/ui';
 import { addAllDayEvent, calendarSupported } from '@/lib/calendar';
 import { clock, shortDate } from '@/lib/format';
 import { longDate, lunarLabel, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
 import { daysBetween, hhmm } from '@/lib/time';
-import { familyTitle, firstFrom } from '@/lib/upcoming';
+import { civilYears, familyOccurrences, familyTitle, firstFrom, isPast, needsTithi, repeatOf, REPEATS } from '@/lib/upcoming';
 import type { TithiOccurrence } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useNow } from '@/state/data';
@@ -27,20 +29,26 @@ export default function PersonScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const person = prefs.family.find(f => f.id === id) ?? null;
   const [dates, setDates] = useState<TithiOccurrence[] | null>(null);
+  const tithiToo = !!person && needsTithi(person);
 
   useEffect(() => {
-    if (!person) return;
+    if (!person || !tithiToo) return;
     let live = true;
     api.tithiDates(prefs.place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', firstFrom(person, now.date), 4)
       .then(r => { if (live) setDates(r.data); })
       .catch(() => { if (live) setDates([]); });
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [person?.id, person?.lunar.month, person?.lunar.tithi, now.date]);
+  }, [person?.id, person?.lunar.month, person?.lunar.tithi, tithiToo, now.date]);
 
   if (!person) return <Screen header><T kind="small">{s.notFound}</T></Screen>;
-  const nextOcc = dates?.[0] ?? null;
+  const repeat = repeatOf(person);
+  const tithiDates = tithiToo ? dates : [];
+  const occ = familyOccurrences(person, now.date, tithiDates?.[0] ?? null);
+  const nextOcc = occ[0] ?? null;
+  const past = isPast(person, now.date);
   const reminding = prefs.notify.family.on && person.remind !== false;
+  const edit = (patch: Partial<typeof person>) => update({ family: prefs.family.map(f => (f.id === person.id ? { ...f, ...patch } : f)) });
   const setRemind = async (on: boolean) => {
     if (on && notificationsSupported && !(await notificationPermission(true))) return;
     update({
@@ -52,8 +60,16 @@ export default function PersonScreen() {
     { text: s.cancel, style: 'cancel' },
     { text: s.remove, style: 'destructive', onPress: () => { update({ family: prefs.family.filter(f => f.id !== person.id) }); router.back(); } },
   ]);
-  // The civil anniversary of the date entered, for those who keep that too.
-  const byDate = person.origin && person.origin.date <= now.date ? nextCivil(person.origin.date, now.date) : null;
+  const byLabel = (by: string) => (by === 'tithi' ? s.byTithi : s.byDate);
+  // The years after this one: the tithi's days, or the calendar date's.
+  const later: { year: string; date: string; also?: string }[] = repeat === 'date'
+    ? civilYears(person.origin!.date, now.date, 4).slice(1).map(d => ({ year: d.slice(0, 4), date: d }))
+    : (tithiDates ?? []).slice(1).map(d => ({
+      year: d.date.slice(0, 4),
+      date: d.date,
+      ...(repeat === 'both' ? { also: civilYears(person.origin!.date, `${d.date.slice(0, 4)}-01-01`, 1)[0] } : {}),
+    }));
+  const title = familyTitle(person, lang);
 
   return (
     <Screen header gap={18} bottom={60}>
@@ -65,49 +81,64 @@ export default function PersonScreen() {
         </View>
       </View>
 
-      {dates === null ? <Loading /> : null}
+      {tithiToo && dates === null ? <Loading /> : null}
       {nextOcc ? (
         <Card tone="brand" style={{ gap: 4 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <SymbolView name={person.kind === 'shraddh' ? 'flame' : 'heart'} size={13} tintColor={c.brand} />
-            <T kind="eyebrow" style={{ fontSize: 13 }}>{familyTitle(person, lang)} · {nextOcc.date === now.date ? s.today : s.relDays(daysBetween(now.date, nextOcc.date))}</T>
+            <T kind="eyebrow" style={{ fontSize: 13 }}>{title} · {nextOcc.date === now.date ? s.today : s.relDays(daysBetween(now.date, nextOcc.date))}</T>
           </View>
           <T style={{ fontSize: 20, fontWeight: '600' }}>{longDate(nextOcc.date, lang)}</T>
+          {occ.length > 1 ? <T kind="small">{byLabel(nextOcc.by)}</T> : null}
           {nextOcc.aparahna ? <T kind="small">{s.aparahna} {clock(nextOcc.aparahna.start, lang, prefs.clock24)} – {clock(nextOcc.aparahna.end, lang, prefs.clock24)}</T> : null}
-          {byDate ? <T kind="small">{s.byDate}: {longDate(byDate, lang)}</T> : null}
+          {occ.slice(1).map(o => <T key={o.date} kind="small">{byLabel(o.by)}: {longDate(o.date, lang)}</T>)}
+        </Card>
+      ) : null}
+      {past ? (
+        <Card style={{ gap: 4 }}>
+          <T kind="eyebrow" style={{ fontSize: 13 }}>{s.dayPassed}</T>
+          <T style={{ fontSize: 18, fontWeight: '600' }}>{longDate(person.origin!.date, lang)}</T>
         </Card>
       ) : null}
 
-      {dates && dates.length > 1 ? (
+      {later.length ? (
         <View style={{ gap: 7 }}>
           <T kind="label" style={{ marginLeft: 6 }}>{s.comingYears}</T>
           <Card style={{ paddingVertical: 4, gap: 0 }}>
-            {dates.slice(1).map((d, i) => (
-              <View key={d.date} style={[{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 11 }, i > 0 && { borderTopWidth: 0.5, borderTopColor: c.line }]}>
-                <T style={{ fontSize: 15 }}>{d.date.slice(0, 4)}</T>
-                <T kind="value" style={{ fontSize: 15 }}>{shortDate(d.date, lang, true)}</T>
+            {later.map((d, i) => (
+              <View key={d.date} style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11 }, i > 0 && { borderTopWidth: 0.5, borderTopColor: c.line }]}>
+                <T style={{ fontSize: 15 }}>{d.year}</T>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <T kind="value" style={{ fontSize: 15 }}>{shortDate(d.date, lang, true)}</T>
+                  {d.also && d.also !== d.date ? <T kind="caption">{s.byDate}: {shortDate(d.also, lang, true)}</T> : null}
+                </View>
               </View>
             ))}
           </Card>
         </View>
       ) : null}
 
-      <Group>
-        <Cell first icon="bell" tint={c.brand} label={s.remindEve} sub={clock(hhmm(prefs.notify.family.minutes), lang, prefs.clock24, true)} toggle={reminding} onToggle={setRemind} disabled={!notificationsSupported} />
-        {calendarSupported && nextOcc ? (
-          <Cell icon="calendar.badge.plus" tint={c.good} label={s.addToIphoneCalendar} onPress={() => addAllDayEvent({ date: nextOcc.date, title: familyTitle(person, lang), notes: lunarLabel(person.lunar, lang) })} />
-        ) : null}
-      </Group>
+      {person.origin ? (
+        <View style={{ gap: 7 }}>
+          <T kind="label" style={{ marginLeft: 6 }}>{s.repeat}</T>
+          <Segmented values={[s.repeatTithi, s.repeatDate, s.repeatBoth, s.repeatOnce]} index={REPEATS.indexOf(repeat)}
+            onChange={i => { setDates(null); edit({ repeat: REPEATS[i] === 'tithi' ? undefined : REPEATS[i] }); }} />
+          <T kind="caption" style={{ marginHorizontal: 6, fontSize: 12.5 }}>{s[`repeatNote_${repeat}`]}</T>
+        </View>
+      ) : null}
+
+      {!past ? (
+        <Group>
+          <Cell first icon="bell" tint={c.brand} label={s.remindEve} sub={clock(hhmm(prefs.notify.family.minutes), lang, prefs.clock24, true)} toggle={reminding} onToggle={setRemind} disabled={!notificationsSupported} />
+          {calendarSupported ? occ.map(o => (
+            <Cell key={o.by} icon="calendar.badge.plus" tint={c.good} label={s.addToIphoneCalendar}
+              sub={o.by === 'tithi' ? s.calNextTithi : o.by === 'date' ? s.calYearly : undefined}
+              onPress={() => addAllDayEvent({ date: o.date, title, notes: o.by === 'tithi' ? lunarLabel(person.lunar, lang) : undefined, yearly: o.by === 'date' })} />
+          )) : null}
+        </Group>
+      ) : null}
 
       <Button kind="destructive" icon="trash" label={s.remove} onPress={remove} />
     </Screen>
   );
-}
-
-/** The next day (from `today`) with the month and day of `date`. */
-function nextCivil(date: string, today: string): string {
-  const md = date.slice(5);
-  const y = Number(today.slice(0, 4));
-  const thisYear = `${y}-${md === '02-29' ? '02-28' : md}`;
-  return thisYear >= today ? thisYear : `${y + 1}-${md === '02-29' ? '02-28' : md}`;
 }

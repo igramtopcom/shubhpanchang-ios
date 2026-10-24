@@ -9,8 +9,8 @@ import * as Linking from 'expo-linking';
 
 export const calendarSupported = true;
 
-/** An all-day event on `date` (YYYY-MM-DD). Resolves to 'saved' | 'canceled' | 'deleted' | 'done'. */
-export async function addAllDayEvent(e: { date: string; title: string; notes?: string; url?: string }): Promise<string> {
+/** An all-day event on `date` (YYYY-MM-DD), every year on that date when `yearly`. Resolves to 'saved' | 'canceled' | 'deleted' | 'done'. */
+export async function addAllDayEvent(e: { date: string; title: string; notes?: string; url?: string; yearly?: boolean }): Promise<string> {
   const [y, m, d] = e.date.split('-').map(Number);
   const start = new Date(y, m - 1, d);
   const end = new Date(y, m - 1, d + 1);
@@ -21,6 +21,7 @@ export async function addAllDayEvent(e: { date: string; title: string; notes?: s
     allDay: true,
     notes: e.notes,
     url: e.url,
+    ...(e.yearly ? { recurrenceRule: { frequency: Calendar.Frequency.YEARLY } } : {}),
   });
   return result.action;
 }

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { Fetched } from '@/lib/api';
 import { shiftDate, zonedNow } from '@/lib/time';
-import { firstFrom } from '@/lib/upcoming';
+import { familyOccurrences, firstFrom, needsTithi, repeatOf, type FamilyOcc } from '@/lib/upcoming';
 import type { FamilyDate, Festival, FestivalDetail, Observance, PanchangDay, Place, Sampradaya, TithiOccurrence } from '@/lib/types';
 
 import { useApp } from './app';
@@ -132,20 +132,24 @@ export function useFestivals(from: string, to: string): Loaded<Festival[]> {
 }
 
 /** The next day each family date falls on, from today. */
-export function useFamilyNext(today: string): Loaded<{ person: FamilyDate; next: TithiOccurrence | null }[]> {
+/** Each family date's next day(s) from `today`, by how it repeats; `next` is the soonest. */
+export function useFamilyNext(today: string): Loaded<{ person: FamilyDate; next: FamilyOcc | null; all: FamilyOcc[] }[]> {
   const { api, prefs } = useApp();
   const place = prefs.place;
-  const key = place ? `family:${placeKey(place)}:${today}:${prefs.family.map(f => f.id + f.lunar.month + f.lunar.tithi + f.kind).join(',')}` : null;
+  const key = place ? `family:${placeKey(place)}:${today}:${prefs.family.map(f => [f.id, f.lunar.month, f.lunar.tithi, f.lunar.adhik ? 'a' : '', f.kind, repeatOf(f), f.origin?.date ?? ''].join('.')).join(',')}` : null;
   return useLoad(key, async () => {
     let stale = false;
     const rows = await Promise.all(prefs.family.map(async person => {
-      try {
-        const r = await api.tithiDates(place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', firstFrom(person, today), 1);
-        stale ||= r.stale;
-        return { person, next: r.data[0] ?? null };
-      } catch {
-        return { person, next: null };
+      let tithi: TithiOccurrence | null = null;
+      if (needsTithi(person)) {
+        try {
+          const r = await api.tithiDates(place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', firstFrom(person, today), 1);
+          stale ||= r.stale;
+          tithi = r.data[0] ?? null;
+        } catch { /* the calendar date, if kept, still shows */ }
       }
+      const all = familyOccurrences(person, today, tithi);
+      return { person, next: all[0] ?? null, all };
     }));
     return { data: rows, stale, fetchedAt: Date.now() };
   });
