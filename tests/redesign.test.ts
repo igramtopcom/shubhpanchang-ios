@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { clock, clockRange, dayPart, shortDate, shortWeekday, wallTime } from '../src/lib/format'
 import { addMonths, civilMonthOfLunar, samvatOfMonth, tithiShort } from '../src/lib/calendar-nav'
 import { norm, searchItems } from '../src/lib/search'
-import { familyTitle, upcoming } from '../src/lib/upcoming'
+import { familyTitle, firstFrom, upcoming } from '../src/lib/upcoming'
 import { planNotifications, DEFAULT_SETTINGS } from '../src/lib/notify-plan'
 import { STRINGS } from '../src/lib/i18n'
 import type { Festival, Observance } from '../src/lib/types'
@@ -109,6 +109,11 @@ describe('coming up on Today', () => {
     expect(list[1].detail).toBe('13 દિવસમાં · પારણાં 6 નવે, 6:47 – 9:02')
     expect(list[2].title).toBe('બાની પુણ્યતિથિ')
     expect(list[2].href).toBe('/person?id=a')
+  })
+  it('an event still to come counts from its own day, a past one from today', () => {
+    expect(firstFrom({ origin: { date: '2026-12-10' } }, '2026-10-24')).toBe('2026-12-10')
+    expect(firstFrom({ origin: { date: '1972-11-13' } }, '2026-10-24')).toBe('2026-10-24')
+    expect(firstFrom({}, '2026-10-24')).toBe('2026-10-24')
   })
   it('family titles by kind', () => {
     expect(familyTitle({ name: 'Mom', kind: 'birthday' }, 'en')).toBe("Mom's birthday")

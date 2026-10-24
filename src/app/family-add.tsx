@@ -55,12 +55,14 @@ export default function FamilyAdd() {
     if (!lunar) return;
     let live = true;
     const key = lunarKey(lunar, kind);
-    api.tithiDates(prefs.place!, lunar, kind === 'shraddh' ? 'aparahna' : 'sunrise', now.date, 1)
+    // A day still to come is its own first occurrence.
+    const from = mode === 0 && date > now.date ? date : now.date;
+    api.tithiDates(prefs.place!, lunar, kind === 'shraddh' ? 'aparahna' : 'sunrise', from, 1)
       .then(r => { if (live) setNextFor({ key, occ: r.data[0] ?? null }); })
       .catch(() => { if (live) setNextFor({ key, occ: null }); });
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lunar?.month, lunar?.tithi, lunar?.adhik, kind]);
+  }, [lunar?.month, lunar?.tithi, lunar?.adhik, kind, mode, date]);
 
   const pick = (patch: Partial<Lunar>) => { tick(); setLunar({ month: 7, adhik: false, tithi: 0, ...lunar, ...patch }); setFound(undefined); };
   const krishna = !!lunar && lunar.tithi >= 15;

@@ -12,7 +12,7 @@ import { clock, shortDate } from '@/lib/format';
 import { longDate, lunarLabel, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
 import { daysBetween, hhmm } from '@/lib/time';
-import { familyTitle } from '@/lib/upcoming';
+import { familyTitle, firstFrom } from '@/lib/upcoming';
 import type { TithiOccurrence } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useNow } from '@/state/data';
@@ -31,7 +31,7 @@ export default function PersonScreen() {
   useEffect(() => {
     if (!person) return;
     let live = true;
-    api.tithiDates(prefs.place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', now.date, 4)
+    api.tithiDates(prefs.place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', firstFrom(person, now.date), 4)
       .then(r => { if (live) setDates(r.data); })
       .catch(() => { if (live) setDates([]); });
     return () => { live = false; };
@@ -53,7 +53,7 @@ export default function PersonScreen() {
     { text: s.remove, style: 'destructive', onPress: () => { update({ family: prefs.family.filter(f => f.id !== person.id) }); router.back(); } },
   ]);
   // The civil anniversary of the date entered, for those who keep that too.
-  const byDate = person.origin ? nextCivil(person.origin.date, now.date) : null;
+  const byDate = person.origin && person.origin.date <= now.date ? nextCivil(person.origin.date, now.date) : null;
 
   return (
     <Screen header gap={18} bottom={60}>

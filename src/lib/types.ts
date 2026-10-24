@@ -151,7 +151,10 @@ export interface TithiOccurrence extends LunarDate {
   aparahna?: { start: string; end: string }
 }
 
-/** A family date the user keeps by tithi. Lives only on the phone. */
+/**
+ * A family date the user keeps by tithi. Lives only on the phone. An event
+ * still to come (a wedding next month) counts from its own day (firstFrom).
+ */
 export interface FamilyDate {
   id: string
   name: string

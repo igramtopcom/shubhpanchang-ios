@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { Fetched } from '@/lib/api';
 import { shiftDate, zonedNow } from '@/lib/time';
+import { firstFrom } from '@/lib/upcoming';
 import type { FamilyDate, Festival, FestivalDetail, Observance, PanchangDay, Place, Sampradaya, TithiOccurrence } from '@/lib/types';
 
 import { useApp } from './app';
@@ -139,7 +140,7 @@ export function useFamilyNext(today: string): Loaded<{ person: FamilyDate; next:
     let stale = false;
     const rows = await Promise.all(prefs.family.map(async person => {
       try {
-        const r = await api.tithiDates(place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', today, 1);
+        const r = await api.tithiDates(place!, person.lunar, person.kind === 'shraddh' ? 'aparahna' : 'sunrise', firstFrom(person, today), 1);
         stale ||= r.stale;
         return { person, next: r.data[0] ?? null };
       } catch {

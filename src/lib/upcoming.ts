@@ -18,6 +18,10 @@ export interface UpcomingItem {
 
 const ORDER = { festival: 0, vrat: 1, family: 2 }
 
+/** Where a family date's next occurrence is looked for: today, or the day itself while it is still to come. */
+export const firstFrom = (person: Pick<FamilyDate, 'origin'>, today: string): string =>
+  person.origin && person.origin.date > today ? person.origin.date : today
+
 /** "બાની પુણ્યતિથિ" / "Ba's punyatithi". */
 export function familyTitle (person: Pick<FamilyDate, 'name' | 'kind'>, lang: Lang): string {
   const s = t(lang)
