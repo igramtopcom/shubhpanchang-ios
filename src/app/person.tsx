@@ -97,7 +97,7 @@ export default function PersonScreen() {
       {past ? (
         <Card style={{ gap: 4 }}>
           <T kind="eyebrow" style={{ fontSize: 13 }}>{s.dayPassed}</T>
-          <T style={{ fontSize: 18, fontWeight: '600' }}>{longDate(person.origin!.date, lang)}</T>
+          <T style={{ fontSize: 18, lineHeight: 26, fontWeight: '600' }}>{longDate(person.origin!.date, lang)}</T>
         </Card>
       ) : null}
 

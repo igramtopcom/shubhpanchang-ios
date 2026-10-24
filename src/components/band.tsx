@@ -77,7 +77,7 @@ export function BandFigure({ label, value, note, labelColor = WHITE2, color = WH
   return (
     <View style={{ marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: line }}>
       <T style={{ color: labelColor, fontSize: 13, fontWeight: '500' }}>{label}</T>
-      <T style={{ color, fontSize: 23, fontWeight: '600', fontVariant: ['tabular-nums'] }}>{value}</T>
+      <T style={{ color, fontSize: 23, lineHeight: 32, fontWeight: '600', fontVariant: ['tabular-nums'] }}>{value}</T>
       {note ? <T style={{ color: noteColor, fontSize: 13 }}>{note}</T> : null}
     </View>
   );

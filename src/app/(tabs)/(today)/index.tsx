@@ -262,7 +262,7 @@ function FestivalCard({ fests, detail, band, nowMin, view, lang, h24, onAll }: {
         {m ? (
           <View style={{ marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(239,199,122,0.28)' }}>
             <T style={{ color: gold, fontSize: 13, fontWeight: '500' }}>{m.label[lang]}{when}</T>
-            <T style={{ color: cream, fontSize: 23, fontWeight: '600', fontVariant: ['tabular-nums'] }}>{clockRange(m.start, m.end, lang, h24, true)}</T>
+            <T style={{ color: cream, fontSize: 23, lineHeight: 32, fontWeight: '600', fontVariant: ['tabular-nums'] }}>{clockRange(m.start, m.end, lang, h24, true)}</T>
             {m.vrishabha ? <T style={{ color: soft, fontSize: 13 }}>{s.muhuratWhy}</T> : null}
           </View>
         ) : null}

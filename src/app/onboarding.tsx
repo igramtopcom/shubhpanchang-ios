@@ -151,7 +151,7 @@ export default function Onboarding() {
             <T kind="caption">{s.widgetSample}</T>
             <View style={{ flex: 1 }} />
             <T kind="caption" color={c.good} style={{ fontWeight: '600' }}>{s.goodNow}</T>
-            <T style={{ fontSize: 22, fontWeight: '600' }}>{lang === 'gu' ? 'લાભ' : 'Labh'}</T>
+            <T style={{ fontSize: 22, lineHeight: 31, fontWeight: '600' }}>{lang === 'gu' ? 'લાભ' : 'Labh'}</T>
             <T kind="caption">{lang === 'gu' ? '10:51 સુધી' : 'until 10:51 am'}</T>
           </View>
           <Card style={{ gap: 6 }}>

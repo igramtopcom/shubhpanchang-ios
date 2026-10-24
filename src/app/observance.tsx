@@ -211,7 +211,7 @@ function ParanaTimeline({ o, days, lang, h24, city, countdown }: { o: Observance
             <T kind="small" style={{ fontVariant: ['tabular-nums'] }}>{st.when}</T>
             {st.big ? (
               <View style={{ backgroundColor: c.goodBg, borderRadius: 14, paddingVertical: 10, paddingHorizontal: 12, marginTop: 6 }}>
-                <T style={{ fontSize: 22, fontWeight: '600', color: c.good, fontVariant: ['tabular-nums'] }}>{st.big}</T>
+                <T style={{ fontSize: 22, lineHeight: 31, fontWeight: '600', color: c.good, fontVariant: ['tabular-nums'] }}>{st.big}</T>
               </View>
             ) : null}
           </View>
