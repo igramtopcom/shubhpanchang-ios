@@ -1,15 +1,17 @@
-// Vrat & Festivals: the coming fasts and festivals at the place, by month,
-// each row opening its own screen in the app (no website). ?seg=festivals
-// opens the festivals (links, the screenshot tour).
+// Vrat & Festivals: the next one on its coloured card (the Today style), then
+// the coming fasts and festivals at the place by month, each row opening its
+// own screen in the app (no website). ?seg=festivals opens the festivals.
 import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 
+import { BandCard, BandEyebrow, BandFigure, BandPill, BandTitle, CREAM, GOLD, SOFT, WHITE2, useBand } from '@/components/band';
 import { headerButtons } from '@/components/glass';
+import { Diya } from '@/components/sky';
 import { Chip, DateTile, List, ListRow, Loading, MonthHead, Notice, Screen, Segmented, T, Tag, useColors } from '@/components/ui';
 import { clock, clockRange, shortDate, shortWeekday } from '@/lib/format';
 import { longDate, t } from '@/lib/i18n';
-import { shiftDate } from '@/lib/time';
+import { daysBetween, shiftDate } from '@/lib/time';
 import { isVaishnava, type Festival, type Lang, type Observance, type ObservanceKind } from '@/lib/types';
 import { useApp } from '@/state/app';
 import { useFestivals, useNow, useObservances, usePanchangWindow } from '@/state/data';
@@ -75,6 +77,8 @@ export default function VratScreen() {
         { icon: 'gearshape', label: s.tabSettings, onPress: () => router.push('/settings') },
       ], c.text)} />
       <Segmented values={[s.segVrat, s.segFestivals]} index={seg} onChange={setSeg} />
+      {seg === 0 && vrats[0] ? <VratHero o={vrats[0]} today={now.date} lang={lang} /> : null}
+      {seg === 1 && fests[0] ? <FestHero f={fests[0]} today={now.date} lang={lang} /> : null}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }} style={{ marginHorizontal: -18 }} contentInset={{ left: 18, right: 18 }} contentOffset={{ x: -18, y: 0 }}>
         {seg === 0
           ? vratChips.map(k => <Chip key={k} label={k === 'all' ? s.all : s[`chip_${k}` as 'chip_ekadashi']} selected={vf === k} onPress={() => setVf(k)} />)
@@ -171,5 +175,49 @@ function FestRow({ f, first, today, lang }: { f: Festival; first: boolean; today
       onPress={() => router.push(`/festival?slug=${encodeURIComponent(f.slug)}`)}
       a11y={`${name}, ${longDate(f.date, lang)}`}
     />
+  );
+}
+
+/** The next vrat on the sage card: its name, how soon, and the one time that matters (Parana, moonrise, the kaal). */
+function VratHero({ o, today, lang }: { o: Observance; today: string; lang: Lang }) {
+  const { prefs } = useApp();
+  const s = t(lang);
+  const h24 = prefs.clock24;
+  const band = useBand('good');
+  const name = lang === 'gu' ? o.nameGu : o.nameEn;
+  const paranaToday = o.parana?.date === today && o.date < today;
+  const days = daysBetween(today, o.date);
+  const when = paranaToday ? s.today : days === 0 ? s.today : s.relDays(days);
+  const fig = o.parana
+    ? { label: `${s.parana} · ${shortDate(o.parana.date, lang, true)}`, value: o.parana.end ? clockRange(o.parana.start, o.parana.end, lang, h24, true) : s.paranaAfter(clock(o.parana.start, lang, h24, true)) }
+    : o.moonrise ? { label: `${s.moonrise} · ${shortDate(o.moonrise.date, lang, true)}`, value: clock(o.moonrise.time, lang, h24, true) }
+      : o.window ? { label: o.kind === 'pradosh' ? s.pradoshKaal : s.nishita, value: clockRange(o.window.start, o.window.end, lang, h24, true) } : null;
+  return (
+    <BandCard band={band} id="vrat-next" onPress={() => router.push(`/observance?kind=${o.kind}&date=${o.date}`)} a11y={`${name}, ${longDate(o.date, lang)}`}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+        <BandEyebrow>{s.nextUp} · {longDate(o.date, lang)}</BandEyebrow>
+        <BandPill text={when} />
+      </View>
+      <BandTitle size={30}>{paranaToday ? `${s.parana}: ${name}` : name}</BandTitle>
+      {o.popular ? <T style={{ color: WHITE2, fontSize: 14.5 }}>{o.popular[lang]}</T> : null}
+      {fig ? <BandFigure label={fig.label} value={fig.value} /> : null}
+    </BandCard>
+  );
+}
+
+/** The next festival on the plum card, with a diya for a big one. */
+function FestHero({ f, today, lang }: { f: Festival; today: string; lang: Lang }) {
+  const s = t(lang);
+  const band = useBand('fest');
+  const name = lang === 'gu' ? f.nameGu : f.nameEn;
+  const days = daysBetween(today, f.date);
+  return (
+    <BandCard band={band} id="fest-next" onPress={() => router.push(`/festival?slug=${encodeURIComponent(f.slug)}`)} a11y={`${name}, ${longDate(f.date, lang)}`}>
+      {f.type === 'major' ? <View style={{ position: 'absolute', right: 6, top: 8 }}><Diya size={64} /></View> : null}
+      <BandEyebrow color={GOLD}>{s.nextUp} · {days === 0 ? s.today : s.relDays(days)}</BandEyebrow>
+      <BandTitle size={32} color={CREAM} right={f.type === 'major' ? 64 : 0}>{name}</BandTitle>
+      <T style={{ color: SOFT, fontSize: 14.5 }}>{longDate(f.date, lang)}</T>
+      {f.about ? <T style={{ color: SOFT, fontSize: 14, marginTop: 6, paddingRight: 8 }} numberOfLines={2}>{f.about[lang]}</T> : null}
+    </BandCard>
   );
 }

@@ -2,11 +2,11 @@
 // anniversaries, then punyatithis, each with the day it falls on this time.
 import { View } from 'react-native';
 import { Stack, router } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 
 import { Avatar } from '@/components/avatar';
+import { BandCard, BandEyebrow, BandPill, BandTitle, Head, WHITE2, useBand } from '@/components/band';
 import { headerButtons } from '@/components/glass';
-import { Card, Empty, List, ListRow, Loading, Notice, Screen, T, useColors } from '@/components/ui';
+import { Empty, List, ListRow, Loading, Notice, Screen, T, useColors } from '@/components/ui';
 import { shortDate, shortWeekday } from '@/lib/format';
 import { longDate, lunarLabel, t } from '@/lib/i18n';
 import { daysBetween } from '@/lib/time';
@@ -22,6 +22,8 @@ export default function FamilyScreen() {
   const c = useColors();
   const now = useNow(prefs.place!.timezone);
   const next = useFamilyNext(now.date);
+  const brandBand = useBand('brand');
+  const fairBand = useBand('fair');
   const rows = next.data ?? prefs.family.map(person => ({ person, next: null as FamilyOcc | null }));
   const soonest = [...rows].filter(r => r.next).sort((a, b) => (a.next!.date < b.next!.date ? -1 : 1))[0];
   // A one-time event already behind us goes to the bottom, out of the way.
@@ -43,14 +45,15 @@ export default function FamilyScreen() {
       {next.loading && !next.data && prefs.family.length ? <Loading /> : null}
 
       {soonest ? (
-        <Card tone="brand" style={{ gap: 4 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <SymbolView name={soonest.person.kind === 'shraddh' ? 'flame' : 'heart'} size={13} tintColor={c.brand} />
-            <T kind="eyebrow" style={{ fontSize: 13 }}>{s.nextUp} · {soonest.next!.date === now.date ? s.today : s.relDays(daysBetween(now.date, soonest.next!.date))}</T>
+        <BandCard band={soonest.person.kind === 'shraddh' ? fairBand : brandBand} id="fam-next" onPress={() => router.push(`/person?id=${soonest.person.id}`)}
+          a11y={`${familyTitle(soonest.person, lang)}, ${longDate(soonest.next!.date, lang)}`}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <BandEyebrow>{s.nextUp} · {longDate(soonest.next!.date, lang)}</BandEyebrow>
+            <BandPill text={soonest.next!.date === now.date ? s.today : s.relDays(daysBetween(now.date, soonest.next!.date))} />
           </View>
-          <T style={{ fontSize: 20, fontWeight: '600' }}>{familyTitle(soonest.person, lang)}</T>
-          <T kind="small">{soonest.next!.by === 'tithi' ? `${lunarLabel(soonest.person.lunar, lang)} · ` : ''}{longDate(soonest.next!.date, lang)}</T>
-        </Card>
+          <BandTitle size={30}>{familyTitle(soonest.person, lang)}</BandTitle>
+          <T style={{ color: WHITE2, fontSize: 14.5 }}>{soonest.next!.by === 'tithi' ? lunarLabel(soonest.person.lunar, lang) : s.byDate}</T>
+        </BandCard>
       ) : null}
 
       {living.length ? <Block title={s.livingDates} rows={living} today={now.date} lang={lang} /> : null}
@@ -62,8 +65,8 @@ export default function FamilyScreen() {
 
 function Block({ title, rows, today, lang }: { title: string; rows: { person: FamilyDate; next: FamilyOcc | null }[]; today: string; lang: Lang }) {
   return (
-    <View style={{ gap: 7 }}>
-      <T kind="label" style={{ marginLeft: 6 }}>{title}</T>
+    <View style={{ gap: 10 }}>
+      <Head title={title} />
       <List>
         {rows.map((r, i) => <PersonRow key={r.person.id} person={r.person} next={r.next} first={i === 0} today={today} lang={lang} />)}
       </List>

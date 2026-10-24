@@ -261,13 +261,19 @@ export function Loading() {
   return <View style={{ paddingVertical: Spacing.five }}><ActivityIndicator color={c.brand} /></View>;
 }
 
-/** A section: a quiet heading and an optional link on its right. */
+/** A section's heading in the serif, as on Today. */
+function SerifHead({ children }: { children: ReactNode }) {
+  const lang = useApp().prefs.lang;
+  return <T style={{ fontFamily: TitleFont[lang], fontSize: 18, lineHeight: lang === 'gu' ? 27 : 23, flexShrink: 1 }}>{children}</T>;
+}
+
+/** A section: a serif heading and an optional link on its right. */
 export function Section({ title, children, action, onAction, gap = 8 }: { title: string; children: ReactNode; action?: ReactNode | string; onAction?: () => void; gap?: number }) {
   const c = useColors();
   return (
     <View style={{ gap }}>
-      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', paddingHorizontal: 4 }}>
-        <T kind="heading" style={{ fontSize: 15.5 }}>{title}</T>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', paddingHorizontal: 2 }}>
+        <SerifHead>{title}</SerifHead>
         {typeof action === 'string'
           ? <Pressable onPress={onAction} accessibilityRole="button" hitSlop={10}><T kind="small" color={c.brand} style={{ fontWeight: '600' }}>{action}</T></Pressable>
           : action}
@@ -280,8 +286,8 @@ export function Section({ title, children, action, onAction, gap = 8 }: { title:
 /** A month heading in a long list: "નવેમ્બર 2026 · આસો · કારતક". */
 export function MonthHead({ title, sub }: { title: string; sub?: string }) {
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 4, marginTop: 4 }}>
-      <T kind="heading" style={{ fontSize: 15 }}>{title}</T>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 2, marginTop: 6 }}>
+      <SerifHead>{title}</SerifHead>
       {sub ? <T kind="caption">{sub}</T> : null}
     </View>
   );

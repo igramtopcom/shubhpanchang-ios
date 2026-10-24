@@ -6,16 +6,17 @@
 // ?date=YYYY-MM-DD shows another day (from the calendar, or the ‹ › by the
 // date): its good times stand where "now" would; "આજે" comes back.
 import { useMemo, type ReactNode } from 'react';
-import { Pressable, ScrollView, Share, View, useColorScheme } from 'react-native';
+import { Pressable, ScrollView, Share, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
+import { BandCard, CREAM, DateLine, GOLD, Head, MoreRow, SOFT, WHITE, WHITE2, useBand, type Band } from '@/components/band';
 import { headerButtons } from '@/components/glass';
 import { LiveCountdownButton } from '@/components/live-countdown';
-import { Bandhani, Diya, Kairi, MoonRing, SunArc } from '@/components/sky';
+import { Diya, MoonRing, SunArc } from '@/components/sky';
 import { dayTithi } from '@/components/day-step';
 import { Card, Fact, Loading, Notice, Screen, T, shadow, useColors } from '@/components/ui';
-import { Bands, TitleFont } from '@/constants/theme';
+import { TitleFont } from '@/constants/theme';
 import { clock, clockRange, shortDate, shortWeekday, wallTime } from '@/lib/format';
 import { tick } from '@/lib/haptics';
 import { chogName, longDate, placeName, t, tithiName } from '@/lib/i18n';
@@ -34,9 +35,6 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const FIRST = '2025-01-02', LAST = '2030-12-30';
 /** The page's side padding (ui.tsx Screen), for the strip that runs to the edges. */
 const EDGE = 18;
-const WHITE = '#FFFFFF', WHITE2 = 'rgba(255,255,255,0.93)';
-
-type Band = readonly [string, string];
 
 export default function Today() {
   const { prefs } = useApp();
@@ -44,7 +42,7 @@ export default function Today() {
   const h24 = prefs.clock24;
   const s = t(lang);
   const c = useColors();
-  const bands = Bands[useColorScheme() === 'dark' ? 'dark' : 'light'];
+  const bands = { good: useBand('good'), rahu: useBand('rahu'), fair: useBand('fair'), fest: useBand('fest') };
   const place = prefs.place!;
   const now = useNow(place.timezone);
   const params = useLocalSearchParams<{ date?: string }>();
@@ -149,29 +147,11 @@ function Masthead({ date, day, lang, h24, rel, onPrev, onNext }: {
   date: string; day: PanchangDay | null; lang: Lang; h24: boolean; rel: string; onPrev?: () => void; onNext?: () => void;
 }) {
   const s = t(lang);
-  const c = useColors();
-  const step = (icon: 'chevron.left' | 'chevron.right', label: string, on?: () => void) => (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={!on} onPress={() => { tick(); on?.(); }} hitSlop={8}
-      style={({ pressed }) => ({ width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.backgroundElement, opacity: !on ? 0.35 : pressed ? 0.7 : 1 })}>
-      <SymbolView name={icon} size={12} weight="semibold" tintColor={c.textSecondary} />
-    </Pressable>
-  );
   const turns = day ? s.tithiThen(clock(wallTime(day.tithi.endTime), lang, h24, true), tithiName((day.tithi.index + 1) % 30, lang), !!day.tithi.endDayOffset || toMinutes(day.tithi.endTime) >= DAY_MIN) : '';
   const vrats = day?.vrat?.items ?? [];
   return (
     <View style={{ gap: 2 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, flexShrink: 1 }} accessible accessibilityLabel={`${longDate(date, lang)}${rel ? `, ${rel}` : ''}`}>
-          <Kairi />
-          <T kind="small" style={{ fontSize: 14.5, fontWeight: '500' }} numberOfLines={1}>
-            {longDate(date, lang)}{rel ? <T kind="small" color={c.brand} style={{ fontSize: 14.5, fontWeight: '600' }}>{`  ·  ${rel}`}</T> : null}
-          </T>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 6 }}>
-          {step('chevron.left', s.prevDay, onPrev)}
-          {step('chevron.right', s.nextDay, onNext)}
-        </View>
-      </View>
+      <DateLine date={date} lang={lang} rel={rel} onPrev={onPrev} onNext={onNext} />
       {day ? (
         <>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 }}>
@@ -192,21 +172,6 @@ function Masthead({ date, day, lang, h24, rel, onPrev, onNext }: {
   );
 }
 
-/** The coloured card, on its bandhani ground. */
-function BandCard({ band, id, children, below }: { band: Band; id: string; children: ReactNode; below?: ReactNode }) {
-  const c = useColors();
-  return (
-    <View style={[{ borderRadius: 24, backgroundColor: c.card }, shadow(c)]}>
-      <View style={{ borderRadius: 24, overflow: 'hidden' }}>
-        <View style={{ paddingTop: 15, paddingHorizontal: 18, paddingBottom: 17 }}>
-          <Bandhani from={band[0]} to={band[1]} id={id} />
-          {children}
-        </View>
-        {below}
-      </View>
-    </View>
-  );
-}
 
 /** Which choghadiya it is now, by name, whether it is good, until when; then the three after it. */
 function NowCard({ v, nowMin, band, lang, h24, onAll, countdown, nowMs }: {
@@ -269,16 +234,6 @@ function NextRow({ name, start, end, first, lang, h24 }: { name: string; start: 
   );
 }
 
-function MoreRow({ label, onPress }: { label: string; onPress: () => void }) {
-  const c = useColors();
-  return (
-    <Pressable accessibilityRole="button" onPress={onPress} hitSlop={4}
-      style={({ pressed }) => ({ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, paddingTop: 11, paddingBottom: 13, borderTopWidth: 0.5, borderTopColor: c.line, opacity: pressed ? 0.6 : 1 })}>
-      <T style={{ color: c.brand, fontWeight: '600', fontSize: 14.5 }}>{label}</T>
-      <SymbolView name="chevron.right" size={12} weight="semibold" tintColor={c.brand} />
-    </Pressable>
-  );
-}
 
 /** A big festival leads: its name, a diya, the puja muhurat when it has one; now shrinks to two lines under it. */
 function FestivalCard({ fests, detail, band, nowMin, view, lang, h24, onAll }: {
@@ -290,7 +245,7 @@ function FestivalCard({ fests, detail, band, nowMin, view, lang, h24, onAll }: {
   const m = detail?.muhurat ?? null;
   const ms = m ? toMinutes(m.start) : -1, me = m ? toMinutes(m.end) : -1;
   const when = m && nowMin !== null ? (nowMin < ms ? ` · ${s.inMinutes(ms - nowMin)}` : nowMin < me || me < ms ? ` · ${s.nowLabel}` : '') : '';
-  const gold = '#EFC77A', cream = '#FFF4DE', soft = '#EBD6B4';
+  const gold = GOLD, cream = CREAM, soft = SOFT;
   return (
     <BandCard band={band} id="fest" below={(
       <>
@@ -370,20 +325,6 @@ function GoodTimes({ title, sub, runs, rahu, lang, h24, onAll }: { title: string
   );
 }
 
-function Head({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
-  const c = useColors();
-  const lang = useApp().prefs.lang;
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 2 }}>
-      <T style={{ fontFamily: TitleFont[lang], fontSize: 18, lineHeight: lang === 'gu' ? 27 : 23 }}>{title}</T>
-      {action ? (
-        <Pressable onPress={onAction} accessibilityRole="button" hitSlop={10}>
-          <T kind="small" color={c.brand} style={{ fontWeight: '600' }}>{action}</T>
-        </Pressable>
-      ) : null}
-    </View>
-  );
-}
 
 /** A day to come: the date large, a dot for its kind, its name, how soon. */
 function UpcomingCard({ it, today, lang }: { it: UpcomingItem; today: string; lang: Lang }) {

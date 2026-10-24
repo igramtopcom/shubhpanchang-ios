@@ -5,6 +5,7 @@ import { TextInput, View } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
+import { Head } from '@/components/band';
 import { DateTile, List, ListRow, Loading, Screen, T, useColors } from '@/components/ui';
 import { longDate, t } from '@/lib/i18n';
 import { searchItems, type SearchHit } from '@/lib/search';
@@ -41,7 +42,7 @@ export default function SearchScreen() {
       {q.trim().length >= 2 && !loading && !groups.length ? <T kind="small" center>{s.noResults}</T> : null}
       {groups.map(g => (
         <View key={g.name} style={{ gap: 7 }}>
-          <T kind="label" style={{ marginLeft: 6 }}>{g.name}</T>
+          <Head title={g.name} />
           <List>
             {g.hits.map((h, i) => <HitRow key={h.href} h={h} first={i === 0} today={now.date} />)}
           </List>

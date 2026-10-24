@@ -7,7 +7,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
+import { Head } from '@/components/band';
 import { Glass, headerButtons } from '@/components/glass';
+import { TitleFont } from '@/constants/theme';
 import { Card, DateTile, List, ListRow, Loading, Notice, Screen, Segmented, T, useColors } from '@/components/ui';
 import { shortWeekday } from '@/lib/format';
 import { tick } from '@/lib/haptics';
@@ -85,7 +87,7 @@ export default function CalendarScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Pressable accessibilityRole="button" accessibilityLabel={s.pickMonth} accessibilityState={{ expanded: picker }} onPress={() => { tick(); setPicker(!picker); }} hitSlop={8} style={{ flexShrink: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-              <T kind="title" color={picker ? c.brand : c.text}>{MONTHS[lang][m - 1]} {y}</T>
+              <T style={{ fontFamily: TitleFont[lang], fontSize: 26, lineHeight: lang === 'gu' ? 36 : 32, color: picker ? c.brand : c.text }}>{MONTHS[lang][m - 1]} {y}</T>
               <SymbolView name={picker ? 'chevron.up' : 'chevron.down'} size={13} weight="semibold" tintColor={picker ? c.brand : c.textSecondary} />
             </View>
             <T kind="caption">{[lunar, samvat ? `${s.samvatShort} ${samvat}` : ''].filter(Boolean).join(' · ')}</T>
@@ -119,6 +121,7 @@ export default function CalendarScreen() {
           <Legend color={c.neutral} label={s.kindFamily} />
         </View>
 
+        {rows.length ? <Head title={s.inThisMonth} /> : null}
         {rows.length ? (
           <List>
             {rows.map((r, i) => (
@@ -142,12 +145,12 @@ function DayCell({ d, today, marks, lang }: { d: PanchangDay; today: boolean; ma
       onPress={() => { tick(); router.push(`/day?date=${d.date}`); }}
       accessibilityRole="button"
       accessibilityLabel={`${longDate(d.date, lang)}, ${lang === 'gu' ? d.tithi.nameGu : d.tithi.name}${marks?.size ? `, ${[...marks].map(k => t(lang)[k === 'f' ? 'kindFestival' : k === 'v' ? 'kindVrat' : 'kindFamily']).join(', ')}` : ''}`}
-      style={({ pressed }) => [{ flex: 1, height: 54, borderRadius: 12, alignItems: 'center', paddingTop: 5 },
-        today && { borderWidth: 1.5, borderColor: c.brand }, pressed && { backgroundColor: c.backgroundElement }]}>
-      <T style={{ fontSize: 16, fontWeight: today ? '700' : '500', color: today ? c.brand : c.text, fontVariant: ['tabular-nums'] }} maxScale={1.3}>{Number(d.date.slice(8))}</T>
-      <T style={{ fontSize: 10.5, color: full ? c.text : c.textSecondary, fontWeight: full ? '600' : '400' }} maxScale={1.2} shrink>{tithiShort(d, lang)}</T>
+      style={({ pressed }) => [{ flex: 1, height: 54, borderRadius: 12, alignItems: 'center', paddingTop: 5, marginHorizontal: 1 },
+        today && { backgroundColor: c.brand }, pressed && !today && { backgroundColor: c.backgroundElement }]}>
+      <T style={{ fontSize: 16, fontWeight: today ? '700' : '500', color: today ? c.onBrand : c.text, fontVariant: ['tabular-nums'] }} maxScale={1.3}>{Number(d.date.slice(8))}</T>
+      <T style={{ fontSize: 10.5, color: today ? c.onBrand : full ? c.text : c.textSecondary, fontWeight: full || today ? '600' : '400' }} maxScale={1.2} shrink>{tithiShort(d, lang)}</T>
       <View style={{ position: 'absolute', bottom: 5, flexDirection: 'row', gap: 3 }}>
-        {[...(marks ?? [])].sort().map(k => <View key={k} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: k === 'f' ? c.brand : k === 'v' ? c.good : c.neutral }} />)}
+        {[...(marks ?? [])].sort().map(k => <View key={k} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: today ? c.onBrand : k === 'f' ? c.brand : k === 'v' ? c.good : c.neutral }} />)}
       </View>
     </Pressable>
   );
@@ -157,8 +160,8 @@ function Round({ icon, label, onPress }: { icon: 'chevron.left' | 'chevron.right
   const c = useColors();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={!onPress} onPress={() => { tick(); onPress?.(); }} hitSlop={6}
-      style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 20, backgroundColor: c.card, borderWidth: 0.5, borderColor: c.line, alignItems: 'center', justifyContent: 'center', opacity: !onPress ? 0.35 : pressed ? 0.7 : 1 })}>
-      <SymbolView name={icon} size={14} weight="semibold" tintColor={c.text} />
+      style={({ pressed }) => ({ width: 36, height: 36, borderRadius: 18, backgroundColor: c.backgroundElement, alignItems: 'center', justifyContent: 'center', opacity: !onPress ? 0.35 : pressed ? 0.7 : 1 })}>
+      <SymbolView name={icon} size={13} weight="semibold" tintColor={c.textSecondary} />
     </Pressable>
   );
 }

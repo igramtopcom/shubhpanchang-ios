@@ -77,12 +77,13 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 /**
  * The one coloured card on Today (its two gradient stops): sage for a good
- * time, brick for Rahu Kaal, sand for the rest, plum night for a festival.
+ * time, brick for Rahu Kaal, sand for the rest, plum night for a festival,
+ * saffron for a family date.
  * White text reads 4.5:1 or more on every stop (docs/design/11-today-v5).
  */
 export const Bands = {
-  light: { good: ['#3F7458', '#2F5D45'], rahu: ['#A54A40', '#8A3A31'], fair: ['#86694A', '#6E5538'], fest: ['#46263F', '#2C1A2E'] },
-  dark: { good: ['#2E5842', '#23463A'], rahu: ['#7A352E', '#5E2823'], fair: ['#5E4A34', '#4A3A28'], fest: ['#3A2034', '#241626'] },
+  light: { good: ['#3F7458', '#2F5D45'], rahu: ['#A54A40', '#8A3A31'], fair: ['#86694A', '#6E5538'], fest: ['#46263F', '#2C1A2E'], brand: ['#B0581E', '#8E4313'] },
+  dark: { good: ['#2E5842', '#23463A'], rahu: ['#7A352E', '#5E2823'], fair: ['#5E4A34', '#4A3A28'], fest: ['#3A2034', '#241626'], brand: ['#7E3E14', '#5F2E0E'] },
 } as const;
 
 export const Fonts = Platform.select({

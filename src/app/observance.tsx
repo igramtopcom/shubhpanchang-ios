@@ -6,8 +6,8 @@
 import { useMemo } from 'react';
 import { Share, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 
+import { BandCard, BandEyebrow, BandFigure, BandPill, BandTitle, CardTitle, WHITE2, useBand } from '@/components/band';
 import { ActionBar, headerButtons } from '@/components/glass';
 import { LiveCountdownButton } from '@/components/live-countdown';
 import { Card, Cell, Group, Loading, Notice, Screen, T, useColors } from '@/components/ui';
@@ -16,7 +16,7 @@ import { clock, clockRange, shortDate, wallTime } from '@/lib/format';
 import { tick } from '@/lib/haptics';
 import { longDate, placeName, t } from '@/lib/i18n';
 import { notificationPermission, notificationsSupported } from '@/lib/notify';
-import { DAY_MIN, hhmm, shiftDate, toMinutes, zonedTimeToUtc } from '@/lib/time';
+import { DAY_MIN, daysBetween, hhmm, shiftDate, toMinutes, zonedTimeToUtc } from '@/lib/time';
 import { vratCountdown } from '@/lib/widget-feed';
 import { isVaishnava, type Lang, type Observance, type ObservanceKind, type PanchangDay } from '@/lib/types';
 import { useApp } from '@/state/app';
@@ -29,6 +29,7 @@ export default function ObservanceScreen() {
   const lang = prefs.lang;
   const s = t(lang);
   const c = useColors();
+  const band = useBand('good');
   const place = prefs.place!;
   const now = useNow(place.timezone);
   const params = useLocalSearchParams<{ kind?: string; date?: string }>();
@@ -82,20 +83,24 @@ export default function ObservanceScreen() {
     Share.share({ message: `${name} · ${longDate(o.date, lang)}${paranaText ? `\n${s.parana}: ${shortDate(o.parana!.date, lang, true)}, ${paranaText}` : ''}${o.moonrise ? `\n${s.moonrise}: ${clock(o.moonrise.time, lang)}` : ''}\n(${placeName(place, lang)})` }).catch(() => {});
   };
   const nowMs = zonedTimeToUtc(now.date, now.minutes, place.timezone).getTime();
+  const soon = o.date >= now.date ? daysBetween(now.date, o.date) : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.background }}>
       <Stack.Screen options={headerButtons([{ icon: 'square.and.arrow.up', label: s.share, onPress: share }], c.text)} />
       <Screen header bottom={130} gap={16}>
-        <View style={{ gap: 6 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <SymbolView name="moon.stars" size={14} tintColor={c.brand} />
-            <T kind="eyebrow">{s[`kind_${kind}` as 'kind_ekadashi']} · {longDate(o.date, lang)}</T>
+        <BandCard band={band} id="obs">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <BandEyebrow>{s[`kind_${kind}` as 'kind_ekadashi']} · {longDate(o.date, lang)}</BandEyebrow>
+            {soon !== null ? <BandPill text={soon === 0 ? s.today : s.relDays(soon)} /> : null}
           </View>
-          <T kind="display">{name}</T>
-          {o.popular ? <T kind="small" style={{ fontSize: 14.5 }}>{o.popular[lang]}</T> : null}
-          {content?.calendarContext ? <T kind="small" style={{ fontSize: 14.5, lineHeight: 21 }}>{content.calendarContext[lang]}</T> : null}
-        </View>
+          <BandTitle size={32}>{name}</BandTitle>
+          {o.popular ? <T style={{ color: WHITE2, fontSize: 14.5 }}>{o.popular[lang]}</T> : null}
+          {o.parana ? <BandFigure label={`${s.parana} · ${shortDate(o.parana.date, lang, true)}`} value={paranaText!} />
+            : o.moonrise ? <BandFigure label={`${s.moonrise} · ${shortDate(o.moonrise.date, lang, true)}`} value={clock(o.moonrise.time, lang, prefs.clock24, true)} />
+              : o.window ? <BandFigure label={o.kind === 'pradosh' ? s.pradoshKaal : s.nishita} value={clockRange(o.window.start, o.window.end, lang, prefs.clock24, true)} /> : null}
+        </BandCard>
+        {content?.calendarContext ? <T kind="small" style={{ fontSize: 14.5, lineHeight: 21, marginHorizontal: 4 }}>{content.calendarContext[lang]}</T> : null}
 
         {compare && vaishnava && smartaDay && smartaDay !== o.date ? (
           <Notice tone="brand" icon="sparkles" text={s.traditionLater(s[`sampradayaShort_${prefs.sampradaya}` as 'sampradayaShort_baps'])} />
@@ -135,13 +140,13 @@ export default function ObservanceScreen() {
 
         {content?.story ? (
           <Card style={{ gap: 8 }}>
-            <T kind="heading">{content.story.heading[lang]}</T>
+            <CardTitle>{content.story.heading[lang]}</CardTitle>
             {content.story.paragraphs.map((p, i) => <T key={i} style={{ fontSize: 15, lineHeight: 24 }}>{p[lang]}</T>)}
           </Card>
         ) : null}
         {content?.fasting?.rules.length ? (
           <Card style={{ gap: 8 }}>
-            <T kind="heading">{content.fasting.heading?.[lang] ?? s.fastingRules}</T>
+            <CardTitle>{content.fasting.heading?.[lang] ?? s.fastingRules}</CardTitle>
             {content.fasting.rules.map((r, i) => <T key={i} style={{ fontSize: 15, lineHeight: 22 }}>• {r[lang]}</T>)}
           </Card>
         ) : null}
@@ -194,10 +199,7 @@ function ParanaTimeline({ o, days, lang, h24, city, countdown }: { o: Observance
   ];
   return (
     <Card style={{ gap: 12 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <T kind="heading">{s.fastAndParana}</T>
-        <T kind="caption">{city}</T>
-      </View>
+      <CardTitle sub={city}>{s.fastAndParana}</CardTitle>
       <View style={{ paddingLeft: 22 }}>
         <View style={{ position: 'absolute', left: 5, top: 8, bottom: 8, width: 2, backgroundColor: c.line }} />
         {steps.map((st, i) => (

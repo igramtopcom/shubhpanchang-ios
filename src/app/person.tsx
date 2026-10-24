@@ -5,9 +5,9 @@
 import { useEffect, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 
 import { Avatar } from '@/components/avatar';
+import { BandCard, BandEyebrow, BandPill, BandTitle, Head, WHITE2, useBand } from '@/components/band';
 import { Button, Card, Cell, Group, Loading, Screen, Segmented, T, useColors } from '@/components/ui';
 import { addAllDayEvent, calendarSupported } from '@/lib/calendar';
 import { clock, shortDate } from '@/lib/format';
@@ -29,6 +29,7 @@ export default function PersonScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const person = prefs.family.find(f => f.id === id) ?? null;
   const [dates, setDates] = useState<TithiOccurrence[] | null>(null);
+  const band = useBand(person?.kind === 'shraddh' ? 'fair' : 'brand');
   const tithiToo = !!person && needsTithi(person);
 
   useEffect(() => {
@@ -83,16 +84,15 @@ export default function PersonScreen() {
 
       {tithiToo && dates === null ? <Loading /> : null}
       {nextOcc ? (
-        <Card tone="brand" style={{ gap: 4 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <SymbolView name={person.kind === 'shraddh' ? 'flame' : 'heart'} size={13} tintColor={c.brand} />
-            <T kind="eyebrow" style={{ fontSize: 13 }}>{title} · {nextOcc.date === now.date ? s.today : s.relDays(daysBetween(now.date, nextOcc.date))}</T>
+        <BandCard band={band} id="person-next">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <BandEyebrow>{title}{occ.length > 1 ? ` · ${byLabel(nextOcc.by)}` : ''}</BandEyebrow>
+            <BandPill text={nextOcc.date === now.date ? s.today : s.relDays(daysBetween(now.date, nextOcc.date))} />
           </View>
-          <T style={{ fontSize: 20, fontWeight: '600' }}>{longDate(nextOcc.date, lang)}</T>
-          {occ.length > 1 ? <T kind="small">{byLabel(nextOcc.by)}</T> : null}
-          {nextOcc.aparahna ? <T kind="small">{s.aparahna} {clock(nextOcc.aparahna.start, lang, prefs.clock24)} – {clock(nextOcc.aparahna.end, lang, prefs.clock24)}</T> : null}
-          {occ.slice(1).map(o => <T key={o.date} kind="small">{byLabel(o.by)}: {longDate(o.date, lang)}</T>)}
-        </Card>
+          <BandTitle size={28}>{longDate(nextOcc.date, lang)}</BandTitle>
+          {nextOcc.aparahna ? <T style={{ color: WHITE2, fontSize: 14.5 }}>{s.aparahna} {clock(nextOcc.aparahna.start, lang, prefs.clock24)} – {clock(nextOcc.aparahna.end, lang, prefs.clock24)}</T> : null}
+          {occ.slice(1).map(o => <T key={o.date} style={{ color: WHITE2, fontSize: 14.5 }}>{byLabel(o.by)}: {longDate(o.date, lang)}</T>)}
+        </BandCard>
       ) : null}
       {past ? (
         <Card style={{ gap: 4 }}>
@@ -103,7 +103,7 @@ export default function PersonScreen() {
 
       {later.length ? (
         <View style={{ gap: 7 }}>
-          <T kind="label" style={{ marginLeft: 6 }}>{s.comingYears}</T>
+          <Head title={s.comingYears} />
           <Card style={{ paddingVertical: 4, gap: 0 }}>
             {later.map((d, i) => (
               <View key={d.date} style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11 }, i > 0 && { borderTopWidth: 0.5, borderTopColor: c.line }]}>
@@ -120,7 +120,7 @@ export default function PersonScreen() {
 
       {person.origin ? (
         <View style={{ gap: 7 }}>
-          <T kind="label" style={{ marginLeft: 6 }}>{s.repeat}</T>
+          <Head title={s.repeat} />
           <Segmented values={[s.repeatTithi, s.repeatDate, s.repeatBoth, s.repeatOnce]} index={REPEATS.indexOf(repeat)}
             onChange={i => { setDates(null); edit({ repeat: REPEATS[i] === 'tithi' ? undefined : REPEATS[i] }); }} />
           <T kind="caption" style={{ marginHorizontal: 6, fontSize: 12.5 }}>{s[`repeatNote_${repeat}`]}</T>

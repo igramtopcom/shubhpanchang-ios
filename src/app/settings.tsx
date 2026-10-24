@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { SymbolView } from 'expo-symbols';
 
+import { CardTitle } from '@/components/band';
 import { Card, Cell, Chip, Group, Segmented, T, useColors } from '@/components/ui';
 import { feedUrl } from '@/lib/api';
 import { subscribe } from '@/lib/calendar';
@@ -97,9 +98,9 @@ export default function SettingsScreen() {
         </Group>
 
         <Card style={{ gap: 10 }}>
-          <T kind="heading">{s.aboutTitle}</T>
+          <CardTitle>{s.aboutTitle}</CardTitle>
           <T kind="small" style={{ fontSize: 14.5, lineHeight: 21 }}>{s.aboutBody}</T>
-          <T kind="heading" style={{ marginTop: 6 }}>{s.privacyTitle}</T>
+          <View style={{ marginTop: 6 }}><CardTitle>{s.privacyTitle}</CardTitle></View>
           <T kind="small" style={{ fontSize: 14.5, lineHeight: 21 }}>{s.privacyBody}</T>
           <T kind="small" style={{ fontSize: 14.5, lineHeight: 21 }}>{s.notAffiliated}</T>
         </Card>
