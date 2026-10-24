@@ -85,25 +85,34 @@ export function Kairi({ size = 14 }: { size?: number }) {
 /**
  * The ground of a coloured card: a quiet two-stop gradient with bandhani (tie-dye)
  * dots in fours over it, faint enough to see only up close. Fills its parent.
+ * The Svg is drawn at the measured size (a "100%" Svg does not stretch to an
+ * absolute-fill parent on iOS: CI shots of build 81efc84), over a solid fill so
+ * the card is never left white.
  */
 export function Bandhani({ from, to, id, dots = 0.085 }: { from: string; to: string; id: string; dots?: number }) {
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   return (
-    <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} pointerEvents="none">
-      <Defs>
-        <LinearGradient id={`bg-${id}`} x1="0" y1="0" x2="0.18" y2="1">
-          <Stop offset="0" stopColor={from} />
-          <Stop offset="1" stopColor={to} />
-        </LinearGradient>
-        <Pattern id={`bd-${id}`} patternUnits="userSpaceOnUse" width={26} height={26}>
-          <Circle cx={13} cy={9} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
-          <Circle cx={17} cy={13} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
-          <Circle cx={13} cy={17} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
-          <Circle cx={9} cy={13} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
-        </Pattern>
-      </Defs>
-      <Rect width="100%" height="100%" fill={`url(#bg-${id})`} />
-      <Rect width="100%" height="100%" fill={`url(#bd-${id})`} />
-    </Svg>
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: to }]}
+      onLayout={e => { const { width, height } = e.nativeEvent.layout; if (!size || size.w !== width || size.h !== height) setSize({ w: width, h: height }); }}>
+      {size && size.w > 0 && size.h > 0 ? (
+        <Svg width={size.w} height={size.h}>
+          <Defs>
+            <LinearGradient id={`bg-${id}`} x1="0" y1="0" x2="0.18" y2="1">
+              <Stop offset="0" stopColor={from} />
+              <Stop offset="1" stopColor={to} />
+            </LinearGradient>
+            <Pattern id={`bd-${id}`} patternUnits="userSpaceOnUse" width={26} height={26}>
+              <Circle cx={13} cy={9} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+              <Circle cx={17} cy={13} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+              <Circle cx={13} cy={17} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+              <Circle cx={9} cy={13} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+            </Pattern>
+          </Defs>
+          <Rect x={0} y={0} width={size.w} height={size.h} fill={`url(#bg-${id})`} />
+          <Rect x={0} y={0} width={size.w} height={size.h} fill={`url(#bd-${id})`} />
+        </Svg>
+      ) : null}
+    </View>
   );
 }
 

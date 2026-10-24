@@ -32,8 +32,9 @@ export default function ChoghadiyaScreen() {
   const params = useLocalSearchParams<{ date?: string }>();
   const date = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date) ? params.date : now.date;
   const { day, next, prev, loading, error, reload } = useDay(date);
-  // After sunset, open on the night.
-  const [period, setPeriod] = useState<'day' | 'night'>(() => (date === now.date && day && now.minutes >= toMin(day.sunset) ? 'night' : 'day'));
+  // After sunset, open on the night (decided once the day has loaded, unless the reader picked).
+  const [picked, setPeriod] = useState<'day' | 'night' | null>(null);
+  const period = picked ?? (date === now.date && day && now.minutes >= toMin(day.sunset) ? 'night' : 'day');
 
   const tl = useMemo(() => (day ? timeline([prev, day, next].filter(Boolean) as PanchangDay[], date) : null), [prev, day, next, date]);
   const nowAt = date === now.date ? now.minutes : date === shiftDate(now.date, -1) ? now.minutes + DAY_MIN : null;
