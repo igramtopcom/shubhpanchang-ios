@@ -75,6 +75,16 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+/**
+ * The one coloured card on Today (its two gradient stops): sage for a good
+ * time, brick for Rahu Kaal, sand for the rest, plum night for a festival.
+ * White text reads 4.5:1 or more on every stop (docs/design/11-today-v5).
+ */
+export const Bands = {
+  light: { good: ['#3F7458', '#2F5D45'], rahu: ['#A54A40', '#8A3A31'], fair: ['#86694A', '#6E5538'], fest: ['#46263F', '#2C1A2E'] },
+  dark: { good: ['#2E5842', '#23463A'], rahu: ['#7A352E', '#5E2823'], fair: ['#5E4A34', '#4A3A28'], fest: ['#3A2034', '#241626'] },
+} as const;
+
 export const Fonts = Platform.select({
   ios: { sans: 'system-ui', serif: 'ui-serif', rounded: 'ui-rounded', mono: 'ui-monospace' },
   default: { sans: 'normal', serif: 'serif', rounded: 'normal', mono: 'monospace' },

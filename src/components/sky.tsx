@@ -1,10 +1,10 @@
-// Drawn pieces of the sky: the moon in its phase, the sun's arc across the
-// day, and the day's choghadiya as one ribbon with Rahu Kaal hatched over it.
-import { useState, type ReactNode } from 'react';
-import { Text, View } from 'react-native';
-import Svg, { Circle, Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
-
-import { chogTier, type Slot, type Span } from '@/lib/shubh';
+// Drawn pieces of the sky and of Gujarat: the moon in its phase (on Today, in
+// a ring of abhla stitches, as in Kutch mirror work), the sun's arc across the
+// day, the kairi mark, the bandhani ground of the coloured card, and the diya.
+// Each is one colour and small; the culture is in the detail, not in garlands.
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Pattern, Rect, Stop } from 'react-native-svg';
 
 import { useColors } from './ui';
 
@@ -55,88 +55,73 @@ export function SunArc({ progress, height = 92 }: { progress: number; height?: n
   );
 }
 
-/**
- * One day's choghadiya from sunrise to sunset as a ribbon: sage good, sand
- * in-between, brick to avoid, Rahu Kaal hatched over whatever it covers, and a
- * mark at now when now is inside the day.
- */
-export function Ribbon({ slots, rahu, now, height = 14 }: { slots: Slot[]; rahu: Span | null; now: number | null; height?: number }) {
+/** The moon inside a ring of abhla stitches: a dotted ring and a thin one, in saffron. */
+export function MoonRing({ tithi, size = 58 }: { tithi: number; size?: number }) {
   const c = useColors();
-  const [w, setW] = useState(300);
-  if (!slots.length) return null;
-  const start = slots[0].start, end = slots[slots.length - 1].end, span = end - start;
-  const x = (m: number) => ((m - start) / span) * w;
-  const gap = 3;
-  const tone = (name: string) => {
-    const tier = chogTier(name);
-    return tier === 'best' ? c.good : tier === 'avoid' ? c.bad : c.fair;
-  };
+  const moon = Math.round(size * 0.74);
   return (
-    <View onLayout={e => setW(e.nativeEvent.layout.width)} style={{ height: height + 12, justifyContent: 'center' }}>
-      <Svg width={w} height={height + 12}>
-        <Defs>
-          <Pattern id="hatch" patternUnits="userSpaceOnUse" width={5.5} height={5.5} patternTransform="rotate(45)">
-            <Rect width={2.5} height={5.5} fill={c.bad} />
-          </Pattern>
-        </Defs>
-        {slots.map((s, i) => (
-          <Rect
-            key={i}
-            x={x(s.start) + (i ? gap / 2 : 0)}
-            y={6}
-            width={Math.max(1, x(s.end) - x(s.start) - (i ? gap / 2 : 0) - (i < slots.length - 1 ? gap / 2 : 0))}
-            height={height}
-            rx={3}
-            fill={tone(s.name)}
-            fillOpacity={chogTier(s.name) === 'avoid' ? 0.75 : 1}
-          />
-        ))}
-        {rahu && rahu.end > start && rahu.start < end ? (
-          <>
-            <Rect x={x(Math.max(rahu.start, start))} y={6} width={x(Math.min(rahu.end, end)) - x(Math.max(rahu.start, start))} height={height} fill={c.card} />
-            <Rect x={x(Math.max(rahu.start, start))} y={6} width={x(Math.min(rahu.end, end)) - x(Math.max(rahu.start, start))} height={height} fill="url(#hatch)" stroke={c.bad} strokeWidth={1.5} rx={2} />
-          </>
-        ) : null}
-        {now !== null && now >= start && now <= end ? (
-          <>
-            <Rect x={x(now) - 1} y={0} width={2} height={height + 12} rx={1} fill={c.text} />
-            <Circle cx={x(now)} cy={2} r={4} fill={c.text} />
-          </>
-        ) : null}
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }} accessibilityElementsHidden>
+      <Svg width={size} height={size} viewBox="0 0 72 72" style={StyleSheet.absoluteFill}>
+        <Circle cx={36} cy={36} r={33.5} fill="none" stroke={c.brand} strokeOpacity={0.55} strokeWidth={1.6} strokeLinecap="round" strokeDasharray="0.1 5.25" />
+        <Circle cx={36} cy={36} r={30} fill="none" stroke={c.brand} strokeOpacity={0.28} strokeWidth={1} />
       </Svg>
+      <Moon tithi={tithi} size={moon} />
     </View>
   );
 }
 
-/** The ribbon's key: what each colour and the hatching mean. */
-export function RibbonKey({ labels }: { labels: { good: string; fair: string; bad: string; rahu: string } }) {
+/** Kairi, the young-mango paisley of Gujarati cloth: a small mark before the day's date. */
+export function Kairi({ size = 14 }: { size?: number }) {
   const c = useColors();
-  const box = (fill: string, hatch?: boolean) => (
-    <Svg width={10} height={10}>
-      <Defs>
-        <Pattern id="khatch" patternUnits="userSpaceOnUse" width={4} height={4} patternTransform="rotate(45)">
-          <Rect width={2} height={4} fill={c.bad} />
-        </Pattern>
-      </Defs>
-      <Rect width={10} height={10} rx={3} fill={hatch ? 'url(#khatch)' : fill} stroke={hatch ? c.bad : 'none'} strokeWidth={hatch ? 1.2 : 0} />
+  return (
+    <Svg width={size * 13 / 16} height={size} viewBox="0 0 13 16">
+      <Path d="M6.5 15C3.3 15 1.2 12.6 1.2 9.8 1.2 5.6 4.6 2.4 8.6 1.4c1.8-.4 3.3.2 3.3 1.6 0 1.2-1.3 1.6-2 1M8.6 1.4c2.6 2 3.8 5.2 3.2 8.4-.5 3-2.6 5.2-5.3 5.2"
+        fill="none" stroke={c.brand} strokeWidth={1.3} strokeLinecap="round" />
+      <Circle cx={6.4} cy={10} r={1.3} fill={c.brand} />
     </Svg>
   );
-  const item = (el: ReactNode, label: string) => (
-    <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-      {el}
-      <TextSmall color={c.textSecondary}>{label}</TextSmall>
-    </View>
-  );
+}
+
+/**
+ * The ground of a coloured card: a quiet two-stop gradient with bandhani (tie-dye)
+ * dots in fours over it, faint enough to see only up close. Fills its parent.
+ */
+export function Bandhani({ from, to, id, dots = 0.085 }: { from: string; to: string; id: string; dots?: number }) {
   return (
-    <View style={{ flexDirection: 'row', gap: 14, flexWrap: 'wrap' }}>
-      {item(box(c.good), labels.good)}
-      {item(box(c.fair), labels.fair)}
-      {item(box(c.bad), labels.bad)}
-      {item(box(c.bad, true), labels.rahu)}
-    </View>
+    <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <LinearGradient id={`bg-${id}`} x1="0" y1="0" x2="0.18" y2="1">
+          <Stop offset="0" stopColor={from} />
+          <Stop offset="1" stopColor={to} />
+        </LinearGradient>
+        <Pattern id={`bd-${id}`} patternUnits="userSpaceOnUse" width={26} height={26}>
+          <Circle cx={13} cy={9} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+          <Circle cx={17} cy={13} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+          <Circle cx={13} cy={17} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+          <Circle cx={9} cy={13} r={1.1} fill="#FFFFFF" fillOpacity={dots} />
+        </Pattern>
+      </Defs>
+      <Rect width="100%" height="100%" fill={`url(#bg-${id})`} />
+      <Rect width="100%" height="100%" fill={`url(#bd-${id})`} />
+    </Svg>
   );
 }
 
-function TextSmall({ children, color }: { children: string; color: string }) {
-  return <Text style={{ fontSize: 12.5, color }}>{children}</Text>;
+/** A diya in fine gold line, its flame lit, for a festival day. */
+export function Diya({ size = 76 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 80 80">
+      <Defs>
+        <LinearGradient id="diya-glow" x1="0.5" y1="0" x2="0.5" y2="1">
+          <Stop offset="0" stopColor="#FFD37A" stopOpacity={0.4} />
+          <Stop offset="1" stopColor="#FFD37A" stopOpacity={0} />
+        </LinearGradient>
+      </Defs>
+      <Circle cx={40} cy={30} r={24} fill="url(#diya-glow)" />
+      <Path d="M40 14 C45 22 46 29 40 37 C34 29 35 22 40 14Z" fill="#F7CF7A" />
+      <Path d="M40 22 C42.5 26.5 42.5 31 40 35 C37.5 31 37.5 26.5 40 22Z" fill="#FFF3D6" />
+      <Path d="M14 44 H66 C64.5 56 54 62 40 62 C26 62 15.5 56 14 44Z" fill="none" stroke="#EFC77A" strokeWidth={1.8} strokeLinejoin="round" />
+      <Path d="M22 50 H58" stroke="#EFC77A" strokeOpacity={0.5} strokeWidth={1} strokeDasharray="0.1 4" strokeLinecap="round" />
+    </Svg>
+  );
 }

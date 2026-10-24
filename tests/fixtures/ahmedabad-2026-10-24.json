@@ -1,0 +1,280 @@
+{
+ "d1024": {
+  "date": "2026-10-24",
+  "rahuKaal": {
+   "start": "09:32",
+   "end": "10:58"
+  },
+  "sunrise": "06:40",
+  "sunset": "18:07",
+  "choghadiya": [
+   {
+    "period": "day",
+    "index": 0,
+    "name": "Kaal",
+    "type": "inauspicious",
+    "start": "06:40",
+    "end": "08:06"
+   },
+   {
+    "period": "day",
+    "index": 1,
+    "name": "Shubh",
+    "type": "auspicious",
+    "start": "08:06",
+    "end": "09:32"
+   },
+   {
+    "period": "day",
+    "index": 2,
+    "name": "Rog",
+    "type": "inauspicious",
+    "start": "09:32",
+    "end": "10:58"
+   },
+   {
+    "period": "day",
+    "index": 3,
+    "name": "Udveg",
+    "type": "inauspicious",
+    "start": "10:58",
+    "end": "12:24"
+   },
+   {
+    "period": "day",
+    "index": 4,
+    "name": "Char",
+    "type": "neutral",
+    "start": "12:24",
+    "end": "13:50"
+   },
+   {
+    "period": "day",
+    "index": 5,
+    "name": "Labh",
+    "type": "auspicious",
+    "start": "13:50",
+    "end": "15:15"
+   },
+   {
+    "period": "day",
+    "index": 6,
+    "name": "Amrit",
+    "type": "auspicious",
+    "start": "15:15",
+    "end": "16:41"
+   },
+   {
+    "period": "day",
+    "index": 7,
+    "name": "Kaal",
+    "type": "inauspicious",
+    "start": "16:41",
+    "end": "18:07"
+   },
+   {
+    "period": "night",
+    "index": 0,
+    "name": "Labh",
+    "type": "auspicious",
+    "start": "18:07",
+    "end": "19:41"
+   },
+   {
+    "period": "night",
+    "index": 1,
+    "name": "Udveg",
+    "type": "inauspicious",
+    "start": "19:41",
+    "end": "21:16"
+   },
+   {
+    "period": "night",
+    "index": 2,
+    "name": "Shubh",
+    "type": "auspicious",
+    "start": "21:16",
+    "end": "22:50"
+   },
+   {
+    "period": "night",
+    "index": 3,
+    "name": "Amrit",
+    "type": "auspicious",
+    "start": "22:50",
+    "end": "00:24"
+   },
+   {
+    "period": "night",
+    "index": 4,
+    "name": "Char",
+    "type": "neutral",
+    "start": "00:24",
+    "end": "01:58"
+   },
+   {
+    "period": "night",
+    "index": 5,
+    "name": "Rog",
+    "type": "inauspicious",
+    "start": "01:58",
+    "end": "03:32"
+   },
+   {
+    "period": "night",
+    "index": 6,
+    "name": "Kaal",
+    "type": "inauspicious",
+    "start": "03:32",
+    "end": "05:07"
+   },
+   {
+    "period": "night",
+    "index": 7,
+    "name": "Labh",
+    "type": "auspicious",
+    "start": "05:07",
+    "end": "06:41"
+   }
+  ]
+ },
+ "d1025": {
+  "date": "2026-10-25",
+  "rahuKaal": {
+   "start": "16:41",
+   "end": "18:06"
+  },
+  "sunrise": "06:41",
+  "sunset": "18:06",
+  "choghadiya": [
+   {
+    "period": "day",
+    "index": 0,
+    "name": "Udveg",
+    "type": "inauspicious",
+    "start": "06:41",
+    "end": "08:07"
+   },
+   {
+    "period": "day",
+    "index": 1,
+    "name": "Char",
+    "type": "neutral",
+    "start": "08:07",
+    "end": "09:32"
+   },
+   {
+    "period": "day",
+    "index": 2,
+    "name": "Labh",
+    "type": "auspicious",
+    "start": "09:32",
+    "end": "10:58"
+   },
+   {
+    "period": "day",
+    "index": 3,
+    "name": "Amrit",
+    "type": "auspicious",
+    "start": "10:58",
+    "end": "12:24"
+   },
+   {
+    "period": "day",
+    "index": 4,
+    "name": "Kaal",
+    "type": "inauspicious",
+    "start": "12:24",
+    "end": "13:49"
+   },
+   {
+    "period": "day",
+    "index": 5,
+    "name": "Shubh",
+    "type": "auspicious",
+    "start": "13:49",
+    "end": "15:15"
+   },
+   {
+    "period": "day",
+    "index": 6,
+    "name": "Rog",
+    "type": "inauspicious",
+    "start": "15:15",
+    "end": "16:41"
+   },
+   {
+    "period": "day",
+    "index": 7,
+    "name": "Udveg",
+    "type": "inauspicious",
+    "start": "16:41",
+    "end": "18:06"
+   },
+   {
+    "period": "night",
+    "index": 0,
+    "name": "Shubh",
+    "type": "auspicious",
+    "start": "18:06",
+    "end": "19:41"
+   },
+   {
+    "period": "night",
+    "index": 1,
+    "name": "Amrit",
+    "type": "auspicious",
+    "start": "19:41",
+    "end": "21:15"
+   },
+   {
+    "period": "night",
+    "index": 2,
+    "name": "Char",
+    "type": "neutral",
+    "start": "21:15",
+    "end": "22:49"
+   },
+   {
+    "period": "night",
+    "index": 3,
+    "name": "Rog",
+    "type": "inauspicious",
+    "start": "22:49",
+    "end": "00:24"
+   },
+   {
+    "period": "night",
+    "index": 4,
+    "name": "Kaal",
+    "type": "inauspicious",
+    "start": "00:24",
+    "end": "01:58"
+   },
+   {
+    "period": "night",
+    "index": 5,
+    "name": "Labh",
+    "type": "auspicious",
+    "start": "01:58",
+    "end": "03:33"
+   },
+   {
+    "period": "night",
+    "index": 6,
+    "name": "Udveg",
+    "type": "inauspicious",
+    "start": "03:33",
+    "end": "05:07"
+   },
+   {
+    "period": "night",
+    "index": 7,
+    "name": "Shubh",
+    "type": "auspicious",
+    "start": "05:07",
+    "end": "06:41"
+   }
+  ]
+ }
+}

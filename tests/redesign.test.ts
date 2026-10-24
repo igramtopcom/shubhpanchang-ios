@@ -110,6 +110,10 @@ describe('coming up on Today', () => {
     expect(list[2].title).toBe('બાની પુણ્યતિથિ')
     expect(list[2].href).toBe('/person?id=a')
   })
+  it('a vrat spelt differently from the festival of its day still shows once', () => {
+    const list = upcoming([obs('purnima', '2026-10-26', 'Sharad Purnima (Ashwin)', 'શરદ પૂનમ')], [fest('sharad-purnima-2026', '2026-10-26', 'Sharad Purnima', 'શારદ પૂનમ')], [], ['purnima'], '2026-10-24', 'gu')
+    expect(list.map(x => x.title)).toEqual(['શારદ પૂનમ'])
+  })
   it('an event still to come counts from its own day, a past one from today', () => {
     expect(firstFrom({ origin: { date: '2026-12-10' } }, '2026-10-24')).toBe('2026-12-10')
     expect(firstFrom({ origin: { date: '1972-11-13' } }, '2026-10-24')).toBe('2026-10-24')

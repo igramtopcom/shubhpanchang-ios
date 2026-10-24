@@ -102,8 +102,12 @@ export function upcoming (
   const gu = lang === 'gu'
   const soon = (date: string) => s.relDays(daysBetween(today, date))
   const out: UpcomingItem[] = []
+  // A vrat that is also that day's festival (Sharad Purnima) shows once, as the
+  // festival, even when the two lists spell it differently in Gujarati.
+  const base = (n: string) => norm(n.replace(/\(.*?\)/g, ''))
+  const festDays = new Set((fest ?? []).map(f => `${f.date}:${base(f.nameEn)}`))
   for (const o of obs ?? []) {
-    if (o.date < today || !kinds.includes(o.kind)) continue
+    if (o.date < today || !kinds.includes(o.kind) || festDays.has(`${o.date}:${base(o.nameEn)}`)) continue
     const extra = o.parana
       ? `${s.parana} ${shortDate(o.parana.date, lang)}, ${o.parana.end ? clockRange(o.parana.start, o.parana.end, lang, h24) : s.paranaAfter(clock(o.parana.start, lang, h24))}`
       : o.moonrise ? `${s.moonrise} ${clock(o.moonrise.time, lang, h24, true)}` : null
